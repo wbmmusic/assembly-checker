@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "author": "Marece Williams",
   "description": "App for configuring WBM Tek devices",
   "homepage": "./",
@@ -68,6 +68,9 @@
     "files": [
       "build/**/*",
       "electron/*"
-    ]
+    ],
+    "win": {
+      "icon": "public/favicon.ico"
+    }
   }
 }
