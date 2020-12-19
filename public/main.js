@@ -54,6 +54,7 @@ app.on('ready', () => {
 
     console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
+    win.webContents.send('app_version', { version: app.getVersion() });
 
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')
@@ -67,7 +68,7 @@ app.on('ready', () => {
       setInterval(() => {
         win.webContents.send('message', 'Interval')
         autoUpdater.checkForUpdatesAndNotify()
-      }, 60000);
+      }, 600000);
 
       autoUpdater.checkForUpdatesAndNotify()
     }

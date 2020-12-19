@@ -14,6 +14,11 @@ function App() {
       setstate(theMessage, ...state)
     })
 
+    ipcRenderer.on('app_version', (event, arg) => {
+      ipcRenderer.removeAllListeners('app_version');
+      document.title = 'WBM Tek PCB assembly checker --- v' + arg.version;
+    });
+
 
     ipcRenderer.send('reactIsReady')
 
