@@ -8,7 +8,7 @@ import GpoBoard from './boards/GpoBoard'
 import MidiBoard from './boards/MidiBoard'
 import SerialBoard from './boards/SerialBoard'
 
-export default function Top() {
+export default function Top(props) {
     const history = useHistory()
 
     const setBoard = (board) => {
@@ -64,6 +64,7 @@ export default function Top() {
             </div>
             <hr />
             <div style={{ padding: '10px' }}>
+            
                 <Switch>
                     <Route exact path="/controlpanel" component={ControlPanel} />
                     <Route exact path="/alarmpanel" component={AlarmPanel} />
@@ -72,8 +73,9 @@ export default function Top() {
                     <Route exact path="/gpoboard" component={GpoBoard} />
                     <Route exact path="/midiboard" component={MidiBoard} />
                     <Route exact path="/serialboard" component={SerialBoard} />
-                    <Route path="/"><b>No board selected</b></Route>
+                    <Route path="/"><b>No board selected</b>{props.msgs}</Route>
                 </Switch>
+                
             </div>
         </div>
     )
