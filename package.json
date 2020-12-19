@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "author": "Marece Williams",
   "description": "App for configuring WBM Tek devices",
   "homepage": "./",
@@ -30,7 +30,8 @@
     "eject": "react-scripts eject",
     "install": "electron-rebuild",
     "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
-    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always"
+    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
+    "upload": "yarn build && git add . && git commit -m 'NewVersion' && git push origin master && yarn deploy "
   },
   "eslintConfig": {
     "extends": [
@@ -60,7 +61,7 @@
     "url": "https://github.com/wbmmusic/assembly-checker.git"
   },
   "build": {
-    "productName": "WBM PCB Assembly Checker",
+    "productName": "WBM Tek PCB Assembly Checker",
     "appId": "com.wbm.pcbchk",
     "electronVersion": "11.1.0",
     "copyright": "WBM Tek",
