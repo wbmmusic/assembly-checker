@@ -62,6 +62,7 @@ app.on('ready', () => {
     console.log('React Is Ready')
 
     if (app.isPackaged) {
+      win.webContents.send('message', 'App is packaged')
       autoUpdater.checkForUpdates()
       autoUpdater.on('checking-for-update', () => win.webContents.send('message', 'Checking for update'))
       autoUpdater.on('update-available', () => win.webContents.send('message', 'Update Available'))
