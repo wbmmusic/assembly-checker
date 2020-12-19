@@ -16,7 +16,7 @@ function App() {
 
     ipcRenderer.on('app_version', (event, arg) => {
       ipcRenderer.removeAllListeners('app_version');
-      document.title = 'WBM Tek PCB assembly checker --- v' + arg.version;
+      document.title = 'WBM Tek PCB Assembly Checker --- v' + arg.version;
     });
 
 
