@@ -6,8 +6,6 @@ require('update-electron-app')()
 const server = 'https://github.com/wbmmusic/assembly-checker.git'
 const theUrl = `${server}/update/${process.platform}/${app.getVersion()}`
 
-autoUpdater.setFeedURL({ url: theUrl })
-
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
 ////////  SINGLE INSTANCE //////////
@@ -56,18 +54,26 @@ app.on('ready', () => {
   ipcMain.on('reactIsReady', () => {
 
     setInterval(() => {
-      win.webContents.send('message', 'Interval')
-    }, 5000);
+      win.webContents.send('message', 'Interval XXX')
+    }, 3000);
 
     console.log('React Is Ready')
+    win.webContents.send('message', 'React Is Ready')
 
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')
-      autoUpdater.checkForUpdates()
+      autoUpdater.setFeedURL({ url: theUrl })
+
       autoUpdater.on('checking-for-update', () => win.webContents.send('message', 'Checking for update'))
       autoUpdater.on('update-available', () => win.webContents.send('message', 'Update Available'))
       autoUpdater.on('update-not-available', () => win.webContents.send('message', 'Update NOT Available'))
-      autoUpdater.on('update-downloaded', () => win.webContents.send('message', 'Update Downloaded'))
+      autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => win.webContents.send('message', 'Update Downloaded'))
+      autoUpdater.on('error', message => win.webContents.send('message', message))
+
+      setInterval(() => {
+        win.webContents.send('message', 'Interval')
+        autoUpdater.checkForUpdates()
+      }, 5000);
     }
 
   })
