@@ -9,7 +9,7 @@ function App() {
   useEffect(() => {
     ipcRenderer.send('reactIsReady')
 
-    ipcRenderer.on('message', (theMessage) => console.log(theMessage))
+    ipcRenderer.on('message', (e, theMessage) => console.log(theMessage))
 
     return () => {
       //cleanup
