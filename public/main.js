@@ -71,7 +71,7 @@ app.on('ready', () => {
       setInterval(() => {
         win.webContents.send('message', 'Interval')
         autoUpdater.checkForUpdatesAndNotify()
-      }, 60000);
+      }, 6000);
 
       autoUpdater.checkForUpdatesAndNotify()
     }
