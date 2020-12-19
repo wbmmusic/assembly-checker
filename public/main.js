@@ -1,15 +1,9 @@
-const { app, autoUpdater, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
-require('update-electron-app')()
 
-
-const server = 'https://github.com/wbmmusic/assembly-checker.git'
-const theUrl = `${server}/update/${process.platform}/${app.getVersion()}`
-
-autoUpdater.setFeedURL({ url: theUrl })
-
-
+//Auto Updater
+const { autoUpdater } = require('electron-updater');
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
