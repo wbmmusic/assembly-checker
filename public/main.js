@@ -1,9 +1,12 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, autoUpdater, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
+require('update-electron-app')()
 
-//Auto Updater
-const { autoUpdater } = require('electron-updater');
+const server = 'https://github.com/wbmmusic/assembly-checker.git'
+const theUrl = `${server}/update/${process.platform}/${app.getVersion()}`
+
+autoUpdater.setFeedURL({ url: theUrl })
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
@@ -51,6 +54,8 @@ function createWindow() {
 app.on('ready', () => {
   //log("-APP IS READY");
   ipcMain.on('reactIsReady', () => {
+
+    console.log('React Is Ready')
 
     if (app.isPackaged) {
       autoUpdater.checkForUpdates()
