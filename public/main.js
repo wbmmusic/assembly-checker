@@ -55,6 +55,10 @@ app.on('ready', () => {
   //log("-APP IS READY");
   ipcMain.on('reactIsReady', () => {
 
+    setInterval(() => {
+      win.webContents.send('message', 'Interval')
+    }, 5000);
+
     console.log('React Is Ready')
 
     if (app.isPackaged) {
