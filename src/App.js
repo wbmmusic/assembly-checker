@@ -11,9 +11,7 @@ function App() {
   useEffect(() => {
     ipcRenderer.on('message', (e, theMessage) => {
       console.log(theMessage)
-      let tempState = [...state]
-      tempState.unshift(theMessage)
-      setstate(tempState)
+      setstate(theMessage, ...state)
     })
 
 

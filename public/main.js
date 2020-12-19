@@ -52,10 +52,6 @@ app.on('ready', () => {
   //log("-APP IS READY");
   ipcMain.on('reactIsReady', () => {
 
-    setInterval(() => {
-      win.webContents.send('message', 'Interval XXX')
-    }, 5000);
-
     console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
 
@@ -71,7 +67,7 @@ app.on('ready', () => {
       setInterval(() => {
         win.webContents.send('message', 'Interval')
         autoUpdater.checkForUpdatesAndNotify()
-      }, 6000);
+      }, 60000);
 
       autoUpdater.checkForUpdatesAndNotify()
     }
