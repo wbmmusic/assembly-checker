@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react';
-import './App.css';
 import Top from './components/Top'
 
 const { ipcRenderer } = window.require('electron')
 
 function App() {
-  const [state, setstate] = useState([])
+  const [state, setState] = useState([])
 
 
   useEffect(() => {
     ipcRenderer.on('message', (e, theMessage) => {
       console.log(theMessage)
-      setstate(theMessage, ...state)
+      setState(theMessage, ...state)
     })
 
     ipcRenderer.on('app_version', (event, arg) => {
-      ipcRenderer.removeAllListeners('app_version');
       document.title = 'WBM Tek PCB Assembly Checker --- v' + arg.version;
     });
 
@@ -23,13 +21,14 @@ function App() {
     ipcRenderer.send('reactIsReady')
 
     return () => {
-      ipcRenderer.removeListener('reactIsReady')
+      ipcRenderer.removeAllListeners('message')
+      ipcRenderer.removeAllListeners('app_version')
     }
   }, [])
 
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', height: '100vh', minWidth: '100vw', minHeight: '100vh', overflow: 'hidden' }}>
       <Top msgs={state} />
     </div>
   );
