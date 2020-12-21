@@ -1,11 +1,25 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
+const fs = require('fs')
+const { execFileSync } = require('child_process');
+
 
 const { autoUpdater } = require('electron-updater');
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
+
+const args = [
+  '-device ATSAMD21G18',
+  '-if SWD',
+  '-speed 4000',
+  '-autoconnect 1',
+  '-CommanderScript ' + path.join(__dirname, 'temp', 'cmd.jlink'),
+  '-ExitOnError 1',
+  '-NoGui 1'
+]
+
 ////////  SINGLE INSTANCE //////////
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
@@ -48,6 +62,16 @@ function createWindow() {
 
 // Create myWindow, load the rest of the app, etc...
 app.on('ready', () => {
+
+  const loadFirmware = (fileName) => {
+    let pathToFile = path.join(__dirname, "temp", "cmd.jlink")
+    let pathToFirmware = path.join(__dirname, "firmware", fileName)
+    fs.writeFileSync(pathToFile, "loadFile " + pathToFirmware + "\r\nrnh\r\nexit", 'utf8')
+    console.log(execFileSync('JLink', [...args], { shell: true, cwd: __dirname }).toString())
+    fs.unlinkSync(pathToFile)
+    console.log('DONE!')
+  }
+
   //log("-APP IS READY");
   ipcMain.on('reactIsReady', () => {
 
@@ -73,6 +97,13 @@ app.on('ready', () => {
     }
 
   })
+
+  ipcMain.on('loadFirmware', (e, firmware) => {
+    console.log("Load", firmware)
+    loadFirmware(firmware)
+  })
+
+
   createWindow()
 })
 ///////////////////////

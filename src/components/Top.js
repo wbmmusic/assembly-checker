@@ -8,6 +8,7 @@ import GpoBoard from './boards/GpoBoard'
 import MidiBoard from './boards/MidiBoard'
 import SerialBoard from './boards/SerialBoard'
 import { Button } from 'react-bootstrap'
+const { ipcRenderer } = window.require('electron')
 
 export default function Top(props) {
     const [buttonDisable, setButtonDisable] = useState(true)
@@ -90,6 +91,8 @@ export default function Top(props) {
                             </td>
                             <td style={buttonStyle} onClick={program} ><Button size="sm" variant="outline-primary" disabled={buttonDisable} >Program</Button></td>
                             <td style={buttonStyle} onClick={chipErase} ><Button size="sm" variant="outline-danger" disabled={buttonDisable} >Chip Erase</Button></td>
+                            <td style={buttonStyle} onClick={() => ipcRenderer.send('loadFirmware', 'blinkSlow.bin')} ><Button size="sm" variant="outline-success">Slow</Button></td>
+                            <td style={buttonStyle} onClick={() => ipcRenderer.send('loadFirmware', 'blinkFast.bin')} ><Button size="sm" variant="outline-success">Fast</Button></td>
                         </tr>
                         <tr>
                             <td colSpan="3" style={{ fontSize: '12px' }} >The File Name</td>
