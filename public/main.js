@@ -13,11 +13,6 @@ let win
 let upStuff = [__dirname]
 if (app.isPackaged) {
   upStuff = [process.resourcesPath, "public"]
-
-  /////// CHECK FOR DRIVER
-  const driver = execFileSync(path.join(upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true, cwd: path.join(upStuff, "USBDriver") }).toString()
-  /////////////////////////
-
 }
 
 ////////  SINGLE INSTANCE //////////
@@ -108,6 +103,23 @@ app.on('ready', () => {
     win.webContents.send('message', 'React Is Ready')
     win.webContents.send('message', app.getAppPath())
     win.webContents.send('app_version', { version: app.getVersion() });
+
+
+    /////// CHECK FOR DRIVER
+    const drvChk = path.join('C:', 'Windows', 'System32', 'drivers', 'JLinkx64.sys')
+    try {
+      if (fs.existsSync(drvChk)) {
+        console.log('File Exists')
+      } else {
+        const driver = execFileSync(path.join(...upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
+        console.log(driver)
+      }
+    } catch (err) {
+      console.error(err)
+      console.log("In Error")
+    }
+
+
 
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')
