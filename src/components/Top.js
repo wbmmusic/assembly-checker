@@ -102,16 +102,7 @@ export default function Top(props) {
                 </table>
             </div>
             <div style={{ padding: '10px', maxHeight: '100%', overflow: 'hidden' }}>
-                <Switch>
-                    <Route exact path="/controlpanel" component={ControlPanel} />
-                    <Route exact path="/alarmpanel" component={AlarmPanel} />
-                    <Route exact path="/cvboard" component={CvBoard} />
-                    <Route exact path="/gpiboard" component={GpiBoard} />
-                    <Route exact path="/gpoboard" component={GpoBoard} />
-                    <Route exact path="/midiboard" component={MidiBoard} />
-                    <Route exact path="/serialboard" component={SerialBoard} />
-                    <Route path="/"><div style={{ textAlign: 'center' }}><b>No board selected</b></div></Route>
-                </Switch>
+                SWITCH
             </div>
         </Fragment >
     )

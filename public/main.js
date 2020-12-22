@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs')
-const { execFileSync } = require('child_process');
+const { execFileSync, execFile } = require('child_process');
 
 
 const { autoUpdater } = require('electron-updater');
@@ -10,15 +10,12 @@ const { autoUpdater } = require('electron-updater');
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
 
-const args = [
-  '-device ATSAMD21G18',
-  '-if SWD',
-  '-speed 4000',
-  '-autoconnect 1',
-  '-CommanderScript ' + path.join(__dirname, 'temp', 'cmd.jlink'),
-  '-ExitOnError 1',
-  '-NoGui 1'
-]
+let upStuff = [__dirname]
+if (app.isPackaged) {
+  upStuff = [process.resourcesPath, "public"]
+}
+
+
 
 ////////  SINGLE INSTANCE //////////
 const gotTheLock = app.requestSingleInstanceLock()
@@ -60,28 +57,54 @@ function createWindow() {
   })
 }
 
-// Create myWindow, load the rest of the app, etc...
-app.on('ready', () => {
-
+const createListeners = () => {
   const loadFirmware = (fileName) => {
-    let pathToFile = path.join(__dirname, "temp", "cmd.jlink")
-    let pathToFirmware = path.join(__dirname, "firmware", fileName)
+
+    console.log(__dirname)
+    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+
+    const args = [
+      '-device ATSAMD21G18',
+      '-if SWD',
+      '-speed 4000',
+      '-autoconnect 1',
+      '-CommanderScript ' + path.join(...upStuff, 'temp', 'cmd.jlink'),
+      '-ExitOnError 1',
+      '-NoGui 1'
+    ]
+
+    let pathToFile = path.join(...upStuff, 'temp', 'cmd.jlink')
+    win.webContents.send('message', pathToFile)
+    let pathToFirmware = path.join(...upStuff, "firmware", fileName)
+    let pathToJlink = path.join(...upStuff, "JLink.exe")
+    let workingDirectory = path.join(...upStuff)
+    win.webContents.send('message', workingDirectory)
     fs.writeFileSync(pathToFile, "loadFile " + pathToFirmware + "\r\nrnh\r\nexit", 'utf8')
-    let fun = execFileSync('JLink', [...args], { shell: true, cwd: __dirname }).toString()
-    console.log(fun)
+
+    let fun = execFileSync(pathToJlink, [...args], { shell: true, cwd: workingDirectory }).toString()
     win.webContents.send('message', fun)
     //fs.unlinkSync(pathToFile)
     console.log('DONE!')
   }
+
+  ipcMain.on('loadFirmware', (e, firmware) => {
+    console.log("Load", firmware)
+    loadFirmware(firmware)
+  })
+
+  win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+}
+
+// Create myWindow, load the rest of the app, etc...
+app.on('ready', () => {
 
   //log("-APP IS READY");
   ipcMain.on('reactIsReady', () => {
 
     console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
-    win.webContents.send('message', __dirname.toString())
+    win.webContents.send('message', app.getAppPath())
     win.webContents.send('app_version', { version: app.getVersion() });
-    
 
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')
@@ -100,13 +123,9 @@ app.on('ready', () => {
       autoUpdater.checkForUpdatesAndNotify()
     }
 
-  })
+    createListeners()
 
-  ipcMain.on('loadFirmware', (e, firmware) => {
-    console.log("Load", firmware)
-    loadFirmware(firmware)
   })
-
 
   createWindow()
 })
