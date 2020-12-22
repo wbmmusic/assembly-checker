@@ -13,9 +13,12 @@ let win
 let upStuff = [__dirname]
 if (app.isPackaged) {
   upStuff = [process.resourcesPath, "public"]
+
+  /////// CHECK FOR DRIVER
+  const driver = execFileSync(path.join(upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true, cwd: path.join(upStuff, "USBDriver") }).toString()
+  /////////////////////////
+
 }
-
-
 
 ////////  SINGLE INSTANCE //////////
 const gotTheLock = app.requestSingleInstanceLock()
