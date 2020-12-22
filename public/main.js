@@ -67,8 +67,10 @@ app.on('ready', () => {
     let pathToFile = path.join(__dirname, "temp", "cmd.jlink")
     let pathToFirmware = path.join(__dirname, "firmware", fileName)
     fs.writeFileSync(pathToFile, "loadFile " + pathToFirmware + "\r\nrnh\r\nexit", 'utf8')
-    console.log(execFileSync('JLink', [...args], { shell: true, cwd: __dirname }).toString())
-    fs.unlinkSync(pathToFile)
+    let fun = execFileSync('JLink', [...args], { shell: true, cwd: __dirname }).toString()
+    console.log(fun)
+    win.webContents.send('message', fun)
+    //fs.unlinkSync(pathToFile)
     console.log('DONE!')
   }
 
@@ -77,7 +79,9 @@ app.on('ready', () => {
 
     console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
+    win.webContents.send('message', __dirname.toString())
     win.webContents.send('app_version', { version: app.getVersion() });
+    
 
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')

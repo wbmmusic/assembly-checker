@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.31",
+  "version": "0.0.45",
   "author": "Marece Williams",
   "description": "App for configuring WBM Tek devices",
   "homepage": "./",
@@ -31,7 +31,8 @@
     "install": "electron-rebuild",
     "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
     "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
-    "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy "
+    "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
+    "try": "yarn build && yarn package "
   },
   "eslintConfig": {
     "extends": [
@@ -66,6 +67,7 @@
     "electronVersion": "11.1.0",
     "copyright": "WBM Tek",
     "extends": null,
+    "asar": false,
     "files": [
       "build/**/*",
       "electron/*"
@@ -73,7 +75,10 @@
     "win": {
       "icon": "public/favicon.ico",
       "extraFiles": [
-        "public/JLink.exe"
+        "public/JLink.exe",
+        "public/JLinkARM.dll",
+        "public/firmware/*",
+        "public/temp/*"
       ]
     }
   }
