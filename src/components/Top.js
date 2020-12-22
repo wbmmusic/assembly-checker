@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
-import ControlPanel from './boards/ControlPanel'
+import ControlPanel from './boards/controlpanel/ControlPanel'
 import AlarmPanel from './boards/alarmpanel/AlarmPanel'
-import CvBoard from './boards/CvBoard'
-import GpiBoard from './boards/GpiBoard'
-import GpoBoard from './boards/GpoBoard'
-import MidiBoard from './boards/MidiBoard'
-import SerialBoard from './boards/SerialBoard'
+import CvBoard from './boards/cvboard/CvBoard'
+import GpiBoard from './boards/gpiboard/GpiBoard'
+import GpoBoard from './boards/gpoboard/GpoBoard'
+import MidiBoard from './boards/midiboard/MidiBoard'
+import SerialBoard from './boards/serialboard/SerialBoard'
 import { Button } from 'react-bootstrap'
 const { ipcRenderer } = window.require('electron')
 
@@ -102,7 +102,16 @@ export default function Top(props) {
                 </table>
             </div>
             <div style={{ padding: '10px', maxHeight: '100%', overflow: 'hidden' }}>
-                SWITCH
+                <Switch>
+                    <Route exact path="/controlpanel" component={ControlPanel} />
+                    <Route exact path="/alarmpanel" component={AlarmPanel} />
+                    <Route exact path="/cvboard" component={CvBoard} />
+                    <Route exact path="/gpiboard" component={GpiBoard} />
+                    <Route exact path="/gpoboard" component={GpoBoard} />
+                    <Route exact path="/midiboard" component={MidiBoard} />
+                    <Route exact path="/serialboard" component={SerialBoard} />
+                    <Route path="/"><div style={{ textAlign: 'center' }}><b>No board selected</b></div></Route>
+                </Switch>
             </div>
         </Fragment >
     )
