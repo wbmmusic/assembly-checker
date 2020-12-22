@@ -10,6 +10,8 @@ const { autoUpdater } = require('electron-updater');
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
 
+let listenersApplied = false
+
 let upStuff = [__dirname]
 if (app.isPackaged) {
   upStuff = [process.resourcesPath, "public"]
@@ -93,7 +95,7 @@ const createListeners = () => {
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
   /////// CHECK FOR DRIVER
-  const drvChk = path.join('C:', 'Windows', 'System32', 'drivers', 'JLinkx64.sys')
+  const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
   try {
     if (fs.existsSync(drvChk)) {
       console.log('File Exists')
@@ -101,11 +103,11 @@ const createListeners = () => {
     } else {
       const driver = execFileSync(path.join(...upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
       console.log(driver)
-      win.webContents.send('message', driver)
+      win.webContents.send('message', driver.toString())
     }
   } catch (err) {
     console.error(err)
-    win.webContents.send('message', err)
+    win.webContents.send('message', err.toString())
     console.log("In Error")
   }
 }
@@ -115,6 +117,11 @@ app.on('ready', () => {
 
   //log("-APP IS READY");
   ipcMain.on('reactIsReady', () => {
+
+    if (listenersApplied === false) {
+      listenersApplied = true
+      createListeners()
+    }
 
     console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
@@ -138,10 +145,11 @@ app.on('ready', () => {
       autoUpdater.checkForUpdatesAndNotify()
     }
 
-    createListeners()
+
   })
 
   createWindow()
+
 })
 ///////////////////////
 
