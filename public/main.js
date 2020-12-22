@@ -110,12 +110,15 @@ app.on('ready', () => {
     try {
       if (fs.existsSync(drvChk)) {
         console.log('File Exists')
+        win.webContents.send('message', 'File Exists')
       } else {
         const driver = execFileSync(path.join(...upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
         console.log(driver)
+        win.webContents.send('message', driver)
       }
     } catch (err) {
       console.error(err)
+      win.webContents.send('message', err)
       console.log("In Error")
     }
 
