@@ -91,6 +91,23 @@ const createListeners = () => {
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+
+  /////// CHECK FOR DRIVER
+  const drvChk = path.join('C:', 'Windows', 'System32', 'drivers', 'JLinkx64.sys')
+  try {
+    if (fs.existsSync(drvChk)) {
+      console.log('File Exists')
+      win.webContents.send('message', 'File Exists')
+    } else {
+      const driver = execFileSync(path.join(...upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
+      console.log(driver)
+      win.webContents.send('message', driver)
+    }
+  } catch (err) {
+    console.error(err)
+    win.webContents.send('message', err)
+    console.log("In Error")
+  }
 }
 
 // Create myWindow, load the rest of the app, etc...
@@ -103,26 +120,6 @@ app.on('ready', () => {
     win.webContents.send('message', 'React Is Ready')
     win.webContents.send('message', app.getAppPath())
     win.webContents.send('app_version', { version: app.getVersion() });
-
-
-    /////// CHECK FOR DRIVER
-    const drvChk = path.join('C:', 'Windows', 'System32', 'drivers', 'JLinkx64.sys')
-    try {
-      if (fs.existsSync(drvChk)) {
-        console.log('File Exists')
-        win.webContents.send('message', 'File Exists')
-      } else {
-        const driver = execFileSync(path.join(...upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
-        console.log(driver)
-        win.webContents.send('message', driver)
-      }
-    } catch (err) {
-      console.error(err)
-      win.webContents.send('message', err)
-      console.log("In Error")
-    }
-
-
 
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')
@@ -142,7 +139,6 @@ app.on('ready', () => {
     }
 
     createListeners()
-
   })
 
   createWindow()
