@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.90",
+  "version": "0.0.91",
   "author": "Marece Williams",
   "description": "App for configuring WBM Tek devices",
   "homepage": "./",
@@ -78,6 +78,7 @@
         "public/JLinkARM.dll",
         "public/firmware/*",
         "public/temp/*",
+        "public/images/*",
         "public/USBDriver/**/*"
       ]
     }

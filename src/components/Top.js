@@ -101,7 +101,7 @@ export default function Top(props) {
                     </tbody>
                 </table>
             </div>
-            <div style={{ padding: '10px', maxHeight: '100%', overflow: 'hidden' }}>
+            <div style={{ padding: '10px', height: '100%', overflow: 'hidden' }}>
                 <Switch>
                     <Route exact path="/controlpanel" component={ControlPanel} />
                     <Route exact path="/alarmpanel" component={AlarmPanel} />
