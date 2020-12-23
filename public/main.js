@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs')
-const { execFileSync, execFile } = require('child_process');
+const { execFileSync } = require('child_process');
 
 
 const { autoUpdater } = require('electron-updater');
@@ -87,6 +87,10 @@ const createListeners = () => {
     console.log('DONE!')
   }
 
+  ipcMain.on('installUpdates', () => {
+    autoUpdater.quitAndInstall(true, true)
+  })
+
   ipcMain.on('loadFirmware', (e, firmware) => {
     console.log("Load", firmware)
     loadFirmware(firmware)
@@ -131,12 +135,13 @@ app.on('ready', () => {
     if (app.isPackaged) {
       win.webContents.send('message', 'App is packaged')
 
-      autoUpdater.on('checking-for-update', () => win.webContents.send('message', 'Checking for update'))
-      autoUpdater.on('update-available', () => win.webContents.send('message', 'Update Available'))
-      autoUpdater.on('update-not-available', () => win.webContents.send('message', 'Update NOT Available'))
-      autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => win.webContents.send('message', 'Update Downloaded'))
-      autoUpdater.on('error', message => win.webContents.send('message', message))
+      autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
+      autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
+      autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
+      autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => win.webContents.send('updateDownloaded', releaseNotes, releaseName))
+      autoUpdater.on('error', message => win.webContents.send('updateError', message))
 
+    
       setInterval(() => {
         win.webContents.send('message', 'Interval')
         autoUpdater.checkForUpdatesAndNotify()
@@ -144,7 +149,6 @@ app.on('ready', () => {
 
       autoUpdater.checkForUpdatesAndNotify()
     }
-
 
   })
 

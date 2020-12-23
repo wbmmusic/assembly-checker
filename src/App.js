@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Top from './components/Top'
+import Updates from './Updates';
 
 const { ipcRenderer } = window.require('electron')
 
@@ -30,6 +31,7 @@ function App() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', height: '100vh', minWidth: '100vw', minHeight: '100vh', overflow: 'hidden' }}>
       <Top />
+      <Updates />
     </div>
   );
 }
