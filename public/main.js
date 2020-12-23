@@ -87,7 +87,7 @@ const createListeners = () => {
     console.log('DONE!')
   }
 
-  ipcMain.on('installUpdates', () => {
+  ipcMain.on('installUpdate', () => {
     autoUpdater.quitAndInstall(true, true)
   })
 
