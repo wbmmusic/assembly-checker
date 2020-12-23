@@ -1,11 +1,11 @@
 import React from 'react'
-import theImage from '../images/alarmpanel.jpg'
+const path = require('path')
 
 export default function AlarmPanel() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'red' }}>
             <h3>Alarm Panel</h3>
-            <img style={{ maxHeight: '100%', maxWidth: '100%' }} src={theImage} alt="alarm panel pic" />
+            <img style={{ maxHeight: '100%', maxWidth: '100%' }} src={path.join('images', 'alarmpanel.jpg')} alt="alarm panel pic" />
         </div>
     )
 }
