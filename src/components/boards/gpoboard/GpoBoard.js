@@ -3,9 +3,15 @@ const path = require("path")
 
 export default function GpoBoard() {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '100%' }}>
-            <h3>GPO Board</h3>
-            <img style={{ height: 'auto', width: '100%' }} src={path.join('images', 'gpoboard.jpg')} alt="control panel pic" />
-        </div >
+        <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ textAlign: 'left' }}>
+                <h3>GPO Board</h3>
+            </div>
+            <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ maxHeight: '100%', maxWidth: '100%' }}>
+                    <img style={{ maxHeight: '100%', maxWidth: '100%' }} src={path.join('images', 'gpoboard.jpg')} alt="control panel pic" />
+                </div>
+            </div>
+        </div>
     )
 }

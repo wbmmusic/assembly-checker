@@ -96,22 +96,21 @@ export default function Top(props) {
                         </tr>
                         <tr>
                             <td colSpan="3" style={{ fontSize: '12px' }} >The File Name</td>
-                            <td style={{ fontSize: '12px' }} >{props.msgs}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div style={{ padding: '10px', height: '100%', overflow: 'hidden' }}>
-                <Switch>
-                    <Route exact path="/controlpanel" component={ControlPanel} />
-                    <Route exact path="/alarmpanel" component={AlarmPanel} />
-                    <Route exact path="/cvboard" component={CvBoard} />
-                    <Route exact path="/gpiboard" component={GpiBoard} />
-                    <Route exact path="/gpoboard" component={GpoBoard} />
-                    <Route exact path="/midiboard" component={MidiBoard} />
-                    <Route exact path="/serialboard" component={SerialBoard} />
-                    <Route path="/"><div style={{ textAlign: 'center' }}><b>No board selected</b></div></Route>
-                </Switch>
+                    <Switch>
+                        <Route exact path="/controlpanel" component={ControlPanel} />
+                        <Route exact path="/alarmpanel" component={AlarmPanel} />
+                        <Route exact path="/cvboard" component={CvBoard} />
+                        <Route exact path="/gpiboard" component={GpiBoard} />
+                        <Route exact path="/gpoboard" component={GpoBoard} />
+                        <Route exact path="/midiboard" component={MidiBoard} />
+                        <Route exact path="/serialboard" component={SerialBoard} />
+                        <Route path="/"><div style={{ textAlign: 'center' }}><b>No board selected</b></div></Route>
+                    </Switch>
             </div>
         </Fragment >
     )
