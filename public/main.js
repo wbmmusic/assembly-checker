@@ -139,6 +139,7 @@ app.on('ready', () => {
       autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
       autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
       autoUpdater.on('update-downloaded', (e, a, b) => {
+        win.webContents.send('updateDownloaded', e)
         win.webContents.send('message', e)
         win.webContents.send('message', a)
         win.webContents.send('message', b)

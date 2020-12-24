@@ -77,7 +77,7 @@ export default function Updates() {
             setPopupContents(tempPopupContents)
         })
 
-        ipcRenderer.on('updateError', (e, error) => {
+        ipcRenderer.on('updateError', (error) => {
             console.log('Update Error', error,)
         })
 
