@@ -25,7 +25,7 @@ export default function Updates() {
                 <div>
                     <p>A new version is being downloaded</p>
 
-                    <table>
+                    <table style={{ width: '100%' }}>
                         <tbody>
                             <tr>
                                 <td>
@@ -74,7 +74,7 @@ export default function Updates() {
                     </table>
                 </div>
             )
-            
+
             setPopupContents(tempPopupContents)
         })
 
