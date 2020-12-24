@@ -78,7 +78,6 @@
         "public/JLinkARM.dll",
         "public/firmware/*",
         "public/temp/*",
-        "public/images/*",
         "public/USBDriver/**/*"
       ]
     }
