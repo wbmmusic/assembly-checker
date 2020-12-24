@@ -20,7 +20,8 @@ export default function Updates() {
 
         ipcRenderer.on('updateAvailable', () => {
             console.log('Downloading update')
-            setPopupContents(
+            let tempPopupContents = { ...popupContents }
+            tempPopupContents.contents = (
                 <div>
                     <p>A new version is being downloaded</p>
 
@@ -40,6 +41,8 @@ export default function Updates() {
                     </table>
                 </div>
             )
+
+            setPopupContents(tempPopupContents)
         })
 
         ipcRenderer.on('noUpdate', () => {
@@ -48,7 +51,9 @@ export default function Updates() {
 
         ipcRenderer.on('updateDownloaded', (e, releaseNotes, releaseName) => {
             console.log('Update Downloaded', releaseName, releaseNotes)
-            setPopupContents(
+            let tempPopupContents = { ...popupContents }
+            tempPopupContents.contents = (
+
                 <div>
                     <p>New update downloaded</p>
                     <table>
@@ -68,6 +73,8 @@ export default function Updates() {
                     </table>
                 </div>
             )
+            
+            setPopupContents(tempPopupContents)
         })
 
         ipcRenderer.on('updateError', (e, error) => {
