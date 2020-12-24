@@ -23,8 +23,7 @@ export default function Updates() {
             let tempPopupContents = { ...popupContents }
             tempPopupContents.contents = (
                 <div>
-                    <p>A new version is being downloaded</p>
-
+                    A new version is being downloaded
                     <table style={{ width: '100%' }}>
                         <tbody>
                             <tr>
