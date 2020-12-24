@@ -81,8 +81,6 @@ export default function Updates() {
             console.log('Update Error', error,)
         })
 
-        console.log('object')
-
         ipcRenderer.on('updateDownloadProgress', (progressPercent) => {
             console.log('Downloaded')
             console.log(progressPercent)
