@@ -102,7 +102,7 @@ export default function Updates() {
     }, [])
 
     const makePopup = () => {
-        if (popupContents !== null) {
+        if (popupContents.show === true) {
             return (
                 <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: 'inset 3px 3px', fontSize: '12px', border:'1px solid black' }}>
                     {popupContents.contents}
