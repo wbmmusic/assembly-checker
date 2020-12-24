@@ -82,7 +82,7 @@ export default function Updates() {
             console.log('Update Error', error,)
         })
 
-        ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
+        ipcRenderer.on('updateDownloadProgress', (progressPercent) => {
             console.log('Downloaded')
             console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
@@ -103,7 +103,7 @@ export default function Updates() {
     const makePopup = () => {
         if (popupContents !== null) {
             return (
-                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: 'inset 2px, 2px, 3px', fontSize: '12px' }}>
+                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: 'inset 3px 3px', fontSize: '12px' }}>
                     {popupContents.contents}
                 </div>
             )
