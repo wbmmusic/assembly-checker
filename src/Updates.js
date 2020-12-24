@@ -49,8 +49,9 @@ export default function Updates() {
             console.log('Up to date')
         })
 
-        ipcRenderer.on('updateDownloaded', (e, releaseNotes, releaseName) => {
-            console.log('Update Downloaded', releaseName, releaseNotes)
+        ipcRenderer.on('updateDownloaded', (e, releaseInfo) => {
+            console.log('Update Downloaded')
+            console.log(releaseInfo)
             let tempPopupContents = { ...popupContents }
             tempPopupContents.contents = (
 
@@ -82,7 +83,8 @@ export default function Updates() {
         })
 
         ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
-            console.log('Downloaded', progressPercent + '%')
+            console.log('Downloaded')
+            console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
             tempPopupContents.progress = progressPercent
             setPopupContents(tempPopupContents)

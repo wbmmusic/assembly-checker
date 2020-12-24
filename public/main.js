@@ -139,7 +139,7 @@ app.on('ready', () => {
       autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
       autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
       autoUpdater.on('update-downloaded', (e, releaseInfo) => win.webContents.send('updateDownloaded', releaseInfo))
-      autoUpdater.on('download-progress', (progressObject) => win.webContents.send('message', progressObject.percent))
+      autoUpdater.on('download-progress', (progressObject) => win.webContents.send('updateDownloadProgress', progressObject))
       autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
 
 
