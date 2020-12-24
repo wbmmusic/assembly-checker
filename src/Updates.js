@@ -48,7 +48,7 @@ export default function Updates() {
             console.log('Up to date')
         })
 
-        ipcRenderer.on('updateDownloaded', (e, releaseInfo) => {
+        ipcRenderer.on('updateDownloaded', (releaseInfo) => {
             console.log('Update Downloaded')
             console.log(releaseInfo)
             let tempPopupContents = { ...popupContents }
