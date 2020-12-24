@@ -2,7 +2,17 @@ import React, { useEffect, useState } from 'react'
 const { ipcRenderer } = window.require('electron')
 
 export default function Updates() {
-    const [popupContents, setPopupContents] = useState('Popup Contents')
+    const [popupContents, setPopupContents] = useState({
+        show: false,
+        progress: 0,
+        contents: []
+    })
+
+    const hidePopup = () => {
+        let tempPopupContents = { ...popupContents }
+        tempPopupContents.show = false
+        setPopupContents(tempPopupContents)
+    }
     useEffect(() => {
         ipcRenderer.on('checkingForUpdates', () => {
             console.log('Checking for updates')
@@ -13,11 +23,17 @@ export default function Updates() {
             setPopupContents(
                 <div>
                     <p>A new version is being downloaded</p>
+
                     <table>
                         <tbody>
                             <tr>
                                 <td>
-                                    <button onClick={() => setPopupContents()}>close</button>
+                                    <progress style={{ width: '100%' }} max="100" value={popupContents.progress} />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button onClick={() => hidePopup()}>close</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -39,13 +55,13 @@ export default function Updates() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <button onClick={() => setPopupContents()}>Install on exit</button>
+                                    <button onClick={() => setPopupContents()}>Update on exit</button>
                                 </td>
                                 <td>
                                     <button onClick={() => {
                                         ipcRenderer.send('installUpdate')
-                                        setPopupContents()
-                                    }}>Install and restart app now</button>
+                                        hidePopup()
+                                    }}>Update and restart app now</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -58,18 +74,34 @@ export default function Updates() {
             console.log('Update Error', error,)
         })
 
+        ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
+            console.log('Downloaded', progressPercent + '%')
+            let tempPopupContents = { ...popupContents }
+            tempPopupContents.progress = progressPercent
+            setPopupContents(tempPopupContents)
+        })
+
 
         return () => {
             ipcRenderer.removeAllListeners('checkingForUpdates')
             ipcRenderer.removeAllListeners('updateAvailable')
             ipcRenderer.removeAllListeners('noUpdate')
             ipcRenderer.removeAllListeners('updateError')
+            ipcRenderer.removeAllListeners('updateDownloaded')
         }
     }, [])
 
+    const makePopup = () => {
+        if (popupContents !== null) {
+            return (
+                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', border: '1px solid black', fontSize: '12px' }}>
+                    {popupContents.contents}
+                </div>
+            )
+        }
+    }
+
     return (
-        <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', border: '1px solid black', fontSize: '12px' }}>
-            {popupContents}
-        </div>
+        makePopup()
     )
 }
