@@ -138,9 +138,9 @@ app.on('ready', () => {
       autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
       autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
       autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
-      autoUpdater.on('update-downloaded', (releaseNotes, releaseName) => win.webContents.send('updateDownloaded', releaseNotes, releaseName))
-      autoUpdater.on('download-progress', () => win.webContents.send('message', 'Download Progress'))
-      autoUpdater.on('error', message => win.webContents.send('updateError', message))
+      autoUpdater.on('update-downloaded', (releaseNotes, releaseName) => win.webContents.send('updateDownloaded', releaseNotes.toString(), releaseName.toString()))
+      autoUpdater.on('download-progress', (progressObject) => win.webContents.send('message', JSON.stringify(progressObject)))
+      autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
 
 
       setInterval(() => {
