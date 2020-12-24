@@ -106,6 +106,8 @@ export default function Updates() {
                     {popupContents.contents}
                 </div>
             )
+        }else{
+            return <div></div>
         }
     }
 
