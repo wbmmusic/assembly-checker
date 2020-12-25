@@ -28,7 +28,7 @@ export default function Updates() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <progress style={{ width: '100%' }} max="100" value="0" />
+                                    <progress style={{ width: '100%' }} max={100} value="0" />
                                 </td>
                             </tr>
                             <tr>
@@ -92,7 +92,7 @@ export default function Updates() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <progress style={{ width: '100%' }} max="100" value={Math.round(progressPercent)} />
+                                    <progress style={{ width: '100%' }} max={100} value={Math.round(progressPercent)} />
                                 </td>
                             </tr>
                             <tr>
