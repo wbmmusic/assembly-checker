@@ -45,8 +45,6 @@ export default function Updates() {
             setPopupContents(tempPopupContents)
         })
 
-        console.log('Delete me')
-
         ipcRenderer.on('noUpdate', () => {
             console.log('Up to date')
         })
@@ -105,7 +103,7 @@ export default function Updates() {
     const makePopup = () => {
         if (popupContents.show === true) {
             return (
-                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: 'inset 3px 3px', fontSize: '12px', border: '1px solid black' }}>
+                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: '3px 3px 3px', fontSize: '12px', border: '1px solid black' }}>
                     {popupContents.contents}
                 </div>
             )
