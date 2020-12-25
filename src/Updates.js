@@ -82,8 +82,6 @@ export default function Updates() {
         })
 
         ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
-            console.log('Downloaded Progress')
-            console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
             tempPopupContents.show = true
             tempPopupContents.contents = (
@@ -115,6 +113,7 @@ export default function Updates() {
             ipcRenderer.removeAllListeners('noUpdate')
             ipcRenderer.removeAllListeners('updateError')
             ipcRenderer.removeAllListeners('updateDownloaded')
+            ipcRenderer.removeAllListeners('updateDownloadProgress')
         }
     }, [])
 
