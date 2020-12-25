@@ -85,6 +85,7 @@ export default function Updates() {
             console.log('Downloaded Progress')
             console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
+            tempPopupContents.show = true
             tempPopupContents.contents = (
                 <div>
                     A new version is being downloaded
@@ -92,7 +93,7 @@ export default function Updates() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <progress style={{ width: '100%' }} max={100} value={Math.round(progressPercent)} />
+                                    <progress style={{ width: '100%' }} max="100" value={Math.round(progressPercent).toString()} />
                                 </td>
                             </tr>
                             <tr>
