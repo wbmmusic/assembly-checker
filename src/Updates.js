@@ -21,6 +21,7 @@ export default function Updates() {
         ipcRenderer.on('updateAvailable', () => {
             console.log('Downloading update')
             let tempPopupContents = { ...popupContents }
+            tempPopupContents.show = true
             tempPopupContents.contents = (
                 <div>
                     A new version is being downloaded
@@ -52,6 +53,7 @@ export default function Updates() {
             console.log('Update Downloaded')
             console.log(releaseInfo)
             let tempPopupContents = { ...popupContents }
+            tempPopupContents.show = true
             tempPopupContents.contents = (
 
                 <div>
@@ -101,11 +103,11 @@ export default function Updates() {
     const makePopup = () => {
         if (popupContents.show === true) {
             return (
-                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: 'inset 3px 3px', fontSize: '12px', border:'1px solid black' }}>
+                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: 'inset 3px 3px', fontSize: '12px', border: '1px solid black' }}>
                     {popupContents.contents}
                 </div>
             )
-        }else{
+        } else {
             return <div></div>
         }
     }

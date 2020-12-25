@@ -143,7 +143,7 @@ app.on('ready', () => {
         win.webContents.send('updateDownloaded', updateInfo)
       })
       autoUpdater.on('download-progress', (e, progressObject) => {
-        win.webContents.send('updateDownloadProgress', JSON.stringify(progressObject))
+        win.webContents.send('message', 'Download Progress')
       })
       autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
 
