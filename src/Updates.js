@@ -2,16 +2,11 @@ import React, { useEffect, useState } from 'react'
 const { ipcRenderer } = window.require('electron')
 
 export default function Updates() {
+    const [show, setShow] = useState(false)
     const [popupContents, setPopupContents] = useState({
-        show: false,
         contents: []
     })
 
-    const hidePopup = () => {
-        let tempPopupContents = { ...popupContents }
-        tempPopupContents.show = false
-        setPopupContents(tempPopupContents)
-    }
     useEffect(() => {
         console.log('Top Of Updates')
         ipcRenderer.on('checkingForUpdates', () => {
@@ -21,7 +16,6 @@ export default function Updates() {
         ipcRenderer.on('updateAvailable', () => {
             console.log('Downloading update')
             let tempPopupContents = { ...popupContents }
-            tempPopupContents.show = true
             tempPopupContents.contents = (
                 <div>
                     A new version is being downloaded
@@ -34,7 +28,7 @@ export default function Updates() {
                             </tr>
                             <tr>
                                 <td>
-                                    <button onClick={() => hidePopup()}>close</button>
+                                    <button onClick={() => setShow(false)}>close</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -43,6 +37,7 @@ export default function Updates() {
             )
 
             setPopupContents(tempPopupContents)
+            setShow(true)
         })
 
         ipcRenderer.on('noUpdate', () => {
@@ -53,7 +48,6 @@ export default function Updates() {
             console.log('Update Downloaded')
             //console.log(releaseInfo)
             let tempPopupContents = { ...popupContents }
-            tempPopupContents.show = true
             tempPopupContents.contents = (
                 <div>
                     <p>New update {"v" + releaseInfo.version} downloaded</p>
@@ -66,7 +60,7 @@ export default function Updates() {
                                 <td>
                                     <button onClick={() => {
                                         ipcRenderer.send('installUpdate')
-                                        hidePopup()
+                                        setShow(false)
                                     }}>Update and restart app now</button>
                                 </td>
                             </tr>
@@ -76,6 +70,7 @@ export default function Updates() {
             )
 
             setPopupContents(tempPopupContents)
+            setShow(true)
         })
 
         ipcRenderer.on('updateError', (error) => {
@@ -84,7 +79,6 @@ export default function Updates() {
 
         ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
             let tempPopupContents = { ...popupContents }
-            tempPopupContents.show = true
             tempPopupContents.contents = (
                 <div>
                     A new version is being downloaded
@@ -97,14 +91,13 @@ export default function Updates() {
                             </tr>
                             <tr>
                                 <td>
-                                    <button onClick={() => hidePopup()}>hide</button>
+                                    <button onClick={() => setShow(false)}>hide</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             )
-
             setPopupContents(tempPopupContents)
         })
 
@@ -119,9 +112,9 @@ export default function Updates() {
     }, [])
 
     const makePopup = () => {
-        if (popupContents.show === true) {
+        if (show === true) {
             return (
-                <div style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '10px', boxShadow: '3px 3px 3px', fontSize: '12px' }}>
+                <div style={{ position: 'fixed', bottom: '10px', right: '10px', backgroundColor: 'white', padding: '10px', boxShadow: '0px 0px 6px 2px', fontSize: '12px' }}>
                     {popupContents.contents}
                 </div>
             )
