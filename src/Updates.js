@@ -13,6 +13,7 @@ export default function Updates() {
         setPopupContents(tempPopupContents)
     }
     useEffect(() => {
+        console.log('Top Of Updates')
         ipcRenderer.on('checkingForUpdates', () => {
             console.log('Checking for updates')
         })
