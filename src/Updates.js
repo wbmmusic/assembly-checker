@@ -89,9 +89,6 @@ export default function Updates() {
             setPopupContents(tempPopupContents)
         })
 
-        console.log('delete me')
-
-
         return () => {
             ipcRenderer.removeAllListeners('checkingForUpdates')
             ipcRenderer.removeAllListeners('updateAvailable')
