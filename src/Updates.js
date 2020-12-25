@@ -28,7 +28,7 @@ export default function Updates() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <progress style={{ width: '100%' }} max="100" value={popupContents.progress} />
+                                    <progress style={{ width: '100%' }} max="100" value="0" />
                                 </td>
                             </tr>
                             <tr>
@@ -97,7 +97,7 @@ export default function Updates() {
                             </tr>
                             <tr>
                                 <td>
-                                    <button onClick={() => hidePopup()}>close</button>
+                                    <button onClick={() => hidePopup()}>hide</button>
                                 </td>
                             </tr>
                         </tbody>
