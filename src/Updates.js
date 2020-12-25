@@ -55,7 +55,6 @@ export default function Updates() {
             let tempPopupContents = { ...popupContents }
             tempPopupContents.show = true
             tempPopupContents.contents = (
-
                 <div>
                     <p>New update downloaded</p>
                     <table>
@@ -88,6 +87,26 @@ export default function Updates() {
             console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
             tempPopupContents.progress = progressPercent
+            tempPopupContents.contents = (
+                <div>
+                    A new version is being downloaded
+                    <table style={{ width: '100%' }}>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <progress style={{ width: '100%' }} max="100" value={popupContents.progress} />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button onClick={() => hidePopup()}>close</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            )
+
             setPopupContents(tempPopupContents)
         })
 
