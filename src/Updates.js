@@ -83,7 +83,7 @@ export default function Updates() {
         })
 
         ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
-            console.log('Downloaded')
+            console.log('Downloaded Progress')
             console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
             tempPopupContents.progress = progressPercent
