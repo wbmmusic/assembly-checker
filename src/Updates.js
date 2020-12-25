@@ -49,7 +49,7 @@ export default function Updates() {
             console.log('Up to date')
         })
 
-        ipcRenderer.on('updateDownloaded', (releaseInfo) => {
+        ipcRenderer.on('updateDownloaded', (e, releaseInfo) => {
             console.log('Update Downloaded')
             console.log(releaseInfo)
             let tempPopupContents = { ...popupContents }
@@ -83,7 +83,7 @@ export default function Updates() {
             console.log('Update Error', error,)
         })
 
-        ipcRenderer.on('updateDownloadProgress', (progressPercent) => {
+        ipcRenderer.on('updateDownloadProgress', (e, progressPercent) => {
             console.log('Downloaded')
             console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
