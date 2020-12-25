@@ -4,7 +4,6 @@ const { ipcRenderer } = window.require('electron')
 export default function Updates() {
     const [popupContents, setPopupContents] = useState({
         show: false,
-        progress: 0,
         contents: []
     })
 
@@ -51,12 +50,12 @@ export default function Updates() {
 
         ipcRenderer.on('updateDownloaded', (e, releaseInfo) => {
             console.log('Update Downloaded')
-            console.log(releaseInfo)
+            //console.log(releaseInfo)
             let tempPopupContents = { ...popupContents }
             tempPopupContents.show = true
             tempPopupContents.contents = (
                 <div>
-                    <p>New update downloaded</p>
+                    <p>New update {"v" + releaseInfo.version} downloaded</p>
                     <table>
                         <tbody>
                             <tr>
@@ -86,7 +85,6 @@ export default function Updates() {
             console.log('Downloaded Progress')
             console.log(progressPercent)
             let tempPopupContents = { ...popupContents }
-            tempPopupContents.progress = progressPercent
             tempPopupContents.contents = (
                 <div>
                     A new version is being downloaded
@@ -94,7 +92,7 @@ export default function Updates() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <progress style={{ width: '100%' }} max="100" value={popupContents.progress} />
+                                    <progress style={{ width: '100%' }} max="100" value={progressPercent} />
                                 </td>
                             </tr>
                             <tr>
