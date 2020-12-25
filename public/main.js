@@ -116,7 +116,6 @@ const createListeners = () => {
   }
 }
 
-console.log('delete me')
 
 // Create myWindow, load the rest of the app, etc...
 app.on('ready', () => {
