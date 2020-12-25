@@ -1,17 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Top from './components/Top'
 import Updates from './Updates';
 
 const { ipcRenderer } = window.require('electron')
 
 function App() {
-  const [state, setState] = useState([])
 
 
   useEffect(() => {
     ipcRenderer.on('message', (e, theMessage) => {
       console.log(theMessage)
-      setState(theMessage, ...state)
     })
 
     ipcRenderer.on('app_version', (event, arg) => {
