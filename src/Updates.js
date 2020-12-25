@@ -45,6 +45,8 @@ export default function Updates() {
             setPopupContents(tempPopupContents)
         })
 
+        console.log('Delete me')
+
         ipcRenderer.on('noUpdate', () => {
             console.log('Up to date')
         })
