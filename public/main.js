@@ -3,7 +3,7 @@ const path = require('path')
 const url = require('url')
 const fs = require('fs')
 const { execFileSync } = require('child_process');
-
+const wbmUsbDevice = require('wbm-usb-device')
 
 const { autoUpdater } = require('electron-updater');
 
@@ -59,7 +59,7 @@ function createWindow() {
 
 const createListeners = () => {
   const loadFirmware = (fileName) => {
-
+    win.webContents.send('programming')
     console.log(__dirname)
     win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
@@ -85,18 +85,43 @@ const createListeners = () => {
     console.log('pathToFirm', pathToFirmware)
 
     const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
-    console.log('A')
     const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
-    console.log('B')
     fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-    console.log('C')
     fs.writeFileSync(pathToFile, "loadFile " + pathToOutput + "\r\nrnh\r\nexit", 'utf8')
-    console.log('D')
     let fun = execFileSync(pathToJlink, [...args], { shell: true, cwd: workingDirectory }).toString()
-    console.log('E')
     win.webContents.send('message', fun)
     //fs.unlinkSync(pathToFile)
-    console.log('DONE!')
+    console.log('PROGRAMMING DONE!')
+    win.webContents.send('programmingComplete')
+  }
+
+  const chipErase = () => {
+    win.webContents.send('chipErasing')
+    console.log(__dirname)
+    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+
+    const args = [
+      '-device ATSAMD21G18',
+      '-if SWD',
+      '-speed 4000',
+      '-autoconnect 1',
+      '-CommanderScript ' + path.join(...upStuff, 'temp', 'cmd.jlink'),
+      '-ExitOnError 1',
+      '-NoGui 1'
+    ]
+
+    let pathToFile = path.join(...upStuff, 'temp', 'cmd.jlink')
+    win.webContents.send('message', pathToFile)
+    let pathToJlink = path.join(...upStuff, "JLink.exe")
+    let workingDirectory = path.join(...upStuff)
+    win.webContents.send('message', workingDirectory)
+
+    fs.writeFileSync(pathToFile, "erase\r\nrnh\r\nexit", 'utf8')
+    let fun = execFileSync(pathToJlink, [...args], { shell: true, cwd: workingDirectory }).toString()
+    win.webContents.send('message', fun)
+    //fs.unlinkSync(pathToFile)
+    console.log('CHIP ERASE DONE!')
+    win.webContents.send('chipEraseComplete')
   }
 
   ipcMain.on('installUpdate', () => {
@@ -106,6 +131,11 @@ const createListeners = () => {
   ipcMain.on('loadFirmware', (e, firmware) => {
     console.log("Load", firmware)
     loadFirmware(firmware)
+  })
+
+  ipcMain.on('chipErase', () => {
+    console.log("Backend Chip Erase")
+    chipErase()
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -138,6 +168,13 @@ app.on('ready', () => {
     if (listenersApplied === false) {
       listenersApplied = true
       createListeners()
+
+      //wbmUsbDevice.startWbmUsb()
+
+      wbmUsbDevice.events.on('devList', (list) => {
+        win.webContents.send('devList', list)
+        console.log("LIST", list)
+      })
     }
 
     console.log('React Is Ready')

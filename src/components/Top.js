@@ -8,6 +8,7 @@ import GpoBoard from './boards/gpoboard/GpoBoard'
 import MidiBoard from './boards/midiboard/MidiBoard'
 import SerialBoard from './boards/serialboard/SerialBoard'
 import { Button } from 'react-bootstrap'
+import Modals from './Modals'
 const { ipcRenderer } = window.require('electron')
 
 export default function Top(props) {
@@ -74,7 +75,8 @@ export default function Top(props) {
     }
 
     const chipErase = () => {
-        console.log('Chip Erase')
+        console.log('Top Chip Erase')
+        ipcRenderer.send('chipErase')
     }
 
     return (
@@ -91,8 +93,7 @@ export default function Top(props) {
                             </td>
                             <td style={buttonStyle} onClick={program} ><Button size="sm" variant="outline-primary" disabled={buttonDisable} >Program</Button></td>
                             <td style={buttonStyle} onClick={chipErase} ><Button size="sm" variant="outline-danger" disabled={buttonDisable} >Chip Erase</Button></td>
-                            <td style={buttonStyle} onClick={() => ipcRenderer.send('loadFirmware', 'blinkSlow.bin')} ><Button size="sm" variant="outline-success">Slow</Button></td>
-                            <td style={buttonStyle} onClick={() => ipcRenderer.send('loadFirmware', 'blinkFast.bin')} ><Button size="sm" variant="outline-success">Fast</Button></td>
+                            <td style={buttonStyle} onClick={() => ipcRenderer.send('loadFirmware', 'fwTest.bin')} ><Button size="sm" variant="outline-success">Good</Button></td>
                         </tr>
                         <tr>
                             <td colSpan="3" style={{ fontSize: '12px' }} >The File Name</td>
@@ -101,16 +102,17 @@ export default function Top(props) {
                 </table>
             </div>
             <div style={{ padding: '10px', height: '100%', overflow: 'hidden' }}>
-                    <Switch>
-                        <Route exact path="/controlpanel" component={ControlPanel} />
-                        <Route exact path="/alarmpanel" component={AlarmPanel} />
-                        <Route exact path="/cvboard" component={CvBoard} />
-                        <Route exact path="/gpiboard" component={GpiBoard} />
-                        <Route exact path="/gpoboard" component={GpoBoard} />
-                        <Route exact path="/midiboard" component={MidiBoard} />
-                        <Route exact path="/serialboard" component={SerialBoard} />
-                        <Route path="/"><div style={{ textAlign: 'center' }}><b>No board selected</b></div></Route>
-                    </Switch>
+                <Switch>
+                    <Route exact path="/controlpanel" component={ControlPanel} />
+                    <Route exact path="/alarmpanel" component={AlarmPanel} />
+                    <Route exact path="/cvboard" component={CvBoard} />
+                    <Route exact path="/gpiboard" component={GpiBoard} />
+                    <Route exact path="/gpoboard" component={GpoBoard} />
+                    <Route exact path="/midiboard" component={MidiBoard} />
+                    <Route exact path="/serialboard" component={SerialBoard} />
+                    <Route path="/"><div style={{ textAlign: 'center' }}><b>No board selected</b></div></Route>
+                </Switch>
+                <Modals />
             </div>
         </Fragment >
     )
