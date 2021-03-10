@@ -75,7 +75,7 @@ export default function SelectDevice() {
                             }}>
                                 <div style={{ backgroundColor: 'lightGrey', padding: '3px', borderRadius: '5px' }}><b>{makeBoardName(board)}</b></div>
                                 <div style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
-                                    <img style={{ maxWidth: '100%' }} src={path.join(__dirname, 'boardfiles', board, 'render.png')} alt="devicePic" />
+                                    <img style={{ maxWidth: '100%' }} src={path.join('boardfiles', board, 'render.png')} alt="devicePic" />
                                 </div>
                             </div>
                         </div>
