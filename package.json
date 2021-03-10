@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.155",
+  "version": "0.0.156",
   "author": "Marece Williams",
   "description": "App for programming and testing PA-Manager PCBs",
   "homepage": "./",
@@ -66,7 +66,7 @@
   "build": {
     "productName": "WBM Tek PCB Assembly Checker",
     "appId": "com.electron.pcbchk",
-    "electronVersion": "11.1.1",
+    "electronVersion": "12.0.0",
     "copyright": "WBM Tek",
     "extends": null,
     "npmRebuild": false,
