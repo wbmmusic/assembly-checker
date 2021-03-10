@@ -17,6 +17,22 @@ if (app.isPackaged) {
   upStuff = [process.resourcesPath, "public"]
 }
 
+let workingDirectory = path.join(...upStuff)
+let pathToJLink = path.join(workingDirectory, "JLink.exe")
+let pathToFiles = path.join('C:', 'ProgramData', 'WBM Tek', 'pcbChecker')
+let pathToFile = path.join(pathToFiles, 'cmd.jlink')
+
+
+if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
+  console.log('Creating WBM Tek folder')
+  fs.mkdirSync(path.join('C:', 'ProgramData', 'WBM Tek'))
+}
+
+if (!fs.existsSync(pathToFiles)) {
+  console.log('Creating pcbChecker folder')
+  fs.mkdirSync(pathToFiles)
+}
+
 ////////  SINGLE INSTANCE //////////
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
@@ -45,7 +61,7 @@ function createWindow() {
   })
 
   const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: path.join(__dirname, '/../build/index.html'),
+    pathname: '/',
     protocol: 'file:',
     slashes: true
   });
@@ -69,18 +85,14 @@ const createListeners = () => {
       '-if SWD',
       '-speed 4000',
       '-autoconnect 1',
-      '-CommanderScript ' + path.join(...upStuff, 'temp', 'cmd.jlink'),
-      '-ExitOnError 1',
-      '-NoGui 1'
+      '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
+      '-ExitOnError 1'
     ]
 
-    let pathToFile = path.join(...upStuff, 'temp', 'cmd.jlink')
     win.webContents.send('message', pathToFile)
     let pathToFirmware = path.join(...upStuff, "firmware", fileName)
     let pathToBoot = path.join(...upStuff, "firmware", 'boot.bin')
-    let pathToOutput = path.join(...upStuff, "temp", 'output.bin')
-    let pathToJlink = path.join(...upStuff, "JLink.exe")
-    let workingDirectory = path.join(...upStuff)
+    let pathToOutput = path.join(pathToFiles, 'output.bin')
     win.webContents.send('message', workingDirectory)
 
     console.log('pathToFirm', pathToFirmware)
@@ -88,8 +100,8 @@ const createListeners = () => {
     const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
     const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
     fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-    fs.writeFileSync(pathToFile, "loadFile " + pathToOutput + "\r\nrnh\r\nexit", 'utf8')
-    let fun = execFileSync(pathToJlink, [...args], { shell: true, cwd: workingDirectory }).toString()
+    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '\"\r\nrnh\r\nexit', 'utf8')
+    let fun = execFileSync(pathToJLink, [...args], { shell: true, cwd: workingDirectory }).toString()
     win.webContents.send('message', fun)
     //fs.unlinkSync(pathToFile)
     console.log('PROGRAMMING DONE!')
@@ -106,19 +118,15 @@ const createListeners = () => {
       '-if SWD',
       '-speed 4000',
       '-autoconnect 1',
-      '-CommanderScript ' + path.join(...upStuff, 'temp', 'cmd.jlink'),
-      '-ExitOnError 1',
-      '-NoGui 1'
+      '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
+      '-ExitOnError 1'
     ]
 
-    let pathToFile = path.join(...upStuff, 'temp', 'cmd.jlink')
     win.webContents.send('message', pathToFile)
-    let pathToJlink = path.join(...upStuff, "JLink.exe")
-    let workingDirectory = path.join(...upStuff)
     win.webContents.send('message', workingDirectory)
 
     fs.writeFileSync(pathToFile, "erase\r\nrnh\r\nexit", 'utf8')
-    let fun = execFileSync(pathToJlink, [...args], { shell: true, cwd: workingDirectory }).toString()
+    let fun = execFileSync(pathToJLink, [...args], { shell: true, cwd: workingDirectory }).toString()
     win.webContents.send('message', fun)
     //fs.unlinkSync(pathToFile)
     console.log('CHIP ERASE DONE!')
@@ -137,6 +145,11 @@ const createListeners = () => {
   ipcMain.on('chipErase', () => {
     console.log("Backend Chip Erase")
     chipErase()
+  })
+
+  ipcMain.on('programAndTest', (e, folder) => {
+    console.log('Program and test', folder)
+    loadFirmware('cvSlowBlink_x2000.bin')
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -170,13 +183,15 @@ app.on('ready', () => {
       listenersApplied = true
       createListeners()
 
-      //wbmUsbDevice.startWbmUsb()
       /*
-            wbmUsbDevice.events.on('devList', (list) => {
-              win.webContents.send('devList', list)
-              console.log("LIST", list)
-            })
-            */
+      wbmUsbDevice.startWbmUsb()
+
+      wbmUsbDevice.events.on('devList', (list) => {
+        win.webContents.send('devList', list)
+        console.log("LIST", list)
+      })
+      */
+      
     }
 
     console.log('React Is Ready')

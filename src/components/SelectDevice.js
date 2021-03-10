@@ -12,7 +12,6 @@ export default function SelectDevice() {
         'cvboard',
         'gpiboard',
         'gpoboard',
-        'lampboard',
         'midiboard',
         'serialboard'
     ]

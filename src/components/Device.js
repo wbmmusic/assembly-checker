@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Nav, Navbar } from 'react-bootstrap'
+import { Button, Navbar } from 'react-bootstrap'
 import { useHistory } from 'react-router'
 const { ipcRenderer } = window.require('electron')
 const path = require('path')
@@ -12,6 +12,7 @@ export default function Device() {
 
     const program = () => {
         console.log('Program')
+        ipcRenderer.send('programAndTest', history.location.state.folder)
     }
 
     const chipErase = () => {
@@ -24,7 +25,7 @@ export default function Device() {
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
                 <Navbar bg="light" expand="lg">
                     <Navbar.Brand href="#home">{history.location.state.boardName}</Navbar.Brand>
-                    <Button size="sm" variant="outline-primary" onClick={() => history.replace('/')} >Back To Devices</Button>
+                    <Button size="sm" variant="outline-primary" onClick={() => history.replace('/')} >Back To Boards</Button>
                 </Navbar>
                 <div style={{ padding: '0px 10px 10px 10px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <div>
@@ -38,9 +39,10 @@ export default function Device() {
                                         <table>
                                             <tbody>
                                                 <tr>
-                                                    <td style={buttonStyle} onClick={program} ><Button size="sm" variant="outline-primary"  >Program</Button></td>
+                                                    <td style={buttonStyle} onClick={program} ><Button size="sm" variant="outline-primary"  >Program and Test</Button></td>
+                                                </tr>
+                                                <tr>
                                                     <td style={buttonStyle} onClick={chipErase} ><Button size="sm" variant="outline-danger"  >Chip Erase</Button></td>
-                                                    <td style={buttonStyle} onClick={() => ipcRenderer.send('loadFirmware', 'fwTest.bin')} ><Button size="sm" variant="outline-success">Good</Button></td>
                                                 </tr>
                                             </tbody>
                                         </table>

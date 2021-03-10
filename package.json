@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.166",
+  "version": "0.0.167",
   "author": "Marece Williams",
   "description": "App for programming and testing PA-Manager PCBs",
   "homepage": "./",
@@ -19,6 +19,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "update-electron-app": "^2.0.1",
+    "wbm-usb-device": "^0.1.27",
     "web-vitals": "^1.1.0"
   },
   "scripts": {
