@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from 'react-bootstrap'
+import { Button, Nav, Navbar } from 'react-bootstrap'
 import { useHistory } from 'react-router'
 const { ipcRenderer } = window.require('electron')
 const path = require('path')
@@ -22,17 +22,11 @@ export default function Device() {
     return (
         <div style={{ height: '100vh', width: '100vw' }}>
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
-                <div style={{ padding: '10px', borderBottom: '1px solid lightGrey' }}>
-                    <table style={{ width: '100%' }}>
-                        <tbody>
-                            <tr>
-                                <td style={{ whiteSpace: 'nowrap' }}><b>{history.location.state.boardName}</b></td>
-                                <td style={{ ...buttonStyle, textAlign: 'right', width: '100%' }} onClick={() => history.replace('/')} ><Button size="sm" variant="primary">Back To Devices</Button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div style={{ padding: '10px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <Navbar bg="light" expand="lg">
+                    <Navbar.Brand href="#home">{history.location.state.boardName}</Navbar.Brand>
+                    <Button size="sm" variant="outline-primary" onClick={() => history.replace('/')} >Back To Devices</Button>
+                </Navbar>
+                <div style={{ padding: '0px 10px 10px 10px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <div>
                         <table style={{ width: '100%' }} cellSpacing="0" cellPadding="0">
                             <tbody>

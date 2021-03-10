@@ -1,4 +1,5 @@
 import React from 'react'
+import { Navbar } from 'react-bootstrap'
 import { useHistory } from 'react-router'
 const path = require('path')
 
@@ -48,8 +49,10 @@ export default function SelectDevice() {
     }
 
     return (
-        <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ padding: '5px', backgroundColor: 'lightGrey' }}><b>Select Board</b></div>
+        <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign:'center' }}>
+            <Navbar bg="light" expand="lg">
+                <Navbar.Brand href="#home">Select Board</Navbar.Brand>
+            </Navbar>
             <div style={{ height: '100%', overflowY: 'auto' }}>
                 {
                     boards.map(board => (
@@ -75,8 +78,8 @@ export default function SelectDevice() {
                                 borderRadius: '10px'
                             }}>
                                 <div style={{ backgroundColor: 'lightGrey', padding: '3px', borderRadius: '5px' }}><b>{makeBoardName(board)}</b></div>
-                                <div style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
-                                    <img style={{ maxWidth: '100%' }} src={path.join('boardfiles', board, 'render.png')} alt="devicePic" />
+                                <div style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden', height: '100%', alignItems: 'center' }}>
+                                    <img style={{ display: 'block', maxWidth: '100%', maxHeight: '100%' }} src={path.join('boardfiles', board, 'render.png')} alt="devicePic" />
                                 </div>
                             </div>
                         </div>

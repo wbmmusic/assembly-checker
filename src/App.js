@@ -6,7 +6,6 @@ const { ipcRenderer } = window.require('electron')
 
 function App() {
 
-
   useEffect(() => {
     ipcRenderer.on('message', (e, theMessage) => {
       console.log(theMessage)
@@ -15,7 +14,6 @@ function App() {
     ipcRenderer.on('app_version', (event, arg) => {
       document.title = 'WBM Tek PCB Assembly Checker --- v' + arg.version;
     });
-
 
     ipcRenderer.send('reactIsReady')
 
