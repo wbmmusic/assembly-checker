@@ -61,11 +61,12 @@ function createWindow() {
   })
 
   const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: '/',
+    pathname: path.join(__dirname, '/../build/index.html'),
     protocol: 'file:',
     slashes: true
   });
   win.loadURL(startUrl);
+  win.loadURL('/');
   //win.maximize()
 
   // Emitted when the window is closed.
