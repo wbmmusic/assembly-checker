@@ -68,7 +68,7 @@ export default function SelectDevice() {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 overflow: 'hidden',
-                                backgroundColor: 'black',
+                                backgroundColor: 'rgb(80,80,80)',
                                 padding: '5px',
                                 width: '250px',
                                 height: '250px',

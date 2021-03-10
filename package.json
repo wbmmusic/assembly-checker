@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.166",
+  "version": "0.0.165",
   "author": "Marece Williams",
   "description": "App for programming and testing PA-Manager PCBs",
   "homepage": "./",
@@ -68,6 +68,7 @@
     "electronVersion": "12.0.0",
     "copyright": "WBM Tek",
     "extends": null,
+    "npmRebuild": false,
     "files": [
       "build/**/*",
       "electron/*"
