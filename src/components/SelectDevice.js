@@ -54,6 +54,7 @@ export default function SelectDevice() {
                 {
                     boards.map(board => (
                         <div
+                            key={board}
                             style={{ display: 'inline-block', cursor: 'pointer', margin: '3px' }}
                             onClick={() => history.replace({
                                 pathname: '/device/' + board,
