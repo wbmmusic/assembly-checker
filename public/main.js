@@ -3,7 +3,7 @@ const path = require('path')
 const url = require('url')
 const fs = require('fs')
 const { execFileSync } = require('child_process');
-const wbmUsbDevice = require('wbm-usb-device')
+//const wbmUsbDevice = require('wbm-usb-device')
 
 const { autoUpdater } = require('electron-updater');
 
@@ -171,11 +171,12 @@ app.on('ready', () => {
       createListeners()
 
       //wbmUsbDevice.startWbmUsb()
-
-      wbmUsbDevice.events.on('devList', (list) => {
-        win.webContents.send('devList', list)
-        console.log("LIST", list)
-      })
+      /*
+            wbmUsbDevice.events.on('devList', (list) => {
+              win.webContents.send('devList', list)
+              console.log("LIST", list)
+            })
+            */
     }
 
     console.log('React Is Ready')
