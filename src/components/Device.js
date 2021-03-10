@@ -2,6 +2,7 @@ import React from 'react'
 import { Button } from 'react-bootstrap'
 import { useHistory } from 'react-router'
 const { ipcRenderer } = window.require('electron')
+const path = require('path')
 
 export default function Device() {
     const history = useHistory()
@@ -37,7 +38,7 @@ export default function Device() {
                             <tbody>
                                 <tr>
                                     <td style={{ borderRight: '1px solid lightGrey', width: '1px', padding: '5px' }}>
-                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={'/boardfiles/' + history.location.state.folder + '/render.png'} alt="brdImage" />
+                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join(__dirname, 'boardfiles', history.location.state.folder, 'render.png')} alt="brdImage" />
                                     </td>
                                     <td>
                                         <table>
