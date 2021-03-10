@@ -66,7 +66,6 @@ function createWindow() {
     slashes: true
   });
   win.loadURL(startUrl);
-  win.loadURL('/');
   //win.maximize()
 
   // Emitted when the window is closed.
@@ -101,7 +100,7 @@ const createListeners = () => {
     const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
     const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
     fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '\"\r\nrnh\r\nexit', 'utf8')
+    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
     let fun = execFileSync(pathToJLink, [...args], { shell: true, cwd: workingDirectory }).toString()
     win.webContents.send('message', fun)
     //fs.unlinkSync(pathToFile)
