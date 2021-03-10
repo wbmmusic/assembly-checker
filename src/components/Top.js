@@ -12,8 +12,9 @@ export default function Top(props) {
     return (
         <div style={{ height: '100%' }}>
             <Switch>
+                
                 <Route path="/device" component={Device} />
-                <Route exact component={SelectDevice} />
+                <Route component={SelectDevice} />
             </Switch>
             <Modals />
         </div>
