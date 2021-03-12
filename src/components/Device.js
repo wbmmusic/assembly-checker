@@ -44,7 +44,7 @@ export default function Device() {
                             <tbody>
                                 <tr>
                                     <td style={{ borderRight: '1px solid lightGrey', width: '1px', padding: '5px' }}>
-                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join('/boardfiles', history.location.state.folder, 'render.png')} alt="brdImage" />
+                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join('boardfiles', history.location.state.folder, 'render.png')} alt="brdImage" />
                                     </td>
                                     <td>
                                         <table>
