@@ -2,8 +2,8 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs')
-const { execFileSync } = require('child_process');
-//const wbmUsbDevice = require('wbm-usb-device')
+const { execFileSync, execFile } = require('child_process');
+const wbmUsbDevice = require('wbm-usb-device')
 
 const { autoUpdater } = require('electron-updater');
 
@@ -101,11 +101,15 @@ const createListeners = () => {
     const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
     fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
     fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
-    let fun = execFileSync(pathToJLink, [...args], { shell: true, cwd: workingDirectory }).toString()
-    win.webContents.send('message', fun)
-    //fs.unlinkSync(pathToFile)
-    console.log('PROGRAMMING DONE!')
-    win.webContents.send('programmingComplete')
+    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+
+    child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
+
+    child.on('close', (code) => {
+      console.log('PROGRAMMING DONE!')
+      win.webContents.send('programmingComplete')
+    })
+
   }
 
   const chipErase = () => {
@@ -126,11 +130,18 @@ const createListeners = () => {
     win.webContents.send('message', workingDirectory)
 
     fs.writeFileSync(pathToFile, "erase\r\nrnh\r\nexit", 'utf8')
-    let fun = execFileSync(pathToJLink, [...args], { shell: true, cwd: workingDirectory }).toString()
-    win.webContents.send('message', fun)
+
+    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+
+    child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
+
+    child.on('close', (code) => {
+      console.log('CHIP ERASE DONE!')
+      win.webContents.send('chipEraseComplete')
+    })
+
     //fs.unlinkSync(pathToFile)
-    console.log('CHIP ERASE DONE!')
-    win.webContents.send('chipEraseComplete')
+
   }
 
   ipcMain.on('installUpdate', () => {
@@ -149,7 +160,16 @@ const createListeners = () => {
 
   ipcMain.on('programAndTest', (e, folder) => {
     console.log('Program and test', folder)
+
+    // Load Bootloader and Testing Firmware
     loadFirmware('cvSlowBlink_x2000.bin')
+
+    // Wait for programmed device to be detected
+
+    // Run Tests on device
+
+    // Load Release Firmware
+    
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -183,15 +203,13 @@ app.on('ready', () => {
       listenersApplied = true
       createListeners()
 
-      /*
-      wbmUsbDevice.startWbmUsb()
 
-      wbmUsbDevice.events.on('devList', (list) => {
-        win.webContents.send('devList', list)
-        console.log("LIST", list)
+      wbmUsbDevice.startMonitoring()
+
+      wbmUsbDevice.on('devList', (list) => {
+        console.log('------>>>>> GOT DEV LIST', list)
       })
-      */
-      
+
     }
 
     console.log('React Is Ready')

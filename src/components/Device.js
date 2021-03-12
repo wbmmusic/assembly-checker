@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Navbar } from 'react-bootstrap'
 import { useHistory } from 'react-router'
 const { ipcRenderer } = window.require('electron')
@@ -6,6 +6,7 @@ const path = require('path')
 
 export default function Device() {
     const history = useHistory()
+    const [termText, setTermText] = useState([])
 
     console.log(history.location.state)
 
@@ -20,6 +21,16 @@ export default function Device() {
         ipcRenderer.send('chipErase')
     }
 
+    useEffect(() => {
+        ipcRenderer.on('jLinkProgress', (e, theMessage) => {
+            console.log('JLINK-->>', theMessage)
+            setTermText(theMessage.split('\r\n'))
+        })
+        return () => {
+            ipcRenderer.removeAllListeners('jLinkProgress')
+        }
+    }, [])
+
     return (
         <div style={{ height: '100vh', width: '100vw' }}>
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
@@ -33,7 +44,7 @@ export default function Device() {
                             <tbody>
                                 <tr>
                                     <td style={{ borderRight: '1px solid lightGrey', width: '1px', padding: '5px' }}>
-                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join('boardfiles', history.location.state.folder, 'render.png')} alt="brdImage" />
+                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join('/boardfiles', history.location.state.folder, 'render.png')} alt="brdImage" />
                                     </td>
                                     <td>
                                         <table>
@@ -51,10 +62,22 @@ export default function Device() {
                             </tbody>
                         </table>
                     </div>
-                    <div style={{ height: '100%' }}>
-                        <div style={{ padding: '10px', width: '100%', height: '100%', border: '1px solid lightGrey' }}>
-                            Terminal
-                    </div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden',
+                            padding: '10px',
+                            width: '100%',
+                            height: '100%',
+                            border: '1px solid lightGrey',
+                            overflowY: 'auto',
+                            fontSize: '12px'
+                        }}
+                    >
+                        {
+                            termText.map((line, idx) => (<div key={'line' + idx}>{line}</div>))
+                        }
                     </div>
                 </div>
             </div>

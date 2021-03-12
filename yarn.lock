@@ -12977,10 +12977,10 @@ watchpack@^1.7.4:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
 
-wbm-usb-device@^0.1.27:
-  version "0.1.27"
-  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.1.27.tgz#458c26e62c95d35e4488e973fd4a3dbc26e77b0b"
-  integrity sha512-e1JoUH9Fzo0lnVFIxkwn4gyZViEw8QxnOarjsgnFU3rYbsmZwp2a0zk3r3pAntFF27RpseFZD8HsJHroDF40HQ==
+wbm-usb-device@^0.2.9:
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.2.9.tgz#b0d3efd63365e2f526b546a05f2ff07175009eb8"
+  integrity sha512-N23BjdT8YSxd51kU9iz6UGiTcbo79onV3yol4NcA8tLlTBQ+Zq1duRj+ay9ELmx8B9UZ8F17VFIxgRwuiiXRfg==
   dependencies:
     serialport "^9.0.4"
     usb-detection "^4.10.0"
