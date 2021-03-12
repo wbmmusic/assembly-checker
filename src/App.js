@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
+import { useHistory } from 'react-router';
 import Top from './components/Top'
 import Updates from './Updates';
 
 const { ipcRenderer } = window.require('electron')
 
 function App() {
+  const history = useHistory()
 
   useEffect(() => {
     ipcRenderer.on('message', (e, theMessage) => {
@@ -16,6 +18,7 @@ function App() {
     });
 
     ipcRenderer.send('reactIsReady')
+    history.replace('/')
 
     return () => {
       ipcRenderer.removeAllListeners('message')
