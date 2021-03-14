@@ -216,7 +216,7 @@ const createListeners = () => {
 
     // Load Release Firmware
     console.log('Load Release Firmware')
-    let pathToTheFirmware = path.join(__dirname, 'boardfiles', folder, 'release.bin')
+    let pathToTheFirmware = path.join(...upStuff, 'boardfiles', folder, 'release.bin')
     wbmUsbDevice.uploadFirmware({ comPort: deviceIsOnPort, firm: pathToTheFirmware })
   })
 
