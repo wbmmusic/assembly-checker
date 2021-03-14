@@ -4,6 +4,7 @@ const url = require('url')
 const fs = require('fs')
 const { execFileSync, execFile } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
+const tests = require('./tests')
 
 const { autoUpdater } = require('electron-updater');
 
@@ -75,6 +76,7 @@ function createWindow() {
 }
 
 const createListeners = () => {
+
   const loadFirmware = (fileName) => {
     win.webContents.send('programming')
     console.log(__dirname)
@@ -99,17 +101,56 @@ const createListeners = () => {
 
     const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
     const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
-    fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
-    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
-    child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
+    return new Promise((resolve, reject) => {
+      fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
+      fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
 
-    child.on('close', (code) => {
-      console.log('PROGRAMMING DONE!')
-      win.webContents.send('programmingComplete')
+      let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+
+      child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
+
+      child.on('close', (code) => {
+        console.log('PROGRAMMING DONE!')
+        win.webContents.send('programmingComplete')
+        resolve()
+      })
+
+      child.on('error', (error) => reject(error.message))
     })
+  }
 
+  const waitForDevice = (device) => {
+
+    let waitFor = ''
+
+    switch (device) {
+      case 'cvboard':
+        waitFor = 'CV Board'
+        break;
+
+      default:
+        break;
+    }
+
+    return new Promise((resolve, reject) => {
+      const exit = (passFail) => {
+        clearTimeout(waitForDeviceTimer)
+        if (passFail === 'fail') reject()
+        else resolve(passFail)
+      }
+
+      let waitForDeviceTimer = setTimeout(() => {
+        exit('fail')
+      }, 3000);
+
+      wbmUsbDevice.on('devList', (list) => {
+        let devIdx = list.findIndex(dev => dev.Model === waitFor)
+
+        if (devIdx >= 0) exit(list[devIdx].path)
+      })
+
+    })
   }
 
   const chipErase = () => {
@@ -158,18 +199,25 @@ const createListeners = () => {
     chipErase()
   })
 
-  ipcMain.on('programAndTest', (e, folder) => {
+  ipcMain.on('programAndTest', async (e, folder) => {
     console.log('Program and test', folder)
 
-    // Load Bootloader and Testing Firmware
-    loadFirmware('cvSlowBlink_x2000.bin')
+    // Load BootLoader and Testing Firmware
+    const program = await loadFirmware('cvSlowBlink_x2000.bin')
+    console.log('Programming Complete.  Waiting for device to connect')
 
     // Wait for programmed device to be detected
+    const deviceIsOnPort = await waitForDevice(folder)
+    console.log('The Device was found at', deviceIsOnPort)
 
     // Run Tests on device
+    let testResult = await tests.runTests(folder, deviceIsOnPort)
+    console.log(testResult)
 
     // Load Release Firmware
-    
+    console.log('Load Release Firmware')
+    let pathToTheFirmware = path.join(__dirname, 'boardfiles', folder, 'release.bin')
+    wbmUsbDevice.uploadFirmware({ comPort: deviceIsOnPort, firm: pathToTheFirmware })
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -208,6 +256,10 @@ app.on('ready', () => {
 
       wbmUsbDevice.on('devList', (list) => {
         console.log('------>>>>> GOT DEV LIST', list)
+      })
+
+      wbmUsbDevice.on('progress', (list) => {
+        console.log('progress', list)
       })
 
     }
