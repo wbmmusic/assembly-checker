@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button, Navbar } from 'react-bootstrap'
 import { useHistory } from 'react-router'
 const { ipcRenderer } = window.require('electron')
@@ -7,6 +7,7 @@ const path = require('path')
 export default function Device() {
     const history = useHistory()
     const [termText, setTermText] = useState([])
+    const termRef = useRef(null)
 
     console.log(history.location.state)
 
@@ -24,12 +25,17 @@ export default function Device() {
     useEffect(() => {
         ipcRenderer.on('jLinkProgress', (e, theMessage) => {
             console.log('JLINK-->>', theMessage)
-            setTermText(theMessage.split('\r\n'))
+            setTermText((oldTerm) => ([...oldTerm, theMessage.split('\r\n')]))
         })
         return () => {
             ipcRenderer.removeAllListeners('jLinkProgress')
         }
     }, [])
+
+    // Keep div scrolled to bottom
+    useEffect(() => {
+        termRef.current.scrollTop = termRef.current.scrollHeight;
+    }, [termText])
 
     return (
         <div style={{ height: '100vh', width: '100vw' }}>
@@ -63,6 +69,7 @@ export default function Device() {
                         </table>
                     </div>
                     <div
+                        ref={termRef}
                         style={{
                             display: 'flex',
                             flexDirection: 'column',

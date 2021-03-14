@@ -260,7 +260,10 @@ app.on('ready', () => {
 
       wbmUsbDevice.on('progress', (list) => {
         console.log('progress', list)
+        win.webContents.send('jLinkProgress', list)
       })
+
+      tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
 
     }
 

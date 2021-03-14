@@ -1,5 +1,7 @@
 let SerialPort = require('serialport')
 let ByteLength = require('@serialport/parser-byte-length')
+const EventEmitter = require('events')
+const myEmitter = new EventEmitter();
 
 let port = null
 
@@ -86,11 +88,20 @@ const runAutomatedTests = async (tests) => {
 
 const runTests = async (board) => {
     console.log('>>>>>> STARTING TESTS <<<<<<')
+    myEmitter.emit('message', '>>>>>> STARTING TESTS <<<<<<')
     let startTime = Date.now()
     const autTestResults = await runAutomatedTests(board.automated)
-    autTestResults.forEach(result => console.log(result))
-    console.log('Automated test duration:', (Date.now() - startTime).toString() + 'ms')
+    autTestResults.forEach(result => {
+        console.log(result)
+        myEmitter.emit('message', result)
+    })
+
+    let duration = (Date.now() - startTime).toString() + 'ms'
+    console.log('Automated test duration:', duration)
+    myEmitter.emit('message', 'Automated test duration: ' + duration)
+
     console.log('>>>>>> FINISHED TESTS <<<<<<')
+    myEmitter.emit('message', '>>>>>> FINISHED TESTS <<<<<<')
     port.close()
 }
 
@@ -120,4 +131,5 @@ const startTest = (board, thePort) => {
     })
 }
 
-exports.runTests = startTest
+module.exports = myEmitter
+module.exports.runTests = startTest
