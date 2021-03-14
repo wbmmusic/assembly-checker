@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.169",
+  "version": "0.0.170",
   "author": "Marece Williams",
   "description": "App for programming and testing PA-Manager PCBs",
   "homepage": "./",
@@ -81,8 +81,8 @@
         "public/JLink.exe",
         "public/JLinkARM.dll",
         "public/firmware/*",
-        "public/temp/*",
-        "public/USBDriver/**/*"
+        "public/USBDriver/**/*",
+        "public/boardfiles/**/*"
       ]
     }
   }
