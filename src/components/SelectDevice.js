@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Navbar } from 'react-bootstrap'
+import { Navbar } from 'react-bootstrap'
 import { useHistory } from 'react-router'
 const path = require('path')
 
@@ -50,12 +50,9 @@ export default function SelectDevice() {
     return (
         <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: 'center' }}>
             <Navbar bg="light" expand="lg">
-                <Navbar.Brand href="#home">Select Board</Navbar.Brand>
+                <Navbar.Brand style={{ marginLeft: '8px' }}>Select Board</Navbar.Brand>
             </Navbar>
             <div style={{ height: '100%', overflowY: 'auto' }}>
-                <div>
-                    <Button onClick={() => console.log(history.location.pathname)} >Print Location</Button>
-                </div>
                 {
                     boards.map(board => (
                         <div

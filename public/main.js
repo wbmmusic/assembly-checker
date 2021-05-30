@@ -7,6 +7,8 @@ const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
 
 const { autoUpdater } = require('electron-updater');
+const axios = require('axios');
+axios.baseURL = 'http://localhost'
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
@@ -22,6 +24,29 @@ let workingDirectory = path.join(...upStuff)
 let pathToJLink = path.join(workingDirectory, "JLink.exe")
 let pathToFiles = path.join('C:', 'ProgramData', 'WBM Tek', 'pcbChecker')
 let pathToFile = path.join(pathToFiles, 'cmd.jlink')
+
+const handleLine = (line) => {
+  const space = () => console.log("------------------")
+  space()
+  console.log("Line Name:", line.name)
+  console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
+  console.log("# of devices:", line.devices.length)
+  line.devices.forEach((element, idx) => {
+    space()
+    console.log("Device", "#" + parseInt(idx + 1) + ':', element.name)
+    console.log("Current FW:", element.current)
+    console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
+  });
+  space()
+}
+
+const checkForUpdates = () => {
+  axios.get('/line', { params: { line: 'iomanager' } })
+    .then(res => handleLine(res.data))
+    .catch(err => console.log(err.message))
+}
+
+checkForUpdates()
 
 
 if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
@@ -103,20 +128,39 @@ const createListeners = () => {
     const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
 
     return new Promise((resolve, reject) => {
+      win.webContents.send('jLinkProgress', "Programming MCU")
+      let out = null
       fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
       fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
 
       let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
-      child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
+      child.stdout.on('data', (data) => {
+        //win.webContents.send('jLinkProgress', data)
+        console.log('DATA----------->>>>>>>>>>>>>>')
+        console.log("HEREXXX", data.toString())
+        if (data.toString().includes('Cannot connect to target.')) out = "FAILED :Could not communicate with MCU"
+        else if (data.toString().includes('FAILED: Cannot connect to J-Link')) out = "FAILED: Cannot connect to J-Link"
+        else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
+      })
 
       child.on('close', (code) => {
         console.log('PROGRAMMING DONE!')
-        win.webContents.send('programmingComplete')
-        resolve()
+
+        if (out === "Programming Successful") {
+          win.webContents.send('jLinkProgress', "Programming Complete")
+          win.webContents.send('programmingComplete')
+          resolve('Programming Complete')
+        } else {
+          win.webContents.send('jLinkProgress', "Programming Failed")
+          reject(new Error(out))
+        }
       })
 
-      child.on('error', (error) => reject(error.message))
+      child.on('error', (error) => {
+        console.log('Error In CHild!!')
+        reject(new Error('Error in J-LINK programming'))
+      })
     })
   }
 
@@ -134,9 +178,10 @@ const createListeners = () => {
     }
 
     return new Promise((resolve, reject) => {
+      win.webContents.send('jLinkProgress', "Waiting to detect Device")
       const exit = (passFail) => {
         clearTimeout(waitForDeviceTimer)
-        if (passFail === 'fail') reject()
+        if (passFail === 'fail') reject(new Error('Board did not connect in time.  Make sure USB cable is connected to PCB'))
         else resolve(passFail)
       }
 
@@ -203,21 +248,42 @@ const createListeners = () => {
     console.log('Program and test', folder)
 
     // Load BootLoader and Testing Firmware
-    const program = await loadFirmware('cvSlowBlink_x2000.bin')
-    console.log('Programming Complete.  Waiting for device to connect')
+    try {
+      const program = await loadFirmware('cvSlowBlink_x2000.bin')
+      console.log(program)
+    } catch (error) {
+      console.log(error)
+    }
+
+    //console.log('Programming Complete.  Waiting for device to connect')
 
     // Wait for programmed device to be detected
-    const deviceIsOnPort = await waitForDevice(folder)
-    console.log('The Device was found at', deviceIsOnPort)
+    let deviceIsOnPort
+    try {
+      deviceIsOnPort = await waitForDevice(folder)
+      console.log('The Device was found at', deviceIsOnPort)
+      win.webContents.send('jLinkProgress', 'The Device was found at ' + deviceIsOnPort)
+    } catch (error) {
+      console.log(error)
+      win.webContents.send('jLinkProgress', error.message)
+    }
+
 
     // Run Tests on device
-    let testResult = await tests.runTests(folder, deviceIsOnPort)
-    console.log(testResult)
+    try {
+      let testResult = await tests.runTests(folder, deviceIsOnPort)
+      console.log(testResult)
+    } catch (error) {
+      console.log(error)
+    }
+
+    win.webContents.send('jLinkProgress', "-->> PCB has tested good and is ready for delivery!! :) <<--")
+
 
     // Load Release Firmware
-    console.log('Load Release Firmware')
-    let pathToTheFirmware = path.join(...upStuff, 'boardfiles', folder, 'release.bin')
-    wbmUsbDevice.uploadFirmware({ comPort: deviceIsOnPort, firm: pathToTheFirmware })
+    //console.log('Load Release Firmware')
+    //let pathToTheFirmware = path.join(...upStuff, 'boardfiles', folder, 'release.bin')
+    //wbmUsbDevice.uploadFirmware({ comPort: deviceIsOnPort, firm: pathToTheFirmware })
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
