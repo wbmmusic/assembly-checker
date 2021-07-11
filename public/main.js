@@ -20,10 +20,16 @@ if (app.isPackaged) {
   upStuff = [process.resourcesPath, "public"]
 }
 
+// PATHS to files and folders
 let workingDirectory = path.join(...upStuff)
 let pathToJLink = path.join(workingDirectory, "JLink.exe")
 let pathToFiles = path.join('C:', 'ProgramData', 'WBM Tek', 'pcbChecker')
 let pathToFile = path.join(pathToFiles, 'cmd.jlink')
+let pathToData = path.join(pathToFiles, 'data.json')
+let pathToDevices = path.join(pathToFiles, 'devices')
+
+const file = () => JSON.parse(fs.readFileSync(pathToData))
+const saveFile = (data) => fs.writeFileSync(pathToData, JSON.stringify(data))
 
 const handleLine = (line) => {
   const space = () => console.log("------------------")
@@ -41,7 +47,7 @@ const handleLine = (line) => {
 }
 
 const checkForUpdates = () => {
-  axios.get('/line', { params: { line: 'iomanager' } })
+  axios.get('http://versions.wbmtek.com/api/line', { params: { line: 'iomanager' } })
     .then(res => handleLine(res.data))
     .catch(err => console.log(err.message))
 }
@@ -57,6 +63,19 @@ if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
 if (!fs.existsSync(pathToFiles)) {
   console.log('Creating pcbChecker folder')
   fs.mkdirSync(pathToFiles)
+}
+
+if (!fs.existsSync(pathToDevices)) {
+  console.log('Creating devices folder')
+  fs.mkdirSync(pathToDevices)
+}
+
+if (!fs.existsSync(pathToData)) {
+  let defaultDataStructure = {
+    devices: []
+  }
+  console.log('Creating data,json')
+  fs.writeFileSync(pathToData, JSON.stringify(defaultDataStructure))
 }
 
 ////////  SINGLE INSTANCE //////////
