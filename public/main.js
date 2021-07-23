@@ -5,6 +5,8 @@ const fs = require('fs')
 const { execFileSync, execFile } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
+const wbmver = require('wbm-version-manager')
+wbmver.setBase('http://versions.wbmtek.com/api')
 
 const { autoUpdater } = require('electron-updater');
 const axios = require('axios');
@@ -46,10 +48,18 @@ const handleLine = (line) => {
   space()
 }
 
-const checkForUpdates = () => {
-  axios.get('http://versions.wbmtek.com/api/line', { params: { line: 'iomanager' } })
-    .then(res => handleLine(res.data))
-    .catch(err => console.log(err.message))
+const checkForUpdates = async () => {
+  try {
+    let lines = await wbmver.getLines()
+    if (lines === undefined) console.log("LINES IS UNDEFINED")
+    let lineID = lines.find(line => line.path === 'iomanager').id
+    if (lineID === undefined) console.log("THE LINEID IS UNDEFINED")
+    let theLine = await wbmver.getLine(lineID)
+    handleLine(theLine)
+  } catch (error) {
+    console.log(error)
+  }
+
 }
 
 checkForUpdates()
