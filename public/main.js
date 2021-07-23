@@ -9,8 +9,6 @@ const wbmver = require('wbm-version-manager')
 wbmver.setBase('http://versions.wbmtek.com/api')
 
 const { autoUpdater } = require('electron-updater');
-const axios = require('axios');
-axios.baseURL = 'http://localhost'
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
