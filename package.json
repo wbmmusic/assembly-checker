@@ -69,7 +69,7 @@
   "build": {
     "productName": "WBM Tek PCB Assembly Checker",
     "appId": "com.electron.pcbchk",
-    "electronVersion": "12.0.0",
+    "electronVersion": "15.1.1",
     "copyright": "WBM Tek",
     "extends": null,
     "npmRebuild": false,
