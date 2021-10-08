@@ -21,8 +21,8 @@
     "serialport": "^9.2.4",
     "update-electron-app": "^2.0.1",
     "wbm-usb-device": "^0.2.32",
-    "wbm-version-manager": "^0.0.19",
-    "web-vitals": "^2.1.0"
+    "wbm-version-manager": "^0.0.20",
+    "web-vitals": "^2.1.1"
   },
   "scripts": {
     "dev": "nf start",
@@ -58,7 +58,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^15.1.1",
+    "electron": "^15.1.2",
     "electron-builder": "^22.11.7",
     "electron-rebuild": "^3.2.3"
   },
