@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.178",
+  "version": "0.0.179",
   "author": "Marece Williams",
   "description": "App for programming and testing PA-Manager PCBs",
   "homepage": "./",
@@ -10,7 +10,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.2.1",
-    "bootstrap": "^5.1.2",
+    "bootstrap": "^5.1.3",
     "electron-updater": "^4.3.9",
     "foreman": "^3.0.1",
     "react": "^17.0.2",
@@ -21,7 +21,7 @@
     "serialport": "^9.2.4",
     "update-electron-app": "^2.0.1",
     "wbm-usb-device": "^0.2.32",
-    "wbm-version-manager": "^0.0.20",
+    "wbm-version-manager": "^0.0.28",
     "web-vitals": "^2.1.1"
   },
   "scripts": {
@@ -37,7 +37,8 @@
     "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
     "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
     "try": "yarn build && yarn package ",
-    "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master"
+    "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
+    "renew": "yarn upgrade --latest && yarn rebuild"
   },
   "eslintConfig": {
     "extends": [
@@ -59,7 +60,7 @@
   },
   "devDependencies": {
     "electron": "^15.1.2",
-    "electron-builder": "^22.11.7",
+    "electron-builder": "^22.13.1",
     "electron-rebuild": "^3.2.3"
   },
   "repository": {
@@ -69,7 +70,7 @@
   "build": {
     "productName": "WBM Tek PCB Assembly Checker",
     "appId": "com.electron.pcbchk",
-    "electronVersion": "15.1.1",
+    "electronVersion": "15.1.2",
     "copyright": "WBM Tek",
     "extends": null,
     "npmRebuild": false,

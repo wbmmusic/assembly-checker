@@ -5,63 +5,91 @@ const fs = require('fs')
 const { execFileSync, execFile } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
-const wbmver = require('wbm-version-manager')
-wbmver.setBase('http://versions.wbmtek.com/api')
+const wbmVer = require('wbm-version-manager')
+wbmVer.setBase('http://versions.wbmtek.com/api')
 
 const { autoUpdater } = require('electron-updater');
+const { join } = require('path');
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
-
 let listenersApplied = false
-
 let upStuff = [__dirname]
-if (app.isPackaged) {
-  upStuff = [process.resourcesPath, "public"]
-}
+if (app.isPackaged) upStuff = [process.resourcesPath, "public"]
 
 // PATHS to files and folders
 let workingDirectory = path.join(...upStuff)
 let pathToJLink = path.join(workingDirectory, "JLink.exe")
-let pathToFiles = path.join('C:', 'ProgramData', 'WBM Tek', 'pcbChecker')
+let pathToFiles = path.join(app.getPath('userData'), 'data')
 let pathToFile = path.join(pathToFiles, 'cmd.jlink')
-let pathToData = path.join(pathToFiles, 'data.json')
 let pathToDevices = path.join(pathToFiles, 'devices')
 
-const file = () => JSON.parse(fs.readFileSync(pathToData))
-const saveFile = (data) => fs.writeFileSync(pathToData, JSON.stringify(data))
 
-const handleLine = (line) => {
+const handleLine = async (line) => {
   const space = () => console.log("------------------")
   space()
   console.log("Line Name:", line.name)
   console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
   console.log("# of devices:", line.devices.length)
-  line.devices.forEach((element, idx) => {
-    space()
-    console.log("Device", "#" + parseInt(idx + 1) + ':', element.name)
-    console.log("Current FW:", element.current)
-    console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
-  });
+  space()
+
+  await line.devices.reduce(async (acc, element) => {
+
+    await acc
+
+    if (element.name !== "Brain") {
+      const pathToDevice = join(pathToDevices, element.path)
+
+      if (!fs.existsSync(pathToDevice)) fs.mkdirSync(pathToDevice)
+      let currentFirmware = null
+
+      if (element.current !== '???') {
+        currentFirmware = element.firmware.find(fw => fw.version === element.current)
+
+        if (!fs.existsSync(join(pathToDevice, currentFirmware.name))) {
+          console.log("Current firmware file doesn't exist")
+
+          const devFolderContents = fs.readdirSync(pathToDevice)
+
+          // Delete All Files In this folder
+          devFolderContents.forEach(file => {
+            fs.unlinkSync(join(pathToDevice, file))
+          })
+
+          //Put New Firmware in folder
+          let dl = await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
+          console.log(dl)
+        }
+      }
+
+
+
+      console.log("Device", element.name)
+      console.log("Current FW:", element.current)
+      console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
+      space()
+    }
+  }, Promise.resolve([]))
+
+
+
+
   space()
 }
 
 const checkForUpdates = async () => {
   try {
-    let lines = await wbmver.getLines()
+    let lines = await wbmVer.getLines()
     if (lines === undefined) console.log("LINES IS UNDEFINED")
     let lineID = lines.find(line => line.path === 'iomanager').id
     if (lineID === undefined) console.log("THE LINEID IS UNDEFINED")
-    let theLine = await wbmver.getLine(lineID)
+    let theLine = await wbmVer.getLine(lineID)
     handleLine(theLine)
   } catch (error) {
     console.log(error)
   }
 
 }
-
-checkForUpdates()
-
 
 if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
   console.log('Creating WBM Tek folder')
@@ -78,28 +106,134 @@ if (!fs.existsSync(pathToDevices)) {
   fs.mkdirSync(pathToDevices)
 }
 
-if (!fs.existsSync(pathToData)) {
-  let defaultDataStructure = {
-    devices: []
-  }
-  console.log('Creating data,json')
-  fs.writeFileSync(pathToData, JSON.stringify(defaultDataStructure))
+
+const loadFirmware = (fileName) => {
+  win.webContents.send('programming')
+  console.log(__dirname)
+  win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+
+  const args = [
+    '-device ATSAMD21G18',
+    '-if SWD',
+    '-speed 4000',
+    '-autoconnect 1',
+    '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
+    '-ExitOnError 1'
+  ]
+
+  win.webContents.send('message', pathToFile)
+  let pathToFirmware = path.join(...upStuff, "firmware", fileName)
+  let pathToBoot = path.join(...upStuff, "firmware", 'boot.bin')
+  let pathToOutput = path.join(pathToFiles, 'output.bin')
+  win.webContents.send('message', workingDirectory)
+
+  console.log('pathToFirm', pathToFirmware)
+
+  const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
+  const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
+
+  return new Promise((resolve, reject) => {
+    win.webContents.send('jLinkProgress', "Programming MCU")
+    let out = null
+    fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
+    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
+
+    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+
+    child.stdout.on('data', (data) => {
+      //win.webContents.send('jLinkProgress', data)
+      console.log('DATA----------->>>>>>>>>>>>>>')
+      console.log("HEREXXX", data.toString())
+      if (data.toString().includes('Cannot connect to target.')) out = "FAILED :Could not communicate with MCU"
+      else if (data.toString().includes('FAILED: Cannot connect to J-Link')) out = "FAILED: Cannot connect to J-Link"
+      else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
+    })
+
+    child.on('close', (code) => {
+      console.log('PROGRAMMING DONE!')
+
+      if (out === "Programming Successful") {
+        win.webContents.send('jLinkProgress', "Programming Complete")
+        win.webContents.send('programmingComplete')
+        resolve('Programming Complete')
+      } else {
+        win.webContents.send('jLinkProgress', "Programming Failed")
+        reject(new Error(out))
+      }
+    })
+
+    child.on('error', (error) => {
+      console.log('Error In CHild!!')
+      reject(new Error('Error in J-LINK programming'))
+    })
+  })
 }
 
-////////  SINGLE INSTANCE //////////
-const gotTheLock = app.requestSingleInstanceLock()
-if (!gotTheLock) {
-  app.quit()
+const waitForDevice = (device) => {
+
+  let waitFor = ''
+
+  switch (device) {
+    case 'cvboard':
+      waitFor = 'CV Board'
+      break;
+
+    default:
+      break;
+  }
+
+  return new Promise((resolve, reject) => {
+    win.webContents.send('jLinkProgress', "Waiting to detect Device")
+    const exit = (passFail) => {
+      clearTimeout(waitForDeviceTimer)
+      if (passFail === 'fail') reject(new Error('Board did not connect in time.  Make sure USB cable is connected to PCB'))
+      else resolve(passFail)
+    }
+
+    let waitForDeviceTimer = setTimeout(() => {
+      exit('fail')
+    }, 3000);
+
+    wbmUsbDevice.on('devList', (list) => {
+      let devIdx = list.findIndex(dev => dev.Model === waitFor)
+
+      if (devIdx >= 0) exit(list[devIdx].path)
+    })
+
+  })
 }
 
-app.on('second-instance', (event, commandLine, workingDirectory) => {
-  // Someone tried to run a second instance, we should focus our window.
-  if (win) {
-    if (win.isMinimized()) win.restore()
-    win.focus()
-  }
-})
-//////  END SINGLE INSTANCE ////////
+const chipErase = () => {
+  win.webContents.send('chipErasing')
+  console.log(__dirname)
+  win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+
+  const args = [
+    '-device ATSAMD21G18',
+    '-if SWD',
+    '-speed 4000',
+    '-autoconnect 1',
+    '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
+    '-ExitOnError 1'
+  ]
+
+  win.webContents.send('message', pathToFile)
+  win.webContents.send('message', workingDirectory)
+
+  fs.writeFileSync(pathToFile, "erase\r\nrnh\r\nexit", 'utf8')
+
+  let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+
+  child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
+
+  child.on('close', (code) => {
+    console.log('CHIP ERASE DONE!')
+    win.webContents.send('chipEraseComplete')
+  })
+
+  //fs.unlinkSync(pathToFile)
+
+}
 
 function createWindow() {
   // Create the browser window.
@@ -128,135 +262,6 @@ function createWindow() {
 }
 
 const createListeners = () => {
-
-  const loadFirmware = (fileName) => {
-    win.webContents.send('programming')
-    console.log(__dirname)
-    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
-
-    const args = [
-      '-device ATSAMD21G18',
-      '-if SWD',
-      '-speed 4000',
-      '-autoconnect 1',
-      '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
-      '-ExitOnError 1'
-    ]
-
-    win.webContents.send('message', pathToFile)
-    let pathToFirmware = path.join(...upStuff, "firmware", fileName)
-    let pathToBoot = path.join(...upStuff, "firmware", 'boot.bin')
-    let pathToOutput = path.join(pathToFiles, 'output.bin')
-    win.webContents.send('message', workingDirectory)
-
-    console.log('pathToFirm', pathToFirmware)
-
-    const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
-    const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
-
-    return new Promise((resolve, reject) => {
-      win.webContents.send('jLinkProgress', "Programming MCU")
-      let out = null
-      fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-      fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
-
-      let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
-
-      child.stdout.on('data', (data) => {
-        //win.webContents.send('jLinkProgress', data)
-        console.log('DATA----------->>>>>>>>>>>>>>')
-        console.log("HEREXXX", data.toString())
-        if (data.toString().includes('Cannot connect to target.')) out = "FAILED :Could not communicate with MCU"
-        else if (data.toString().includes('FAILED: Cannot connect to J-Link')) out = "FAILED: Cannot connect to J-Link"
-        else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
-      })
-
-      child.on('close', (code) => {
-        console.log('PROGRAMMING DONE!')
-
-        if (out === "Programming Successful") {
-          win.webContents.send('jLinkProgress', "Programming Complete")
-          win.webContents.send('programmingComplete')
-          resolve('Programming Complete')
-        } else {
-          win.webContents.send('jLinkProgress', "Programming Failed")
-          reject(new Error(out))
-        }
-      })
-
-      child.on('error', (error) => {
-        console.log('Error In CHild!!')
-        reject(new Error('Error in J-LINK programming'))
-      })
-    })
-  }
-
-  const waitForDevice = (device) => {
-
-    let waitFor = ''
-
-    switch (device) {
-      case 'cvboard':
-        waitFor = 'CV Board'
-        break;
-
-      default:
-        break;
-    }
-
-    return new Promise((resolve, reject) => {
-      win.webContents.send('jLinkProgress', "Waiting to detect Device")
-      const exit = (passFail) => {
-        clearTimeout(waitForDeviceTimer)
-        if (passFail === 'fail') reject(new Error('Board did not connect in time.  Make sure USB cable is connected to PCB'))
-        else resolve(passFail)
-      }
-
-      let waitForDeviceTimer = setTimeout(() => {
-        exit('fail')
-      }, 3000);
-
-      wbmUsbDevice.on('devList', (list) => {
-        let devIdx = list.findIndex(dev => dev.Model === waitFor)
-
-        if (devIdx >= 0) exit(list[devIdx].path)
-      })
-
-    })
-  }
-
-  const chipErase = () => {
-    win.webContents.send('chipErasing')
-    console.log(__dirname)
-    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
-
-    const args = [
-      '-device ATSAMD21G18',
-      '-if SWD',
-      '-speed 4000',
-      '-autoconnect 1',
-      '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
-      '-ExitOnError 1'
-    ]
-
-    win.webContents.send('message', pathToFile)
-    win.webContents.send('message', workingDirectory)
-
-    fs.writeFileSync(pathToFile, "erase\r\nrnh\r\nexit", 'utf8')
-
-    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
-
-    child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
-
-    child.on('close', (code) => {
-      console.log('CHIP ERASE DONE!')
-      win.webContents.send('chipEraseComplete')
-    })
-
-    //fs.unlinkSync(pathToFile)
-
-  }
-
   ipcMain.on('installUpdate', () => {
     autoUpdater.quitAndInstall(true, true)
   })
@@ -333,6 +338,19 @@ const createListeners = () => {
   }
 }
 
+////////  SINGLE INSTANCE //////////
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) app.quit()
+
+app.on('second-instance', (event, commandLine, workingDirectory) => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (win) {
+    if (win.isMinimized()) win.restore()
+    win.focus()
+  }
+})
+//////  END SINGLE INSTANCE ////////
+
 
 // Create myWindow, load the rest of the app, etc...
 app.on('ready', () => {
@@ -344,12 +362,9 @@ app.on('ready', () => {
       listenersApplied = true
       createListeners()
 
-
       wbmUsbDevice.startMonitoring()
 
-      wbmUsbDevice.on('devList', (list) => {
-        console.log('------>>>>> GOT DEV LIST', list)
-      })
+      wbmUsbDevice.on('devList', list => console.log('------>>>>> GOT DEV LIST', list))
 
       wbmUsbDevice.on('progress', (list) => {
         console.log('progress', list)
@@ -383,6 +398,8 @@ app.on('ready', () => {
 
       autoUpdater.checkForUpdatesAndNotify()
     }
+
+    checkForUpdates()
 
   })
 
