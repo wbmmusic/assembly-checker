@@ -11619,7 +11619,7 @@ serialize-javascript@^5.0.1:
   dependencies:
     randombytes "^2.1.0"
 
-serialport@^9.0.7, serialport@^9.2.4:
+serialport@^9.2.4:
   version "9.2.4"
   resolved "https://registry.yarnpkg.com/serialport/-/serialport-9.2.4.tgz#ea95a32897286c8eadeaa700c215376fc5604c49"
   integrity sha512-QRn9/iYTK7qXfACskR+f2NIXwSZf/DwPQgFNRP89THFoX2sQVsMyNQZ9quB1XP5RujL7wYTRtZ/eSGSACI1d3A==
@@ -13130,12 +13130,12 @@ watchpack@^1.7.4:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
 
-wbm-usb-device@^0.2.32:
-  version "0.2.32"
-  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.2.32.tgz#65271e372c8582932451b0cc7de5b7efd2e4deb5"
-  integrity sha512-DnI0mDHoCOr53bho13lzA7cEQhpqr8PLUncT6+ZbfEWcrVcMy4KF2ty6HPAcHw4JOl3AmUQcn+xTyjbfU1Iidw==
+wbm-usb-device@^0.2.34:
+  version "0.2.34"
+  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.2.34.tgz#96e9fd6df21697d51a6dccd6cb0e8d5cef04aca3"
+  integrity sha512-mCZrNZLXnNeaMx5Ml2qul8W1fOg41bX8IEyXW/2ASSBb4XNDoew6jXJ/th+bNlQEzIgm4wmjLs610MqQ7urwmg==
   dependencies:
-    serialport "^9.0.7"
+    serialport "^9.2.4"
     usb-detection "^4.10.0"
 
 wbm-version-manager@^0.0.29:

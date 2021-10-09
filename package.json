@@ -20,7 +20,7 @@
     "react-scripts": "4.0.3",
     "serialport": "^9.2.4",
     "update-electron-app": "^2.0.1",
-    "wbm-usb-device": "^0.2.32",
+    "wbm-usb-device": "^0.2.34",
     "wbm-version-manager": "^0.0.29",
     "web-vitals": "^2.1.1"
   },
@@ -38,7 +38,7 @@
     "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
     "try": "yarn build && yarn package ",
     "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-    "renew": "yarn upgrade --latest && yarn rebuild"
+    "refresh": "yarn upgrade --latest && yarn rebuild"
   },
   "eslintConfig": {
     "extends": [
