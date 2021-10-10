@@ -20,14 +20,119 @@ const cvBoardTests = {
             cmd: 'WIZ',
             expectedChars: [0x04]
         },
-        /*
         {
-            cmd: 'TLC0',
-            expectedChars: [0xd2, 0xd4]
+            cmd: 'INITMEMORY',
+            expectedChars: [0xAB],
+            time: 100
+        }
+    ]
+}
+
+const gpoBoardTests = {
+    automated: [
+        {
+            cmd: 'USB SERIAL',
+            expectedChars: [0xC3]
         },
         {
-            cmd: 'TLC1',
-            expectedChars: [0xd2, 0xd4]
+            cmd: 'MAC',
+            expectedChars: [0xFC, 0xC2, 0x3D]
+        },
+        {
+            cmd: 'SX0',
+            expectedChars: [0x00, 0xFF]
+        },
+        {
+            cmd: 'WIZ',
+            expectedChars: [0x04]
+        },
+        {
+            cmd: 'INITMEMORY',
+            expectedChars: [0xAB],
+            time: 100
+        }
+    ]
+}
+
+const gpiBoardTests = {
+    automated: [
+        {
+            cmd: 'USB SERIAL',
+            expectedChars: [0xC3]
+        },
+        {
+            cmd: 'MAC',
+            expectedChars: [0xFC, 0xC2, 0x3D]
+        },
+        {
+            cmd: 'SX0',
+            expectedChars: [0x00, 0xFF]
+        },
+        {
+            cmd: 'WIZ',
+            expectedChars: [0x04]
+        },
+        {
+            cmd: 'INITMEMORY',
+            expectedChars: [0xAB],
+            time: 100
+        }
+    ]
+}
+
+const midiBoardTests = {
+    automated: [
+        {
+            cmd: 'USB SERIAL',
+            expectedChars: [0xC3]
+        },
+        {
+            cmd: 'MAC',
+            expectedChars: [0xFC, 0xC2, 0x3D]
+        },
+        {
+            cmd: 'WIZ',
+            expectedChars: [0x04]
+        },
+        {
+            cmd: 'INITMEMORY',
+            expectedChars: [0xAB],
+            time: 100
+        }
+    ]
+}
+
+const serialBoardTests = {
+    automated: [
+        {
+            cmd: 'USB SERIAL',
+            expectedChars: [0xC3]
+        },
+        {
+            cmd: 'MAC',
+            expectedChars: [0xFC, 0xC2, 0x3D]
+        },
+        {
+            cmd: 'WIZ',
+            expectedChars: [0x04]
+        },
+        {
+            cmd: 'INITMEMORY',
+            expectedChars: [0xAB],
+            time: 100
+        }
+    ]
+}
+
+const controlPanelTests = {
+    automated: [
+        {
+            cmd: 'USB SERIAL',
+            expectedChars: [0xC3]
+        },
+        {
+            cmd: 'MAC',
+            expectedChars: [0xFC, 0xC2, 0x3D]
         },
         {
             cmd: 'SX0',
@@ -38,10 +143,52 @@ const cvBoardTests = {
             expectedChars: [0x00, 0xFF]
         },
         {
+            cmd: 'TLC0',
+            expectedChars: [0xD2]
+        },
+        {
+            cmd: 'TLC1',
+            expectedChars: [0xd2]
+        },
+        {
             cmd: 'ADC',
-            expectedChars: [0x08]
+            expectedChars: [0xfc]
+        },
+        {
+            cmd: 'WIZ',
+            expectedChars: [0x04]
+        },
+        {
+            cmd: 'INITMEMORY',
+            expectedChars: [0xAB],
+            time: 100
         }
-        */
+    ]
+}
+
+const alarmPanelTests = {
+    automated: [
+        {
+            cmd: 'USB SERIAL',
+            expectedChars: [0xC3]
+        },
+        {
+            cmd: 'MAC',
+            expectedChars: [0xFC, 0xC2, 0x3D]
+        },
+        {
+            cmd: 'SX0',
+            expectedChars: [0x00, 0xFF]
+        },
+        {
+            cmd: 'WIZ',
+            expectedChars: [0x04]
+        },
+        {
+            cmd: 'INITMEMORY',
+            expectedChars: [0xAB],
+            time: 100
+        }
     ]
 }
 
@@ -61,7 +208,7 @@ const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
         }
 
         parser.on('data', function (data) {
-            //console.log(data)
+            console.log(data)
             if (expectedChars.every((val, i) => val === data[i])) {
                 exitTest('PASSED')
             } else {
@@ -88,48 +235,72 @@ const runAutomatedTests = async (tests) => {
 
 const runTests = async (board) => {
     console.log('>>>>>> STARTING TESTS <<<<<<')
-    myEmitter.emit('message', '>>>>>> STARTING TESTS <<<<<<')
     let startTime = Date.now()
     const autTestResults = await runAutomatedTests(board.automated)
-    autTestResults.forEach(result => {
-        console.log(result)
-        myEmitter.emit('message', result)
-    })
-
-    let duration = (Date.now() - startTime).toString() + 'ms'
-    console.log('Automated test duration:', duration)
-    myEmitter.emit('message', 'Automated test duration: ' + duration)
-
-    console.log('>>>>>> FINISHED TESTS <<<<<<')
-    myEmitter.emit('message', '>>>>>> FINISHED TESTS <<<<<<')
+    autTestResults.forEach(result => console.log(result))
+    console.log('Automated test duration:', (Date.now() - startTime).toString() + 'ms')
     port.close()
+    console.log('>>>>>> FINISHED TESTS <<<<<<')
 }
 
-const startTest = (board, thePort) => {
-    let testListObj = {}
-    switch (board) {
+const startTest = (testListObj) => {
+    SerialPort.list().then((ports) => {
+        //console.log(ports)
+        let goodPorts = []
+        ports.forEach(port => {
+            if (port.serialNumber.includes('WBM:')) goodPorts.push(port)
+        })
 
+        if (goodPorts.length === 1) {
+            console.log("Found device at", goodPorts[0].path)
+            port = new SerialPort(goodPorts[0].path)
+
+            ///////   Test Sequence
+            port.on('open', () => {
+                runTests(testListObj)
+            })
+        }
+        else if (goodPorts.length < 1) console.log('Didn\'t find a device')
+        else if (goodPorts.length > 1) console.log('Found more than one WBM device')
+        else console.log('Unknown error detecting device')
+    })
+}
+
+const configureAndStartTest = (board) => {
+    switch (board) {
         case 'cvboard':
-            testListObj = cvBoardTests
+            startTest(cvBoardTests)
+            break;
+
+        case 'gpoboard':
+            startTest(gpoBoardTests)
+            break;
+
+        case 'gpiboard':
+            startTest(gpiBoardTests)
+            break;
+
+        case 'midiboard':
+            startTest(midiBoardTests)
+            break;
+
+        case 'serialboard':
+            startTest(serialBoardTests)
+            break;
+
+        case 'controlpanel':
+            startTest(controlPanelTests)
+            break;
+
+        case 'alarmpanel':
+            startTest(alarmPanelTests)
             break;
 
         default:
             break;
     }
-
-    return new Promise((resolve, reject) => {
-        port = new SerialPort(thePort)
-
-        ///////   Test Sequence
-        port.on('open', async () => {
-            port.on('close', () => {
-                resolve('Passed Tests')
-            })
-
-            runTests(testListObj)
-        })
-    })
+    port = null
 }
 
 module.exports = myEmitter
-module.exports.runTests = startTest
+module.exports.runTests = configureAndStartTest

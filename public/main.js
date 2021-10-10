@@ -14,11 +14,12 @@ const { join } = require('path');
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
 let listenersApplied = false
-let upStuff = [__dirname]
-if (app.isPackaged) upStuff = [process.resourcesPath, "public"]
+
 
 // PATHS to files and folders
-let workingDirectory = path.join(...upStuff)
+let workingDirectory = __dirname
+if (app.isPackaged) workingDirectory = path.join(process.resourcesPath, "public")
+
 let pathToJLink = path.join(workingDirectory, "JLink.exe")
 let pathToFiles = path.join(app.getPath('userData'), 'data')
 let pathToFile = path.join(pathToFiles, 'cmd.jlink')
@@ -27,11 +28,11 @@ let pathToDevices = path.join(pathToFiles, 'devices')
 
 const handleLine = async (line) => {
   const space = () => console.log("------------------")
-  space()
-  console.log("Line Name:", line.name)
-  console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
-  console.log("# of devices:", line.devices.length)
-  space()
+  //space()
+  //console.log("Line Name:", line.name)
+  //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
+  //console.log("# of devices:", line.devices.length)
+  //space()
 
   await line.devices.reduce(async (acc, element) => {
 
@@ -47,7 +48,7 @@ const handleLine = async (line) => {
         currentFirmware = element.firmware.find(fw => fw.version === element.current)
 
         if (!fs.existsSync(join(pathToDevice, currentFirmware.name))) {
-          console.log("Current firmware file doesn't exist")
+          //console.log("Current firmware file doesn't exist")
 
           const devFolderContents = fs.readdirSync(pathToDevice)
 
@@ -56,25 +57,19 @@ const handleLine = async (line) => {
             fs.unlinkSync(join(pathToDevice, file))
           })
 
-          //Put New Firmware in folder
+          //Put New / Current Firmware in folder
           let dl = await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
-          console.log(dl)
+          //console.log(dl)
         }
       }
-
-
-
-      console.log("Device", element.name)
-      console.log("Current FW:", element.current)
-      console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
-      space()
+      //console.log("Device", element.name)
+      //console.log("Current FW:", element.current)
+      //console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
+      //space()
     }
   }, Promise.resolve([]))
 
-
-
-
-  space()
+  //space()
 }
 
 const checkForUpdates = async () => {
@@ -107,9 +102,8 @@ if (!fs.existsSync(pathToDevices)) {
 }
 
 
-const loadFirmware = (fileName) => {
+const loadFirmware = (filePath) => {
   win.webContents.send('programming')
-  console.log(__dirname)
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
   const args = [
@@ -117,17 +111,17 @@ const loadFirmware = (fileName) => {
     '-if SWD',
     '-speed 4000',
     '-autoconnect 1',
-    '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
+    '-CommanderScript "' + pathToFile + '"',
     '-ExitOnError 1'
   ]
 
   win.webContents.send('message', pathToFile)
-  let pathToFirmware = path.join(...upStuff, "firmware", fileName)
-  let pathToBoot = path.join(...upStuff, "firmware", 'boot.bin')
+  let pathToFirmware = filePath
+  let pathToBoot = path.join(workingDirectory, "firmware", 'boot.bin')
   let pathToOutput = path.join(pathToFiles, 'output.bin')
   win.webContents.send('message', workingDirectory)
 
-  console.log('pathToFirm', pathToFirmware)
+  //console.log('pathToFirm', pathToFirmware)
 
   const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
   const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
@@ -142,15 +136,13 @@ const loadFirmware = (fileName) => {
 
     child.stdout.on('data', (data) => {
       //win.webContents.send('jLinkProgress', data)
-      console.log('DATA----------->>>>>>>>>>>>>>')
-      console.log("HEREXXX", data.toString())
+      //console.log("HEREXXX", data.toString())
       if (data.toString().includes('Cannot connect to target.')) out = "FAILED :Could not communicate with MCU"
       else if (data.toString().includes('FAILED: Cannot connect to J-Link')) out = "FAILED: Cannot connect to J-Link"
       else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
     })
 
     child.on('close', (code) => {
-      console.log('PROGRAMMING DONE!')
 
       if (out === "Programming Successful") {
         win.webContents.send('jLinkProgress', "Programming Complete")
@@ -163,7 +155,7 @@ const loadFirmware = (fileName) => {
     })
 
     child.on('error', (error) => {
-      console.log('Error In CHild!!')
+      console.log('Error in J-LINK programming')
       reject(new Error('Error in J-LINK programming'))
     })
   })
@@ -205,7 +197,7 @@ const waitForDevice = (device) => {
 
 const chipErase = () => {
   win.webContents.send('chipErasing')
-  console.log(__dirname)
+  console.log("Chip Erase")
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
   const args = [
@@ -213,7 +205,7 @@ const chipErase = () => {
     '-if SWD',
     '-speed 4000',
     '-autoconnect 1',
-    '-CommanderScript "' + path.join(pathToFiles, 'cmd.jlink') + '"',
+    '-CommanderScript "' + pathToFile + '"',
     '-ExitOnError 1'
   ]
 
@@ -222,13 +214,25 @@ const chipErase = () => {
 
   fs.writeFileSync(pathToFile, "erase\r\nrnh\r\nexit", 'utf8')
 
+  console.log("Execute erase command")
   let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
-  child.stdout.on('data', (data) => win.webContents.send('jLinkProgress', data))
+
+  child.stdout.on('data', (data) => {
+    win.webContents.send('jLinkProgress', data)
+    console.log(data.toString())
+  })
 
   child.on('close', (code) => {
-    console.log('CHIP ERASE DONE!')
-    win.webContents.send('chipEraseComplete')
+    console.log("close Erase")
+    if (code === 0) {
+      console.log('CHIP ERASE DONE!')
+      win.webContents.send('chipEraseComplete')
+    } else {
+      console.log("Chip Rease Failed code " + code)
+      win.webContents.send('chipEraseError', code)
+    }
+
   })
 
   //fs.unlinkSync(pathToFile)
@@ -271,20 +275,23 @@ const createListeners = () => {
     loadFirmware(firmware)
   })
 
-  ipcMain.on('chipErase', () => {
-    console.log("Backend Chip Erase")
-    chipErase()
-  })
+  ipcMain.on('chipErase', () => chipErase())
 
   ipcMain.on('programAndTest', async (e, folder) => {
     console.log('Program and test', folder)
 
-    // Load BootLoader and Testing Firmware
+
     try {
-      const program = await loadFirmware('cvSlowBlink_x2000.bin')
+      //Get File Name of current firmware for this device
+      let files = fs.readdirSync(join(pathToDevices, folder))
+      //console.log("XXYY", files)
+
+      // Load BootLoader and Testing Firmware
+      const program = await loadFirmware(join(pathToDevices, folder, files[0]))
       console.log(program)
+
     } catch (error) {
-      console.log(error)
+      throw error
     }
 
     //console.log('Programming Complete.  Waiting for device to connect')
@@ -292,30 +299,26 @@ const createListeners = () => {
     // Wait for programmed device to be detected
     let deviceIsOnPort
     try {
+      console.log('Wait For Device')
       deviceIsOnPort = await waitForDevice(folder)
       console.log('The Device was found at', deviceIsOnPort)
       win.webContents.send('jLinkProgress', 'The Device was found at ' + deviceIsOnPort)
     } catch (error) {
-      console.log(error)
       win.webContents.send('jLinkProgress', error.message)
+      throw error
     }
 
 
     // Run Tests on device
     try {
+      console.log("Run Tests")
       let testResult = await tests.runTests(folder, deviceIsOnPort)
       console.log(testResult)
     } catch (error) {
-      console.log(error)
+      throw error
     }
 
     win.webContents.send('jLinkProgress', "-->> PCB has tested good and is ready for delivery!! :) <<--")
-
-
-    // Load Release Firmware
-    //console.log('Load Release Firmware')
-    //let pathToTheFirmware = path.join(...upStuff, 'boardfiles', folder, 'release.bin')
-    //wbmUsbDevice.uploadFirmware({ comPort: deviceIsOnPort, firm: pathToTheFirmware })
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -324,10 +327,10 @@ const createListeners = () => {
   const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
   try {
     if (fs.existsSync(drvChk)) {
-      console.log('File Exists')
+      //console.log('File Exists')
       win.webContents.send('message', 'File Exists')
     } else {
-      const driver = execFileSync(path.join(...upStuff, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
+      const driver = execFileSync(path.join(workingDirectory, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
       console.log(driver)
       win.webContents.send('message', driver.toString())
     }
@@ -377,7 +380,7 @@ app.on('ready', () => {
 
     console.log('React Is Ready')
     win.webContents.send('message', 'React Is Ready')
-    win.webContents.send('message', app.getAppPath())
+    //win.webContents.send('message', app.getAppPath())
     win.webContents.send('app_version', { version: app.getVersion() });
 
     if (app.isPackaged) {

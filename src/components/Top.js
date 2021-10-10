@@ -5,7 +5,7 @@ import SelectDevice from './SelectDevice'
 import Device from './Device'
 
 
-export default function Top(props) {
+export default function Top() {
 
     return (
         <div style={{ height: '100%' }}>
