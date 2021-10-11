@@ -58,7 +58,7 @@ const handleLine = async (line) => {
           })
 
           //Put New / Current Firmware in folder
-          let dl = await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
+          await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
           //console.log(dl)
         }
       }
@@ -86,20 +86,23 @@ const checkForUpdates = async () => {
 
 }
 
-if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
-  console.log('Creating WBM Tek folder')
-  fs.mkdirSync(path.join('C:', 'ProgramData', 'WBM Tek'))
-}
+const checkFolderStructure = () => {
+  if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
+    console.log('Creating WBM Tek folder')
+    fs.mkdirSync(path.join('C:', 'ProgramData', 'WBM Tek'))
+  }
 
-if (!fs.existsSync(pathToFiles)) {
-  console.log('Creating pcbChecker folder')
-  fs.mkdirSync(pathToFiles)
-}
+  if (!fs.existsSync(pathToFiles)) {
+    console.log('Creating pcbChecker folder')
+    fs.mkdirSync(pathToFiles)
+  }
 
-if (!fs.existsSync(pathToDevices)) {
-  console.log('Creating devices folder')
-  fs.mkdirSync(pathToDevices)
+  if (!fs.existsSync(pathToDevices)) {
+    console.log('Creating devices folder')
+    fs.mkdirSync(pathToDevices)
+  }
 }
+checkFolderStructure()
 
 
 const loadFirmware = (filePath) => {
@@ -280,45 +283,35 @@ const createListeners = () => {
   ipcMain.on('programAndTest', async (e, folder) => {
     console.log('Program and test', folder)
 
+    let deviceIsOnPort
 
     try {
       //Get File Name of current firmware for this device
       let files = fs.readdirSync(join(pathToDevices, folder))
-      //console.log("XXYY", files)
+      if (files.length <= 0) throw new Error('No firmware file found for ' + folder)
 
       // Load BootLoader and Testing Firmware
-      const program = await loadFirmware(join(pathToDevices, folder, files[0]))
-      console.log(program)
+      await loadFirmware(join(pathToDevices, folder, files[0]))
+      console.log("Firmware Loaded")
 
-    } catch (error) {
-      throw error
-    }
-
-    //console.log('Programming Complete.  Waiting for device to connect')
-
-    // Wait for programmed device to be detected
-    let deviceIsOnPort
-    try {
-      console.log('Wait For Device')
+      // Wait for programmed device to be detected
+      console.log('Waiting for device to connect')
       deviceIsOnPort = await waitForDevice(folder)
       console.log('The Device was found at', deviceIsOnPort)
       win.webContents.send('jLinkProgress', 'The Device was found at ' + deviceIsOnPort)
+
+      // Run Tests on device
+      console.log("Run Tests")
+      let testResult = await tests.runTests(folder, deviceIsOnPort)
+      console.log(testResult)
+      win.webContents.send('jLinkProgress', "-->> PCB has tested good and is ready for delivery!! :) <<--")
+
     } catch (error) {
       win.webContents.send('jLinkProgress', error.message)
       throw error
     }
 
 
-    // Run Tests on device
-    try {
-      console.log("Run Tests")
-      let testResult = await tests.runTests(folder, deviceIsOnPort)
-      console.log(testResult)
-    } catch (error) {
-      throw error
-    }
-
-    win.webContents.send('jLinkProgress', "-->> PCB has tested good and is ready for delivery!! :) <<--")
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
