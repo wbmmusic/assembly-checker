@@ -134,7 +134,6 @@ const getProgrammer = async () => {
   })
 }
 
-
 const loadFirmware = (filePath) => {
   win.webContents.send('programming')
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -242,6 +241,18 @@ const waitForDevice = (device) => {
   })
 }
 
+const getFwFile = async (folder) => {
+  return new Promise((resolve, reject) => {
+    let files = fs.readdirSync(join(pathToDevices, folder))
+    if (files.length <= 0) {
+      console.log('No firmware file found for ' + folder)
+      reject(['No firmware file found for ' + folder])
+    }
+    else resolve(files[0])
+  })
+
+}
+
 const programAndTest = async (folder) => {
   console.log('Program and test', folder)
 
@@ -249,11 +260,10 @@ const programAndTest = async (folder) => {
 
   try {
     //Get File Name of current firmware for this device
-    let files = fs.readdirSync(join(pathToDevices, folder))
-    if (files.length <= 0) throw new Error('No firmware file found for ' + folder)
+    let file = await getFwFile(folder)
 
     // Load BootLoader and Testing Firmware
-    await loadFirmware(join(pathToDevices, folder, files[0]))
+    await loadFirmware(join(pathToDevices, folder, file))
     console.log("Firmware Loaded")
 
     // Wait for programmed device to be detected
