@@ -278,7 +278,7 @@ const startTest = async (testListObj) => {
                         let results = await runTests(testListObj)
                         resolve(results)
                     } catch (error) {
-                        reject(error)
+                        reject([...error, "FAILED TESTS"])
                     }
                 })
             }

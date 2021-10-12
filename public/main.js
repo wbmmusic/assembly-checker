@@ -165,9 +165,9 @@ const loadFirmware = (filePath) => {
       programmerSerial = await getProgrammer()
     } catch (error) {
       console.log("NO PROGRAMMER")
-      win.webContents.send('jLinkProgress', "Can not find programmer")
       win.webContents.send('programmingComplete')
-      reject('No Programmer')
+      reject(["J-Link Programmer not connected"])
+      throw error
     }
 
     win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
@@ -278,55 +278,63 @@ const programAndTest = async (folder) => {
 
   } catch (error) {
     error.forEach(msg => win.webContents.send('jLinkProgress', msg))
-    win.webContents.send('jLinkProgress', 'FAILED TEST')
     win.webContents.send('programmingComplete')
     throw error
   }
 }
 
-const chipErase = () => {
-  win.webContents.send('jLinkProgress', "Erasing Chip")
-  console.log("Chip Erase")
-  win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
-
-  const args = [
-    '-device ATSAMD21G18',
-    '-if SWD',
-    '-speed 4000',
-    '-autoconnect 1',
-    '-CommanderScript "' + pathToFile + '"',
-    '-ExitOnError 1'
-  ]
-
-  win.webContents.send('message', pathToFile)
-  win.webContents.send('message', workingDirectory)
-
-  fs.writeFileSync(pathToFile, "erase\r\nrnh\r\nexit", 'utf8')
-
-  console.log("Execute erase command")
-  let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
-
-
-  child.stdout.on('data', (data) => {
-    //win.webContents.send('jLinkProgress', data)
-    //console.log(data.toString())
-  })
-
-  child.on('close', (code) => {
-    console.log("close Erase")
-    if (code === 0) {
-      console.log('CHIP ERASE DONE!')
-      win.webContents.send('jLinkProgress', "Chip Erase Complete")
-      win.webContents.send('chipEraseComplete')
-    } else {
-      console.log("Chip Rease Failed code " + code)
-      win.webContents.send('chipEraseError', code)
+const chipErase = async () => {
+  return new Promise(async (resolve, reject) => {
+    let programmerSerial = null
+    try {
+      programmerSerial = await getProgrammer()
+    } catch (error) {
+      console.log("NO PROGRAMMER")
+      win.webContents.send('programmingComplete')
+      reject("J-Link Programmer not connected")
+      throw error
     }
 
+
+    win.webContents.send('jLinkProgress', "Erasing Chip")
+    console.log("Chip Erase")
+    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+
+    const args = [
+      '-device ATSAMD21G18',
+      '-if SWD',
+      '-speed 4000',
+      '-autoconnect 1',
+      '-CommanderScript "' + pathToFile + '"',
+      '-ExitOnError 1'
+    ]
+
+    win.webContents.send('message', pathToFile)
+    win.webContents.send('message', workingDirectory)
+
+    fs.writeFileSync(pathToFile, "erase\r\nUSB " + programmerSerial + "rnh\r\nexit", 'utf8')
+
+    console.log("Execute erase command")
+    let outErr = 'CHIP ERASE ERROR'
+    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+
+
+    child.stdout.on('data', (data) => {
+      //win.webContents.send('jLinkProgress', data)
+      if (data.toString().includes('Cannot connect to target.')) outErr = 'Can not connect to MicroController'
+      //console.log("SDATTA", data.toString())
+    })
+
+    child.on('close', (code) => {
+      console.log("close Erase")
+      if (code === 0) {
+        resolve('Chip erase complete')
+      } else {
+        reject(outErr)
+      }
+
+    })
   })
-
-  //fs.unlinkSync(pathToFile)
-
 }
 
 function createWindow() {
@@ -365,7 +373,16 @@ const createListeners = () => {
     loadFirmware(firmware)
   })
 
-  ipcMain.on('chipErase', () => chipErase())
+  ipcMain.on('chipErase', async () => {
+    try {
+      let result = await chipErase()
+      win.webContents.send('jLinkProgress', result)
+      win.webContents.send('chipEraseComplete')
+    } catch (error) {
+      win.webContents.send('jLinkProgress', error)
+      win.webContents.send('chipEraseComplete')
+    }
+  })
 
   ipcMain.on('programAndTest', (e, folder) => {
     programAndTest(folder)
