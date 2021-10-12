@@ -167,7 +167,7 @@ const loadFirmware = (filePath) => {
       console.log("NO PROGRAMMER")
       win.webContents.send('jLinkProgress', "Can not find programmer")
       win.webContents.send('programmingComplete')
-      throw error
+      reject('No Programmer')
     }
 
     win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
