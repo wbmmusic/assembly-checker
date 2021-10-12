@@ -104,6 +104,36 @@ const checkFolderStructure = () => {
 }
 checkFolderStructure()
 
+const getProgrammer = async () => {
+  return new Promise((resolve, reject) => {
+    const args = [
+      '-CommanderScript "' + pathToFile + '"',
+      '-ExitOnError 1'
+    ]
+
+    let programmer = false
+
+    fs.writeFileSync(pathToFile, 'ShowEmuList USB\r\nexit', 'utf8')
+
+    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+
+    child.stdout.on('data', (data) => {
+      let theLine = data.toString()
+      if (theLine.includes("J-Link[0]:")) {
+        programmer = theLine.split(',').find(ln => ln.includes("Serial number:")).split(':')[1].replace(' ', '')
+      }
+    })
+
+    child.on('close', (code) => {
+      if (code === 0 && programmer !== false) {
+        resolve(programmer)
+      } else {
+        reject(programmer)
+      }
+    })
+  })
+}
+
 
 const loadFirmware = (filePath) => {
   win.webContents.send('programming')
@@ -129,30 +159,45 @@ const loadFirmware = (filePath) => {
   const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
   const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    let programmerSerial = null
+    try {
+      programmerSerial = await getProgrammer()
+    } catch (error) {
+      console.log("NO PROGRAMMER")
+      win.webContents.send('jLinkProgress', "Can not find programmer")
+      win.webContents.send('programmingComplete')
+      throw error
+    }
+
     win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
     let out = null
     fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
+    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nUSB ' + programmerSerial + '\r\nrnh\r\nexit', 'utf8')
 
     let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
     child.stdout.on('data', (data) => {
       //win.webContents.send('jLinkProgress', data)
       //console.log("HEREXXX", data.toString())
-      if (data.toString().includes('Cannot connect to target.')) out = "FAILED :Could not communicate with MCU"
-      else if (data.toString().includes('FAILED: Cannot connect to J-Link')) out = "FAILED: Cannot connect to J-Link"
+      if (data.toString().includes('Cannot connect to target.')) out = "FAILED: Could not communicate with MicroController"
+      else if (
+        data.toString().includes('FAILED: Cannot connect to J-Link') ||
+        data.toString().includes('ERROR while parsing value for usb')
+      ) out = "FAILED: Cannot connect to J-Link Programmer"
       else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
+      else out = data.toString()
     })
 
     child.on('close', (code) => {
 
       if (out === "Programming Successful") {
-        win.webContents.send('jLinkProgress', "Programming Complete")
-        resolve('Programming Complete')
+        win.webContents.send('jLinkProgress', out)
+        resolve(out)
       } else {
-        win.webContents.send('jLinkProgress', "Programming Failed")
-        reject(new Error(out))
+        win.webContents.send('jLinkProgress', out)
+        win.webContents.send('programmingComplete')
+        reject(out)
       }
     })
 
