@@ -225,7 +225,7 @@ const waitForDevice = (device) => {
     win.webContents.send('jLinkProgress', "Waiting to detect Device")
     const exit = (passFail) => {
       clearTimeout(waitForDeviceTimer)
-      if (passFail === 'fail') reject(new Error('Board did not connect in time.  Make sure USB cable is connected to PCB'))
+      if (passFail === 'fail') reject(['Timed out waiting for device'])
       else resolve(passFail)
     }
 
@@ -259,8 +259,8 @@ const programAndTest = async (folder) => {
     // Wait for programmed device to be detected
     console.log('Waiting for device to connect')
     deviceIsOnPort = await waitForDevice(folder)
-    console.log('The Device was found at', deviceIsOnPort)
-    win.webContents.send('jLinkProgress', 'The Device was found at ' + deviceIsOnPort)
+    console.log('Device detected at', deviceIsOnPort)
+    win.webContents.send('jLinkProgress', 'Device detected at ' + deviceIsOnPort)
 
     // Run Tests on device
     console.log("Run Tests")
@@ -295,7 +295,7 @@ const chipErase = async () => {
       throw error
     }
 
-
+    win.webContents.send('chipErasing')
     win.webContents.send('jLinkProgress', "Erasing Chip")
     console.log("Chip Erase")
     win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -332,7 +332,7 @@ const chipErase = async () => {
       } else {
         reject(outErr)
       }
-
+      win.webContents.send('chipEraseComplete')
     })
   })
 }

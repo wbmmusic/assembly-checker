@@ -11,7 +11,7 @@ export default function Modals() {
 
             const tempContents = (
                 <Fragment>
-                    <Modal.Header closeButton>
+                    <Modal.Header>
                         <Modal.Title>Erasing Chip</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
@@ -30,8 +30,8 @@ export default function Modals() {
 
             const tempContents = (
                 <Fragment>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Programming</Modal.Title>
+                    <Modal.Header>
+                        <Modal.Title>Programming and Testing</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Spinner animation="border" size="xl" />
