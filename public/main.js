@@ -321,7 +321,7 @@ const chipErase = async () => {
 
     child.stdout.on('data', (data) => {
       //win.webContents.send('jLinkProgress', data)
-      if (data.toString().includes('Cannot connect to target.')) outErr = 'Can not connect to MicroController'
+      if (data.toString().includes('Cannot connect to target.')) outErr = "FAILED: Could not communicate with MicroController"
       //console.log("SDATTA", data.toString())
     })
 

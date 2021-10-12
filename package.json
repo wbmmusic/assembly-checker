@@ -1,8 +1,8 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.184",
+  "version": "0.0.185",
   "author": "Marece Williams",
-  "description": "App for programming and testing PA-Manager PCBs",
+  "description": "App for programming and testing io-manager PCBs",
   "homepage": "./",
   "main": "public/main.js",
   "private": true,
