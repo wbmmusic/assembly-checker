@@ -5,7 +5,6 @@ const myEmitter = new EventEmitter();
 
 let port = null
 
-// TEST OBJECTS
 const cvBoardTests = {
     automated: [
         {
@@ -198,21 +197,26 @@ const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
 
     return new Promise((resolve, reject) => {
         let testTimer = setTimeout(() => {
-            exitTest('FAILED -> Timeout')
+            exitTest(`> FAILED ->  ${cmd} --> Timeout`)
         }, time);
 
         const exitTest = (msg) => {
             port.unpipe()
             clearTimeout(testTimer)
-            resolve(`${msg} ${cmd}`)
+            resolve(msg)
         }
 
         parser.on('data', function (data) {
-            console.log(data)
             if (expectedChars.every((val, i) => val === data[i])) {
-                exitTest('PASSED')
+                exitTest(`> PASSED ${cmd}`)
             } else {
-                exitTest('FAILED -> Data')
+                let out = []
+                data.forEach(byte => {
+                    let text = byte.toString(16).toUpperCase()
+                    if (text.length === 1) text = '0' + text
+                    out.push(text)
+                })
+                exitTest(`> FAILED -> ${cmd} --> Result = ` + out)
             }
         })
     })
@@ -225,7 +229,8 @@ const runAutomatedTests = async (tests) => {
         await acc
         const result = await automatedTest(test)
         if (result.includes('FAIL')) {
-            throw new Error(result)
+            results.push(result)
+            throw new Error(JSON.stringify({ data: results }))
         }
         results.push(result)
     }, Promise.resolve([]))
@@ -234,72 +239,100 @@ const runAutomatedTests = async (tests) => {
 }
 
 const runTests = async (board) => {
-    console.log('>>>>>> STARTING TESTS <<<<<<')
-    let startTime = Date.now()
-    const autTestResults = await runAutomatedTests(board.automated)
-    autTestResults.forEach(result => console.log(result))
-    console.log('Automated test duration:', (Date.now() - startTime).toString() + 'ms')
-    port.close()
-    console.log('>>>>>> FINISHED TESTS <<<<<<')
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            let startTime = Date.now()
+            const autTestResults = await runAutomatedTests(board.automated)
+            //autTestResults.forEach(result => console.log(result))
+            const now = (Date.now() - startTime).toString() + 'ms'
+            console.log('Automated test duration: ' + now)
+            //autTestResults.push('Automated test duration: ' + now)
+            port.close()
+            resolve(autTestResults)
+        } catch (error) {
+            port.close()
+            reject(JSON.parse(error.message).data)
+        }
+    })
+
+
 }
 
-const startTest = (testListObj) => {
-    SerialPort.list().then((ports) => {
-        //console.log(ports)
-        let goodPorts = []
-        ports.forEach(port => {
-            if (port.serialNumber.includes('WBM:')) goodPorts.push(port)
-        })
-
-        if (goodPorts.length === 1) {
-            console.log("Found device at", goodPorts[0].path)
-            port = new SerialPort(goodPorts[0].path)
-
-            ///////   Test Sequence
-            port.on('open', () => {
-                runTests(testListObj)
+const startTest = async (testListObj) => {
+    return new Promise((resolve, reject) => {
+        SerialPort.list().then((ports) => {
+            //console.log(ports)
+            let goodPorts = []
+            ports.forEach(port => {
+                if (port.serialNumber.includes('WBM:')) goodPorts.push(port)
             })
-        }
-        else if (goodPorts.length < 1) console.log('Didn\'t find a device')
-        else if (goodPorts.length > 1) console.log('Found more than one WBM device')
-        else console.log('Unknown error detecting device')
+
+            if (goodPorts.length === 1) {
+                console.log("Found device at", goodPorts[0].path)
+                port = new SerialPort(goodPorts[0].path)
+
+                ///////   Test Sequence
+                port.on('open', async () => {
+                    try {
+                        let results = await runTests(testListObj)
+                        resolve(results)
+                    } catch (error) {
+                        reject(error)
+                    }
+                })
+            }
+            else if (goodPorts.length < 1) reject('Didn\'t find a device')
+            else if (goodPorts.length > 1) reject('Found more than one WBM device')
+            else reject('Unknown error detecting device')
+        })
     })
 }
 
-const configureAndStartTest = (board) => {
-    switch (board) {
-        case 'cvboard':
-            startTest(cvBoardTests)
-            break;
+const configureAndStartTest = async (board) => {
+    return new Promise(async (resolve, reject) => {
+        const mapToTests = () => {
+            switch (board) {
+                case 'cvboard':
+                    return cvBoardTests
 
-        case 'gpoboard':
-            startTest(gpoBoardTests)
-            break;
+                case 'gpoboard':
+                    return gpoBoardTests
 
-        case 'gpiboard':
-            startTest(gpiBoardTests)
-            break;
+                case 'gpiboard':
+                    return gpiBoardTests
 
-        case 'midiboard':
-            startTest(midiBoardTests)
-            break;
+                case 'midiboard':
+                    return midiBoardTests
 
-        case 'serialboard':
-            startTest(serialBoardTests)
-            break;
+                case 'serialboard':
+                    return serialBoardTests
 
-        case 'controlpanel':
-            startTest(controlPanelTests)
-            break;
+                case 'controlpanel':
+                    return controlPanelTests
 
-        case 'alarmpanel':
-            startTest(alarmPanelTests)
-            break;
+                case 'alarmpanel':
+                    return alarmPanelTests
 
-        default:
-            break;
-    }
-    port = null
+                default:
+                    return 'XXX'
+            }
+        }
+
+        let target = mapToTests()
+
+        try {
+            if (target !== 'XXX') {
+                let results = await startTest(target)
+                resolve(results)
+            } else reject(['No Device'])
+        } catch (error) {
+            reject(error)
+        }
+
+        port = null
+    })
+
 }
 
 module.exports = myEmitter

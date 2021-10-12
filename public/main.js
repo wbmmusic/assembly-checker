@@ -130,7 +130,7 @@ const loadFirmware = (filePath) => {
   const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
 
   return new Promise((resolve, reject) => {
-    win.webContents.send('jLinkProgress', "Programming MCU")
+    win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
     let out = null
     fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
     fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nrnh\r\nexit', 'utf8')
@@ -149,7 +149,6 @@ const loadFirmware = (filePath) => {
 
       if (out === "Programming Successful") {
         win.webContents.send('jLinkProgress', "Programming Complete")
-        win.webContents.send('programmingComplete')
         resolve('Programming Complete')
       } else {
         win.webContents.send('jLinkProgress', "Programming Failed")
@@ -198,8 +197,50 @@ const waitForDevice = (device) => {
   })
 }
 
+const programAndTest = async (folder) => {
+  console.log('Program and test', folder)
+
+  let deviceIsOnPort
+
+  try {
+    //Get File Name of current firmware for this device
+    let files = fs.readdirSync(join(pathToDevices, folder))
+    if (files.length <= 0) throw new Error('No firmware file found for ' + folder)
+
+    // Load BootLoader and Testing Firmware
+    await loadFirmware(join(pathToDevices, folder, files[0]))
+    console.log("Firmware Loaded")
+
+    // Wait for programmed device to be detected
+    console.log('Waiting for device to connect')
+    deviceIsOnPort = await waitForDevice(folder)
+    console.log('The Device was found at', deviceIsOnPort)
+    win.webContents.send('jLinkProgress', 'The Device was found at ' + deviceIsOnPort)
+
+    // Run Tests on device
+    console.log("Run Tests")
+    win.webContents.send('jLinkProgress', 'TESTING')
+    let testResults = await tests.runTests(folder, deviceIsOnPort)
+    testResults.forEach(result => {
+      console.log(result)
+      win.webContents.send('jLinkProgress', result)
+    })
+
+    win.webContents.send('jLinkProgress', '----------------------------')
+    win.webContents.send('jLinkProgress', "Ready for delivery!! :)")
+
+    win.webContents.send('programmingComplete')
+
+  } catch (error) {
+    error.forEach(msg => win.webContents.send('jLinkProgress', msg))
+    win.webContents.send('jLinkProgress', 'FAILED TEST')
+    win.webContents.send('programmingComplete')
+    throw error
+  }
+}
+
 const chipErase = () => {
-  win.webContents.send('chipErasing')
+  win.webContents.send('jLinkProgress', "Erasing Chip")
   console.log("Chip Erase")
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
@@ -222,14 +263,15 @@ const chipErase = () => {
 
 
   child.stdout.on('data', (data) => {
-    win.webContents.send('jLinkProgress', data)
-    console.log(data.toString())
+    //win.webContents.send('jLinkProgress', data)
+    //console.log(data.toString())
   })
 
   child.on('close', (code) => {
     console.log("close Erase")
     if (code === 0) {
       console.log('CHIP ERASE DONE!')
+      win.webContents.send('jLinkProgress', "Chip Erase Complete")
       win.webContents.send('chipEraseComplete')
     } else {
       console.log("Chip Rease Failed code " + code)
@@ -280,38 +322,8 @@ const createListeners = () => {
 
   ipcMain.on('chipErase', () => chipErase())
 
-  ipcMain.on('programAndTest', async (e, folder) => {
-    console.log('Program and test', folder)
-
-    let deviceIsOnPort
-
-    try {
-      //Get File Name of current firmware for this device
-      let files = fs.readdirSync(join(pathToDevices, folder))
-      if (files.length <= 0) throw new Error('No firmware file found for ' + folder)
-
-      // Load BootLoader and Testing Firmware
-      await loadFirmware(join(pathToDevices, folder, files[0]))
-      console.log("Firmware Loaded")
-
-      // Wait for programmed device to be detected
-      console.log('Waiting for device to connect')
-      deviceIsOnPort = await waitForDevice(folder)
-      console.log('The Device was found at', deviceIsOnPort)
-      win.webContents.send('jLinkProgress', 'The Device was found at ' + deviceIsOnPort)
-
-      // Run Tests on device
-      console.log("Run Tests")
-      let testResult = await tests.runTests(folder, deviceIsOnPort)
-      console.log(testResult)
-      win.webContents.send('jLinkProgress', "-->> PCB has tested good and is ready for delivery!! :) <<--")
-
-    } catch (error) {
-      win.webContents.send('jLinkProgress', error.message)
-      throw error
-    }
-
-
+  ipcMain.on('programAndTest', (e, folder) => {
+    programAndTest(folder)
   })
 
   win.webContents.send('message', "Packaged resource path" + process.resourcesPath)

@@ -14,11 +14,13 @@ export default function Device() {
 
     const program = () => {
         console.log('Program')
+        setTermText([])
         ipcRenderer.send('programAndTest', history.location.state.folder)
     }
 
     const chipErase = () => {
         console.log('Top Chip Erase')
+        setTermText([])
         ipcRenderer.send('chipErase')
     }
 
