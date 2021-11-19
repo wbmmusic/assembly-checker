@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Navbar } from 'react-bootstrap'
-import { useHistory } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 const { ipcRenderer } = window.require('electron')
 const path = require('path')
 
 export default function Device() {
-    const history = useHistory()
+    const navigate = useNavigate()
+    const location = useLocation()
     const [termText, setTermText] = useState([])
     const termRef = useRef(null)
 
-    console.log(history.location.state)
-
+    console.log("DEVICE")
+    console.log(location)
 
     const program = () => {
         console.log('Program')
         setTermText([])
-        ipcRenderer.send('programAndTest', history.location.state.folder)
+        ipcRenderer.send('programAndTest', location.state.folder)
     }
 
     const chipErase = () => {
@@ -43,8 +44,8 @@ export default function Device() {
         <div style={{ height: '100vh', width: '100vw' }}>
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
                 <Navbar bg="light" expand="lg">
-                    <Navbar.Brand style={{ marginLeft: '8px' }}>{history.location.state.boardName}</Navbar.Brand>
-                    <Button style={{ marginRight: '8px' }} size="sm" variant="outline-primary" onClick={() => history.replace('/')} >Back To Boards</Button>
+                    <Navbar.Brand style={{ marginLeft: '8px' }}>{location.state.boardName}</Navbar.Brand>
+                    <Button style={{ marginRight: '8px' }} size="sm" variant="outline-primary" onClick={() => navigate('/')} >Back To Boards</Button>
                 </Navbar>
                 <div style={{ padding: '0px 10px 10px 10px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <div>
@@ -52,7 +53,7 @@ export default function Device() {
                             <tbody>
                                 <tr>
                                     <td style={{ borderRight: '1px solid lightGrey', width: '1px', padding: '5px' }}>
-                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join('boardfiles', history.location.state.folder, 'render.png')} alt="brdImage" />
+                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join('boardfiles', location.state.folder, 'render.png')} alt="brdImage" />
                                     </td>
                                     <td>
                                         <table>

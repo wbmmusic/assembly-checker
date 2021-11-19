@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { useHistory } from 'react-router';
+import {  useNavigate } from 'react-router';
 import Top from './components/Top'
 import Updates from './Updates';
 
 const { ipcRenderer } = window.require('electron')
 
 function App() {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   useEffect(() => {
     ipcRenderer.on('message', (e, theMessage) => {
@@ -18,7 +18,7 @@ function App() {
     });
 
     ipcRenderer.send('reactIsReady')
-    history.replace('/')
+    navigate('/')
 
     return () => {
       ipcRenderer.removeAllListeners('message')

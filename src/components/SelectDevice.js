@@ -1,10 +1,12 @@
 import React from 'react'
 import { Navbar } from 'react-bootstrap'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router'
 const path = require('path')
 
 export default function SelectDevice() {
-    const history = useHistory()
+    const navigate = useNavigate()
+
+    console.log("Selected Device")
 
     let boards = [
         'alarmpanel',
@@ -49,6 +51,7 @@ export default function SelectDevice() {
 
     return (
         <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: 'center' }}>
+            Selected
             <Navbar bg="light" expand="lg">
                 <Navbar.Brand style={{ marginLeft: '8px' }}>Select Board</Navbar.Brand>
             </Navbar>
@@ -58,13 +61,7 @@ export default function SelectDevice() {
                         <div
                             key={board}
                             style={{ display: 'inline-block', cursor: 'pointer', margin: '3px' }}
-                            onClick={() => history.replace({
-                                pathname: '/device/' + board,
-                                state: {
-                                    boardName: makeBoardName(board),
-                                    folder: board
-                                }
-                            })}
+                            onClick={() => navigate('/device/' + board, { state: { boardName: makeBoardName(board), folder: board } })}
                         >
                             <div style={{
                                 display: 'flex',
