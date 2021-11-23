@@ -1,17 +1,18 @@
 import React from 'react'
-import { Route, Routes } from 'react-router-dom'
 import Modals from './Modals'
 import SelectDevice from './SelectDevice'
 import Device from './Device'
+import { Route, Routes, useLocation } from 'react-router'
 
 
 export default function Top() {
-
+    const location = useLocation()
+    console.log(location)
     return (
         <div style={{ height: '100%' }}>
             <Routes>
                 <Route path="/device/*" element={<Device />} />
-                <Route path="" element={<SelectDevice />} />
+                <Route path="*" element={<SelectDevice />} />
             </Routes>
             <Modals />
         </div>

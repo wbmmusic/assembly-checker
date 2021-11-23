@@ -1,6 +1,6 @@
 {
   "name": "pcb-assebmly-checker",
-  "version": "0.0.189",
+  "version": "0.0.190",
   "author": "Marece Williams",
   "description": "App for programming and testing io-manager PCBs",
   "homepage": "./",
@@ -16,6 +16,7 @@
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.2",
     "react-dom": "^17.0.2",
+    "react-router": "^6.0.2",
     "react-router-dom": "^6.0.2",
     "react-scripts": "4.0.3",
     "serialport": "^9.2.7",
@@ -70,7 +71,6 @@
   "build": {
     "productName": "WBM Tek PCB Assembly Checker",
     "appId": "com.electron.pcbchk",
-    "electronVersion": "15.1.2",
     "copyright": "WBM Tek",
     "extends": null,
     "npmRebuild": false,

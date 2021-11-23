@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import {  useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import Top from './components/Top'
 import Updates from './Updates';
 
@@ -7,7 +7,7 @@ const { ipcRenderer } = window.require('electron')
 
 function App() {
   const navigate = useNavigate()
-
+  navigate('/', { replace: true })
   useEffect(() => {
     ipcRenderer.on('message', (e, theMessage) => {
       console.log(theMessage)
@@ -18,7 +18,6 @@ function App() {
     });
 
     ipcRenderer.send('reactIsReady')
-    navigate('/')
 
     return () => {
       ipcRenderer.removeAllListeners('message')

@@ -61,7 +61,7 @@ export default function SelectDevice() {
                         <div
                             key={board}
                             style={{ display: 'inline-block', cursor: 'pointer', margin: '3px' }}
-                            onClick={() => navigate('/device/' + board, { state: { boardName: makeBoardName(board), folder: board } })}
+                            onClick={() => navigate('/device/' + board, { replace: true, state: { boardName: makeBoardName(board), folder: board } })}
                         >
                             <div style={{
                                 display: 'flex',

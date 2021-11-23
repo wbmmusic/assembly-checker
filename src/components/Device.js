@@ -45,7 +45,7 @@ export default function Device() {
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
                 <Navbar bg="light" expand="lg">
                     <Navbar.Brand style={{ marginLeft: '8px' }}>{location.state.boardName}</Navbar.Brand>
-                    <Button style={{ marginRight: '8px' }} size="sm" variant="outline-primary" onClick={() => navigate('/')} >Back To Boards</Button>
+                    <Button style={{ marginRight: '8px' }} size="sm" variant="outline-primary" onClick={() => navigate('/', { replace: true })} >Back To Boards</Button>
                 </Navbar>
                 <div style={{ padding: '0px 10px 10px 10px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <div>
