@@ -1,7 +1,7 @@
 import React from 'react'
 import { Navbar } from 'react-bootstrap'
 import { useNavigate } from 'react-router'
-const path = require('path')
+const join = window.api.join
 
 export default function SelectDevice() {
     const navigate = useNavigate()
@@ -75,7 +75,7 @@ export default function SelectDevice() {
                             }}>
                                 <div style={{ backgroundColor: 'lightGrey', padding: '3px', borderRadius: '5px' }}><b>{makeBoardName(board)}</b></div>
                                 <div style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden', height: '100%', alignItems: 'center' }}>
-                                    <img style={{ display: 'block', maxWidth: '100%', maxHeight: '100%' }} src={path.join('boardfiles', board, 'render.png')} alt="devicePic" />
+                                    <img style={{ display: 'block', maxWidth: '100%', maxHeight: '100%' }} src={join('boardfiles', board, 'render.png')} alt="devicePic" />
                                 </div>
                             </div>
                         </div>

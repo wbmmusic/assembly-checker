@@ -1,13 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Modal, Spinner } from 'react-bootstrap'
-const { ipcRenderer } = window.require('electron')
 
 export default function Modals() {
     const defaultModalContents = { show: false }
     const [modalContents, setModalContents] = useState(defaultModalContents)
 
     useEffect(() => {
-        ipcRenderer.on('chipErasing', () => {
+        window.api.receive('chipErasing', () => {
 
             const tempContents = (
                 <Fragment>
@@ -26,7 +25,7 @@ export default function Modals() {
             })
         })
 
-        ipcRenderer.on('programming', () => {
+        window.api.receive('programming', () => {
 
             const tempContents = (
                 <Fragment>
@@ -45,19 +44,19 @@ export default function Modals() {
             })
         })
 
-        ipcRenderer.on('chipEraseComplete', () => {
+        window.api.receive('chipEraseComplete', () => {
             setModalContents(defaultModalContents)
         })
 
-        ipcRenderer.on('programmingComplete', () => {
+        window.api.receive('programmingComplete', () => {
             setModalContents(defaultModalContents)
         })
 
         return () => {
-            ipcRenderer.removeAllListeners('chipErasing')
-            ipcRenderer.removeAllListeners('chipEraseComplete')
-            ipcRenderer.removeAllListeners('programming')
-            ipcRenderer.removeAllListeners('programmingComplete')
+            window.api.removeAllListeners('chipErasing')
+            window.api.removeAllListeners('chipEraseComplete')
+            window.api.removeAllListeners('programming')
+            window.api.removeAllListeners('programmingComplete')
         }
     }, [])
 

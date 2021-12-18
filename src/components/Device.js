@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Navbar } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router'
-const { ipcRenderer } = window.require('electron')
-const path = require('path')
+const join = window.api.join
 
 export default function Device() {
     const navigate = useNavigate()
@@ -16,22 +15,22 @@ export default function Device() {
     const program = () => {
         console.log('Program')
         setTermText([])
-        ipcRenderer.send('programAndTest', location.state.folder)
+        window.api.send('programAndTest', location.state.folder)
     }
 
     const chipErase = () => {
         console.log('Top Chip Erase')
         setTermText([])
-        ipcRenderer.send('chipErase')
+        window.api.send('chipErase')
     }
 
     useEffect(() => {
-        ipcRenderer.on('jLinkProgress', (e, theMessage) => {
+        window.api.receive('jLinkProgress', (e, theMessage) => {
             console.log('JLINK-->>', theMessage)
             setTermText((oldTerm) => ([...oldTerm, theMessage.split('\r\n')]))
         })
         return () => {
-            ipcRenderer.removeAllListeners('jLinkProgress')
+            window.api.removeAllListeners('jLinkProgress')
         }
     }, [])
 
@@ -53,7 +52,7 @@ export default function Device() {
                             <tbody>
                                 <tr>
                                     <td style={{ borderRight: '1px solid lightGrey', width: '1px', padding: '5px' }}>
-                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={path.join('boardfiles', location.state.folder, 'render.png')} alt="brdImage" />
+                                        <img style={{ maxWidth: '300px', maxHeight: '200px' }} src={join('boardfiles', location.state.folder, 'render.png')} alt="brdImage" />
                                     </td>
                                     <td>
                                         <table>
