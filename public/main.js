@@ -352,6 +352,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 900,
     height: 700,
+    show: false,
     webPreferences: {
       preload: join(__dirname, 'preload.js')
     },
@@ -370,6 +371,8 @@ function createWindow() {
   win.on('closed', () => {
     win = null
   })
+
+  win.on('ready-to-show', () => win.show())
 }
 
 const createListeners = () => {
