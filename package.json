@@ -1,92 +1,92 @@
 {
-  "name": "pcb-assebmly-checker",
-  "version": "0.0.193",
-  "author": "Marece Williams",
-  "description": "App for programming and testing io-manager PCBs",
-  "homepage": "./",
-  "main": "public/main.js",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
-    "bootstrap": "^5.1.3",
-    "electron-updater": "^4.6.5",
-    "foreman": "^3.0.1",
-    "react": "^17.0.2",
-    "react-bootstrap": "^2.1.2",
-    "react-dom": "^17.0.2",
-    "react-router": "^6.2.1",
-    "react-router-dom": "^6.2.1",
-    "react-scripts": "5.0.0",
-    "serialport": "^10.3.0",
-    "update-electron-app": "^2.0.1",
-    "wbm-usb-device": "^0.2.47",
-    "wbm-version-manager": "^0.0.31",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "dev": "nf start",
-    "electron": "electron .",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "install": "electron-rebuild",
-    "rebuild": "electron-rebuild -f",
-    "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
-    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
-    "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
-    "try": "yarn build && yarn package ",
-    "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-    "refresh": "yarn upgrade --latest && yarn rebuild"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "electron": "^17.0.0",
-    "electron-builder": "^22.14.13",
-    "electron-rebuild": "^3.2.7"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wbmmusic/assembly-checker.git"
-  },
-  "build": {
-    "productName": "WBM Tek PCB Assembly Checker",
-    "appId": "com.electron.pcbchk",
-    "copyright": "WBM Tek",
-    "extends": null,
-    "npmRebuild": false,
-    "files": [
-      "build/**/*",
-      "electron/*"
-    ],
-    "win": {
-      "icon": "public/favicon.ico",
-      "extraResources": [
-        "public/JLink.exe",
-        "public/JLinkARM.dll",
-        "public/firmware/*",
-        "public/USBDriver/**/*",
-        "public/boardfiles/**/*"
-      ]
+    "name": "pcb-assebmly-checker",
+    "version": "0.0.194",
+    "author": "Marece Williams",
+    "description": "App for programming and testing io-manager PCBs",
+    "homepage": "./",
+    "main": "public/main.js",
+    "private": true,
+    "dependencies": {
+        "@testing-library/jest-dom": "^5.16.2",
+        "@testing-library/react": "^12.1.2",
+        "@testing-library/user-event": "^13.5.0",
+        "bootstrap": "^5.1.3",
+        "electron-updater": "^4.6.5",
+        "foreman": "^3.0.1",
+        "react": "^17.0.2",
+        "react-bootstrap": "^2.1.2",
+        "react-dom": "^17.0.2",
+        "react-router": "^6.2.1",
+        "react-router-dom": "^6.2.1",
+        "react-scripts": "5.0.0",
+        "serialport": "^10.3.0",
+        "update-electron-app": "^2.0.1",
+        "wbm-usb-device": "^0.2.47",
+        "wbm-version-manager": "^0.0.31",
+        "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+        "dev": "nf start",
+        "electron": "electron .",
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject",
+        "install": "electron-rebuild",
+        "rebuild": "electron-rebuild -f",
+        "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
+        "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
+        "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
+        "try": "yarn build && yarn package ",
+        "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
+        "refresh": "yarn upgrade --latest && yarn rebuild"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "electron": "^17.0.0",
+        "electron-builder": "^22.14.13",
+        "electron-rebuild": "^3.2.7"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/wbmmusic/assembly-checker.git"
+    },
+    "build": {
+        "productName": "WBM Tek PCB Assembly Checker",
+        "appId": "com.electron.pcbchk",
+        "copyright": "WBM Tek",
+        "extends": null,
+        "npmRebuild": false,
+        "files": [
+            "build/**/*",
+            "electron/*"
+        ],
+        "win": {
+            "icon": "public/favicon.ico",
+            "extraResources": [
+                "public/JLink.exe",
+                "public/JLinkARM.dll",
+                "public/firmware/*",
+                "public/USBDriver/**/*",
+                "public/boardfiles/**/*"
+            ]
+        }
     }
-  }
 }

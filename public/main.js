@@ -26,398 +26,398 @@ let pathToFile = path.join(pathToFiles, 'cmd.jlink')
 let pathToDevices = path.join(pathToFiles, 'devices')
 
 
-const handleLine = async (line) => {
-  const space = () => console.log("------------------")
-  //space()
-  //console.log("Line Name:", line.name)
-  //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
-  //console.log("# of devices:", line.devices.length)
-  //space()
+const handleLine = async(line) => {
+    const space = () => console.log("------------------")
+        //space()
+        //console.log("Line Name:", line.name)
+        //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
+        //console.log("# of devices:", line.devices.length)
+        //space()
 
-  await line.devices.reduce(async (acc, element) => {
+    await line.devices.reduce(async(acc, element) => {
 
-    await acc
+        await acc
 
-    if (element.name !== "Brain") {
-      const pathToDevice = join(pathToDevices, element.path)
+        if (element.name !== "Brain") {
+            const pathToDevice = join(pathToDevices, element.path)
 
-      if (!fs.existsSync(pathToDevice)) fs.mkdirSync(pathToDevice)
-      let currentFirmware = null
+            if (!fs.existsSync(pathToDevice)) fs.mkdirSync(pathToDevice)
+            let currentFirmware = null
 
-      if (element.current !== '???') {
-        currentFirmware = element.firmware.find(fw => fw.version === element.current)
+            if (element.current !== '???') {
+                currentFirmware = element.firmware.find(fw => fw.version === element.current)
 
-        if (!fs.existsSync(join(pathToDevice, currentFirmware.name))) {
-          //console.log("Current firmware file doesn't exist")
+                if (!fs.existsSync(join(pathToDevice, currentFirmware.name))) {
+                    //console.log("Current firmware file doesn't exist")
 
-          const devFolderContents = fs.readdirSync(pathToDevice)
+                    const devFolderContents = fs.readdirSync(pathToDevice)
 
-          // Delete All Files In this folder
-          devFolderContents.forEach(file => {
-            fs.unlinkSync(join(pathToDevice, file))
-          })
+                    // Delete All Files In this folder
+                    devFolderContents.forEach(file => {
+                        fs.unlinkSync(join(pathToDevice, file))
+                    })
 
-          //Put New / Current Firmware in folder
-          await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
-          //console.log(dl)
+                    //Put New / Current Firmware in folder
+                    await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
+                        //console.log(dl)
+                }
+            }
+            //console.log("Device", element.name)
+            //console.log("Current FW:", element.current)
+            //console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
+            //space()
         }
-      }
-      //console.log("Device", element.name)
-      //console.log("Current FW:", element.current)
-      //console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
-      //space()
-    }
-  }, Promise.resolve([]))
+    }, Promise.resolve([]))
 
-  //space()
+    //space()
 }
 
-const checkForUpdates = async () => {
-  try {
-    let lines = await wbmVer.getLines()
-    if (lines === undefined) console.log("LINES IS UNDEFINED")
-    let lineID = lines.find(line => line.path === 'iomanager').id
-    if (lineID === undefined) console.log("THE LINEID IS UNDEFINED")
-    let theLine = await wbmVer.getLine(lineID)
-    handleLine(theLine)
-  } catch (error) {
-    console.log(error)
-  }
+const checkForUpdates = async() => {
+    try {
+        let lines = await wbmVer.getLines()
+        if (lines === undefined) console.log("LINES IS UNDEFINED")
+        let lineID = lines.find(line => line.path === 'iomanager').id
+        if (lineID === undefined) console.log("THE LINEID IS UNDEFINED")
+        let theLine = await wbmVer.getLine(lineID)
+        handleLine(theLine)
+    } catch (error) {
+        console.log(error)
+    }
 
 }
 
 const checkFolderStructure = () => {
-  if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
-    console.log('Creating WBM Tek folder')
-    fs.mkdirSync(path.join('C:', 'ProgramData', 'WBM Tek'))
-  }
+    if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
+        console.log('Creating WBM Tek folder')
+        fs.mkdirSync(path.join('C:', 'ProgramData', 'WBM Tek'))
+    }
 
-  if (!fs.existsSync(pathToFiles)) {
-    console.log('Creating pcbChecker folder')
-    fs.mkdirSync(pathToFiles)
-  }
+    if (!fs.existsSync(pathToFiles)) {
+        console.log('Creating pcbChecker folder')
+        fs.mkdirSync(pathToFiles)
+    }
 
-  if (!fs.existsSync(pathToDevices)) {
-    console.log('Creating devices folder')
-    fs.mkdirSync(pathToDevices)
-  }
+    if (!fs.existsSync(pathToDevices)) {
+        console.log('Creating devices folder')
+        fs.mkdirSync(pathToDevices)
+    }
 }
 checkFolderStructure()
 
-const getProgrammer = async () => {
-  return new Promise((resolve, reject) => {
-    const args = [
-      '-CommanderScript "' + pathToFile + '"',
-      '-ExitOnError 1'
-    ]
+const getProgrammer = async() => {
+    return new Promise((resolve, reject) => {
+        const args = [
+            '-CommanderScript "' + pathToFile + '"',
+            '-ExitOnError 1'
+        ]
 
-    let programmer = false
+        let programmer = false
 
-    fs.writeFileSync(pathToFile, 'ShowEmuList USB\r\nexit', 'utf8')
+        fs.writeFileSync(pathToFile, 'ShowEmuList USB\r\nexit', 'utf8')
 
-    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+        let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
-    child.stdout.on('data', (data) => {
-      let theLine = data.toString()
-      if (theLine.includes("J-Link[0]:")) {
-        programmer = theLine.split(',').find(ln => ln.includes("Serial number:")).split(':')[1].replace(' ', '')
-      }
+        child.stdout.on('data', (data) => {
+            let theLine = data.toString()
+            if (theLine.includes("J-Link[0]:")) {
+                programmer = theLine.split(',').find(ln => ln.includes("Serial number:")).split(':')[1].replace(' ', '')
+            }
+        })
+
+        child.on('close', (code) => {
+            if (code === 0 && programmer !== false) {
+                resolve(programmer)
+            } else {
+                reject(programmer)
+            }
+        })
     })
-
-    child.on('close', (code) => {
-      if (code === 0 && programmer !== false) {
-        resolve(programmer)
-      } else {
-        reject(programmer)
-      }
-    })
-  })
 }
 
 const loadFirmware = (filePath) => {
-  win.webContents.send('programming')
-  win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+    win.webContents.send('programming')
+    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
-  const args = [
-    '-device ATSAMD21G18',
-    '-if SWD',
-    '-speed 4000',
-    '-autoconnect 1',
-    '-CommanderScript "' + pathToFile + '"',
-    '-ExitOnError 1'
-  ]
+    const args = [
+        '-device ATSAMD21G18',
+        '-if SWD',
+        '-speed 4000',
+        '-autoconnect 1',
+        '-CommanderScript "' + pathToFile + '"',
+        '-ExitOnError 1'
+    ]
 
-  win.webContents.send('message', pathToFile)
-  let pathToFirmware = filePath
-  let pathToBoot = path.join(workingDirectory, "firmware", 'boot.bin')
-  let pathToOutput = path.join(pathToFiles, 'output.bin')
-  win.webContents.send('message', workingDirectory)
+    win.webContents.send('message', pathToFile)
+    let pathToFirmware = filePath
+    let pathToBoot = path.join(workingDirectory, "firmware", 'boot.bin')
+    let pathToOutput = path.join(pathToFiles, 'output.bin')
+    win.webContents.send('message', workingDirectory)
 
-  //console.log('pathToFirm', pathToFirmware)
+    //console.log('pathToFirm', pathToFirmware)
 
-  const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
-  const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
+    const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
+    const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
 
-  return new Promise(async (resolve, reject) => {
-    let programmerSerial = null
-    try {
-      programmerSerial = await getProgrammer()
-    } catch (error) {
-      console.log("NO PROGRAMMER")
-      win.webContents.send('programmingComplete')
-      reject(["J-Link Programmer not connected"])
-      throw error
-    }
+    return new Promise(async(resolve, reject) => {
+        let programmerSerial = null
+        try {
+            programmerSerial = await getProgrammer()
+        } catch (error) {
+            console.log("NO PROGRAMMER")
+            win.webContents.send('programmingComplete')
+            reject(["J-Link Programmer not connected"])
+            throw error
+        }
 
-    win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
-    let out = null
-    fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-    fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nUSB ' + programmerSerial + '\r\nrnh\r\nexit', 'utf8')
+        win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
+        let out = null
+        fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
+        fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nUSB ' + programmerSerial + '\r\nrnh\r\nexit', 'utf8')
 
-    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+        let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
-    child.stdout.on('data', (data) => {
-      //win.webContents.send('jLinkProgress', data)
-      //console.log("HEREXXX", data.toString())
-      if (data.toString().includes('Cannot connect to target.')) out = "FAILED: Could not communicate with MicroController"
-      else if (
-        data.toString().includes('FAILED: Cannot connect to J-Link') ||
-        data.toString().includes('ERROR while parsing value for usb')
-      ) out = "FAILED: Cannot connect to J-Link Programmer"
-      else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
-      else out = data.toString()
+        child.stdout.on('data', (data) => {
+            //win.webContents.send('jLinkProgress', data)
+            //console.log("HEREXXX", data.toString())
+            if (data.toString().includes('Cannot connect to target.')) out = "FAILED: Could not communicate with MicroController"
+            else if (
+                data.toString().includes('FAILED: Cannot connect to J-Link') ||
+                data.toString().includes('ERROR while parsing value for usb')
+            ) out = "FAILED: Cannot connect to J-Link Programmer"
+            else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
+            else out = data.toString()
+        })
+
+        child.on('close', (code) => {
+
+            if (out === "Programming Successful") {
+                win.webContents.send('jLinkProgress', out)
+                resolve(out)
+            } else {
+                win.webContents.send('jLinkProgress', out)
+                win.webContents.send('programmingComplete')
+                reject(out)
+            }
+        })
+
+        child.on('error', (error) => {
+            console.log('Error in J-LINK programming')
+            reject(new Error('Error in J-LINK programming'))
+        })
     })
-
-    child.on('close', (code) => {
-
-      if (out === "Programming Successful") {
-        win.webContents.send('jLinkProgress', out)
-        resolve(out)
-      } else {
-        win.webContents.send('jLinkProgress', out)
-        win.webContents.send('programmingComplete')
-        reject(out)
-      }
-    })
-
-    child.on('error', (error) => {
-      console.log('Error in J-LINK programming')
-      reject(new Error('Error in J-LINK programming'))
-    })
-  })
 }
 
 const waitForDevice = (device) => {
 
-  let waitFor = ''
+    let waitFor = ''
 
-  switch (device) {
-    case 'cvboard':
-      waitFor = 'CV Board'
-      break;
+    switch (device) {
+        case 'cvboard':
+            waitFor = 'CV Board'
+            break;
 
-    default:
-      break;
-  }
-
-  return new Promise((resolve, reject) => {
-    win.webContents.send('jLinkProgress', "Waiting to detect Device")
-    const exit = (passFail) => {
-      clearTimeout(waitForDeviceTimer)
-      if (passFail === 'fail') reject(['Timed out waiting for device'])
-      else resolve(passFail)
+        default:
+            break;
     }
 
-    let waitForDeviceTimer = setTimeout(() => {
-      exit('fail')
-    }, 3000);
+    return new Promise((resolve, reject) => {
+        win.webContents.send('jLinkProgress', "Waiting to detect Device")
+        const exit = (passFail) => {
+            clearTimeout(waitForDeviceTimer)
+            if (passFail === 'fail') reject(['Timed out waiting for device'])
+            else resolve(passFail)
+        }
 
-    wbmUsbDevice.on('devList', (list) => {
-      let devIdx = list.findIndex(dev => dev.Model === waitFor)
+        let waitForDeviceTimer = setTimeout(() => {
+            exit('fail')
+        }, 3000);
 
-      if (devIdx >= 0) exit(list[devIdx].path)
+        wbmUsbDevice.on('devList', (list) => {
+            let devIdx = list.findIndex(dev => dev.Model === waitFor)
+
+            if (devIdx >= 0) exit(list[devIdx].path)
+        })
+
+    })
+}
+
+const getFwFile = async(folder) => {
+    return new Promise((resolve, reject) => {
+        let files = fs.readdirSync(join(pathToDevices, folder))
+        if (files.length <= 0) {
+            console.log('No firmware file found for ' + folder)
+            reject(['No firmware file found for ' + folder])
+        } else resolve(files[0])
     })
 
-  })
 }
 
-const getFwFile = async (folder) => {
-  return new Promise((resolve, reject) => {
-    let files = fs.readdirSync(join(pathToDevices, folder))
-    if (files.length <= 0) {
-      console.log('No firmware file found for ' + folder)
-      reject(['No firmware file found for ' + folder])
-    }
-    else resolve(files[0])
-  })
+const programAndTest = async(folder) => {
+    console.log('Program and test', folder)
 
-}
+    let deviceIsOnPort
 
-const programAndTest = async (folder) => {
-  console.log('Program and test', folder)
-
-  let deviceIsOnPort
-
-  try {
-    //Get File Name of current firmware for this device
-    let file = await getFwFile(folder)
-
-    // Load BootLoader and Testing Firmware
-    await loadFirmware(join(pathToDevices, folder, file))
-    console.log("Firmware Loaded")
-
-    // Wait for programmed device to be detected
-    console.log('Waiting for device to connect')
-    deviceIsOnPort = await waitForDevice(folder)
-    console.log('Device detected at', deviceIsOnPort)
-    win.webContents.send('jLinkProgress', 'Device detected at ' + deviceIsOnPort)
-
-    // Run Tests on device
-    console.log("Run Tests")
-    win.webContents.send('jLinkProgress', 'TESTING')
-    let testResults = await tests.runTests(folder, deviceIsOnPort)
-    testResults.forEach(result => {
-      console.log(result)
-      win.webContents.send('jLinkProgress', result)
-    })
-
-    win.webContents.send('jLinkProgress', '----------------------------')
-    win.webContents.send('jLinkProgress', "Ready for delivery!! :)")
-
-    win.webContents.send('programmingComplete')
-
-  } catch (error) {
-    error.forEach(msg => win.webContents.send('jLinkProgress', msg))
-    win.webContents.send('programmingComplete')
-    throw error
-  }
-}
-
-const chipErase = async () => {
-  return new Promise(async (resolve, reject) => {
-    let programmerSerial = null
     try {
-      programmerSerial = await getProgrammer()
+        //Get File Name of current firmware for this device
+        let file = await getFwFile(folder)
+
+        // Load BootLoader and Testing Firmware
+        await loadFirmware(join(pathToDevices, folder, file))
+        console.log("Firmware Loaded")
+
+        // Wait for programmed device to be detected
+        console.log('Waiting for device to connect')
+        deviceIsOnPort = await waitForDevice(folder)
+        console.log('Device detected at', deviceIsOnPort)
+        win.webContents.send('jLinkProgress', 'Device detected at ' + deviceIsOnPort)
+
+        // Run Tests on device
+        console.log("Run Tests")
+        win.webContents.send('jLinkProgress', 'TESTING')
+        let testResults = await tests.runTests(folder, deviceIsOnPort)
+        testResults.forEach(result => {
+            console.log(result)
+            win.webContents.send('jLinkProgress', result)
+        })
+
+        win.webContents.send('jLinkProgress', '----------------------------')
+        win.webContents.send('jLinkProgress', "Ready for delivery!! :)")
+
+        win.webContents.send('programmingComplete')
+
     } catch (error) {
-      console.log("NO PROGRAMMER")
-      win.webContents.send('programmingComplete')
-      reject("J-Link Programmer not connected")
-      throw error
+        error.forEach(msg => win.webContents.send('jLinkProgress', msg))
+        win.webContents.send('programmingComplete')
+        throw error
     }
+}
 
-    win.webContents.send('chipErasing')
-    win.webContents.send('jLinkProgress', "Erasing Chip")
-    console.log("Chip Erase")
-    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+const chipErase = async() => {
+    return new Promise(async(resolve, reject) => {
+        let programmerSerial = null
+        try {
+            programmerSerial = await getProgrammer()
+        } catch (error) {
+            console.log("NO PROGRAMMER")
+            win.webContents.send('programmingComplete')
+            reject("J-Link Programmer not connected")
+            throw error
+        }
 
-    const args = [
-      '-device ATSAMD21G18',
-      '-if SWD',
-      '-speed 4000',
-      '-autoconnect 1',
-      '-CommanderScript "' + pathToFile + '"',
-      '-ExitOnError 1'
-    ]
+        win.webContents.send('chipErasing')
+        win.webContents.send('jLinkProgress', "Erasing Chip")
+        console.log("Chip Erase")
+        win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
-    win.webContents.send('message', pathToFile)
-    win.webContents.send('message', workingDirectory)
+        const args = [
+            '-device ATSAMD21G18',
+            '-if SWD',
+            '-speed 4000',
+            '-autoconnect 1',
+            '-CommanderScript "' + pathToFile + '"',
+            '-ExitOnError 1'
+        ]
 
-    fs.writeFileSync(pathToFile, "erase\r\nUSB " + programmerSerial + "rnh\r\nexit", 'utf8')
+        win.webContents.send('message', pathToFile)
+        win.webContents.send('message', workingDirectory)
 
-    console.log("Execute erase command")
-    let outErr = 'CHIP ERASE ERROR'
-    let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+        fs.writeFileSync(pathToFile, "erase\r\nUSB " + programmerSerial + "rnh\r\nexit", 'utf8')
+
+        console.log("Execute erase command")
+        let outErr = 'CHIP ERASE ERROR'
+        let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
 
-    child.stdout.on('data', (data) => {
-      //win.webContents.send('jLinkProgress', data)
-      if (data.toString().includes('Cannot connect to target.')) outErr = "FAILED: Could not communicate with MicroController"
-      //console.log("SDATTA", data.toString())
+        child.stdout.on('data', (data) => {
+            //win.webContents.send('jLinkProgress', data)
+            if (data.toString().includes('Cannot connect to target.')) outErr = "FAILED: Could not communicate with MicroController"
+                //console.log("SDATTA", data.toString())
+        })
+
+        child.on('close', (code) => {
+            console.log("close Erase")
+            if (code === 0) {
+                resolve('Chip erase complete')
+            } else {
+                reject(outErr)
+            }
+            win.webContents.send('chipEraseComplete')
+        })
     })
-
-    child.on('close', (code) => {
-      console.log("close Erase")
-      if (code === 0) {
-        resolve('Chip erase complete')
-      } else {
-        reject(outErr)
-      }
-      win.webContents.send('chipEraseComplete')
-    })
-  })
 }
 
 function createWindow() {
-  // Create the browser window.
-  win = new BrowserWindow({
-    width: 900,
-    height: 700,
-    show: false,
-    webPreferences: {
-      preload: join(__dirname, 'preload.js')
-    },
-    icon: path.join(__dirname, '/favicon.ico')
-  })
+    // Create the browser window.
+    win = new BrowserWindow({
+        width: 900,
+        height: 700,
+        show: false,
+        autoHideMenuBar: true,
+        webPreferences: {
+            preload: join(__dirname, 'preload.js')
+        },
+        icon: path.join(__dirname, '/favicon.ico')
+    })
 
-  const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: path.join(__dirname, '/../build/index.html'),
-    protocol: 'file:',
-    slashes: true
-  });
-  win.loadURL(startUrl);
-  //win.maximize()
+    const startUrl = process.env.ELECTRON_START_URL || url.format({
+        pathname: path.join(__dirname, '/../build/index.html'),
+        protocol: 'file:',
+        slashes: true
+    });
+    win.loadURL(startUrl);
+    //win.maximize()
 
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    win = null
-  })
+    // Emitted when the window is closed.
+    win.on('closed', () => {
+        win = null
+    })
 
-  win.on('ready-to-show', () => win.show())
+    win.on('ready-to-show', () => win.show())
 }
 
 const createListeners = () => {
-  ipcMain.on('installUpdate', () => {
-    autoUpdater.quitAndInstall(true, true)
-  })
+    ipcMain.on('installUpdate', () => {
+        autoUpdater.quitAndInstall(true, true)
+    })
 
-  ipcMain.on('loadFirmware', (e, firmware) => {
-    console.log("Load", firmware)
-    loadFirmware(firmware)
-  })
+    ipcMain.on('loadFirmware', (e, firmware) => {
+        console.log("Load", firmware)
+        loadFirmware(firmware)
+    })
 
-  ipcMain.on('chipErase', async () => {
+    ipcMain.on('chipErase', async() => {
+        try {
+            let result = await chipErase()
+            win.webContents.send('jLinkProgress', result)
+            win.webContents.send('chipEraseComplete')
+        } catch (error) {
+            win.webContents.send('jLinkProgress', error)
+            win.webContents.send('chipEraseComplete')
+        }
+    })
+
+    ipcMain.on('programAndTest', (e, folder) => {
+        programAndTest(folder)
+    })
+
+    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+
+    /////// CHECK FOR DRIVER
+    const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
     try {
-      let result = await chipErase()
-      win.webContents.send('jLinkProgress', result)
-      win.webContents.send('chipEraseComplete')
-    } catch (error) {
-      win.webContents.send('jLinkProgress', error)
-      win.webContents.send('chipEraseComplete')
+        if (fs.existsSync(drvChk)) {
+            //console.log('File Exists')
+            win.webContents.send('message', 'File Exists')
+        } else {
+            const driver = execFileSync(path.join(workingDirectory, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
+            console.log(driver)
+            win.webContents.send('message', driver.toString())
+        }
+    } catch (err) {
+        console.error(err)
+        win.webContents.send('message', err.toString())
+        console.log("In Error")
     }
-  })
-
-  ipcMain.on('programAndTest', (e, folder) => {
-    programAndTest(folder)
-  })
-
-  win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
-
-  /////// CHECK FOR DRIVER
-  const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
-  try {
-    if (fs.existsSync(drvChk)) {
-      //console.log('File Exists')
-      win.webContents.send('message', 'File Exists')
-    } else {
-      const driver = execFileSync(path.join(workingDirectory, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
-      console.log(driver)
-      win.webContents.send('message', driver.toString())
-    }
-  } catch (err) {
-    console.error(err)
-    win.webContents.send('message', err.toString())
-    console.log("In Error")
-  }
 }
 
 ////////  SINGLE INSTANCE //////////
@@ -425,82 +425,82 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) app.quit()
 
 app.on('second-instance', (event, commandLine, workingDirectory) => {
-  // Someone tried to run a second instance, we should focus our window.
-  if (win) {
-    if (win.isMinimized()) win.restore()
-    win.focus()
-  }
-})
-//////  END SINGLE INSTANCE ////////
+        // Someone tried to run a second instance, we should focus our window.
+        if (win) {
+            if (win.isMinimized()) win.restore()
+            win.focus()
+        }
+    })
+    //////  END SINGLE INSTANCE ////////
 
 
 // Create myWindow, load the rest of the app, etc...
 app.on('ready', () => {
 
-  //log("-APP IS READY");
-  ipcMain.on('reactIsReady', () => {
+        //log("-APP IS READY");
+        ipcMain.on('reactIsReady', () => {
 
-    if (listenersApplied === false) {
-      listenersApplied = true
-      createListeners()
+            if (listenersApplied === false) {
+                listenersApplied = true
+                createListeners()
 
-      wbmUsbDevice.startMonitoring()
+                wbmUsbDevice.startMonitoring()
 
-      wbmUsbDevice.on('devList', list => console.log('------>>>>> GOT DEV LIST', list))
+                wbmUsbDevice.on('devList', list => console.log('------>>>>> GOT DEV LIST', list))
 
-      wbmUsbDevice.on('progress', (list) => {
-        console.log('progress', list)
-        win.webContents.send('jLinkProgress', list)
-      })
+                wbmUsbDevice.on('progress', (list) => {
+                    console.log('progress', list)
+                    win.webContents.send('jLinkProgress', list)
+                })
 
-      tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
+                tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
 
-    }
+            }
 
-    console.log('React Is Ready')
-    win.webContents.send('message', 'React Is Ready')
-    //win.webContents.send('message', app.getAppPath())
-    win.webContents.send('app_version', { version: app.getVersion() });
+            console.log('React Is Ready')
+            win.webContents.send('message', 'React Is Ready')
+                //win.webContents.send('message', app.getAppPath())
+            win.webContents.send('app_version', { version: app.getVersion() });
 
-    if (app.isPackaged) {
-      win.webContents.send('message', 'App is packaged')
+            if (app.isPackaged) {
+                win.webContents.send('message', 'App is packaged')
 
-      autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
-      autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
-      autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
-      autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
-      autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
-      autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
+                autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
+                autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
+                autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
+                autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
+                autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
+                autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
 
 
-      setInterval(() => {
-        win.webContents.send('message', 'Interval Check for update')
-        autoUpdater.checkForUpdatesAndNotify()
-      }, 600000);
+                setInterval(() => {
+                    win.webContents.send('message', 'Interval Check for update')
+                    autoUpdater.checkForUpdatesAndNotify()
+                }, 600000);
 
-      autoUpdater.checkForUpdatesAndNotify()
-    }
+                autoUpdater.checkForUpdatesAndNotify()
+            }
 
-    checkForUpdates()
+            checkForUpdates()
 
-  })
+        })
 
-  createWindow()
+        createWindow()
 
-})
-///////////////////////
+    })
+    ///////////////////////
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+    if (process.platform !== 'darwin') {
+        app.quit()
+    }
 })
 
 app.on('activate', () => {
-  if (win === null) {
-    createWindow()
-  }
+    if (win === null) {
+        createWindow()
+    }
 })
 
 ////////////////// END App Startup ///////////////////////////////////////////////////////////////
