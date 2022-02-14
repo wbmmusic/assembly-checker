@@ -1539,13 +1539,6 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@serialport/binding-abstract@9.2.3":
-  version "9.2.3"
-  resolved "https://registry.yarnpkg.com/@serialport/binding-abstract/-/binding-abstract-9.2.3.tgz#e7dd273357b6a698af7ad58db6f57f62443a0acb"
-  integrity sha512-cQs9tbIlG3P0IrOWyVirqlhWuJ7Ms2Zh9m2108z6Y5UW/iVj6wEOiW8EmK9QX9jmJXYllE7wgGgvVozP5oCj3w==
-  dependencies:
-    debug "^4.3.2"
-
 "@serialport/binding-mock@10.2.2":
   version "10.2.2"
   resolved "https://registry.yarnpkg.com/@serialport/binding-mock/-/binding-mock-10.2.2.tgz#d322a8116a97806addda13c62f50e73d16125874"
@@ -1553,14 +1546,6 @@
   dependencies:
     "@serialport/bindings-interface" "^1.2.1"
     debug "^4.3.3"
-
-"@serialport/binding-mock@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/binding-mock/-/binding-mock-9.2.4.tgz#8adf34742abcee80919e19f1266423ce1c9407e2"
-  integrity sha512-dpEhACCs44oQhh6ajJfJdvQdK38Vq0N4W6iD/gdplglDCK7qXRQCMUjJIeKdS/HSEiWkC3bwumUhUufdsOyT4g==
-  dependencies:
-    "@serialport/binding-abstract" "9.2.3"
-    debug "^4.3.2"
 
 "@serialport/bindings-cpp@10.6.3":
   version "10.6.3"
@@ -1578,57 +1563,25 @@
   resolved "https://registry.yarnpkg.com/@serialport/bindings-interface/-/bindings-interface-1.2.1.tgz#1ee80b0951ef4e4fd8a5a186621feff046aa2faf"
   integrity sha512-63Dyqz2gtryRDDckFusOYqLYhR3Hq/M4sEdbF9i/VsvDb6T+tNVgoAKUZ+FMrXXKnCSu+hYbk+MTc0XQANszxw==
 
-"@serialport/bindings@9.2.8":
-  version "9.2.8"
-  resolved "https://registry.yarnpkg.com/@serialport/bindings/-/bindings-9.2.8.tgz#59c2be09d91df922d56de31cb9e21c6736004e39"
-  integrity sha512-hSLxTe0tADZ3LMMGwvEJWOC/TaFQTyPeFalUCsJ1lSQ0k6bPF04JwrtB/C81GetmDBTNRY0GlD0SNtKCc7Dr5g==
-  dependencies:
-    "@serialport/binding-abstract" "9.2.3"
-    "@serialport/parser-readline" "9.2.4"
-    bindings "^1.5.0"
-    debug "^4.3.2"
-    nan "^2.15.0"
-    prebuild-install "^7.0.0"
-
 "@serialport/parser-byte-length@10.3.0":
   version "10.3.0"
   resolved "https://registry.yarnpkg.com/@serialport/parser-byte-length/-/parser-byte-length-10.3.0.tgz#c650b8883f716af77196e8466e86861b55290201"
   integrity sha512-pJ/VoFemzKRRNDHLhFfPThwP40QrGaEnm9TtwL7o2GihEPwzBg3T0bN13ew5TpbbUYZdMpUtpm3CGfl6av9rUQ==
-
-"@serialport/parser-byte-length@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-byte-length/-/parser-byte-length-9.2.4.tgz#cccdf3a95018d838cee9e7aa86ab3b5ad9e6c00f"
-  integrity sha512-sQD/iw4ZMU3xW9PLi0/GlvU6Y623jGeWecbMkO7izUo/6P7gtfv1c9ikd5h0kwL8AoAOpQA1lxdHIKox+umBUg==
 
 "@serialport/parser-cctalk@10.3.0":
   version "10.3.0"
   resolved "https://registry.yarnpkg.com/@serialport/parser-cctalk/-/parser-cctalk-10.3.0.tgz#d8fc7ab480910b28362b1ff154c01c170ac201a3"
   integrity sha512-8ujmk8EvVbDPrNF4mM33bWvUYJOZ0wXbY3WCRazHRWvyCdL0VO0DQvW81ZqgoTpiDQZm5r8wQu9rmuemahF6vQ==
 
-"@serialport/parser-cctalk@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-cctalk/-/parser-cctalk-9.2.4.tgz#441533e6afc789e8cc5a017697632217bb33a861"
-  integrity sha512-T4TU5vQMwmo9AB3gQLFDWbfJXlW5jd9guEsB/nqKjFHTv0FXPdZ7DQ2TpSp8RnHWxU3GX6kYTaDO20BKzc8GPQ==
-
 "@serialport/parser-delimiter@10.3.0":
   version "10.3.0"
   resolved "https://registry.yarnpkg.com/@serialport/parser-delimiter/-/parser-delimiter-10.3.0.tgz#4bcbbeed7e3c6fed2c116535f0754bbf8a33f015"
   integrity sha512-9E4Vj6s0UbbcCCTclwegHGPYjJhdm9qLCS0lowXQDEQC5naZnbsELemMHs93nD9jHPcyx1B4oXkMnVZLxX5TYw==
 
-"@serialport/parser-delimiter@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-delimiter/-/parser-delimiter-9.2.4.tgz#7906162ab5601b52abe7bb011678248f0b50f6c0"
-  integrity sha512-4nvTAoYAgkxFiXrkI+3CA49Yd43CODjeszh89EK+I9c8wOZ+etZduRCzINYPiy26g7zO+GRAb9FoPCsY+sYcbQ==
-
 "@serialport/parser-inter-byte-timeout@10.3.0":
   version "10.3.0"
   resolved "https://registry.yarnpkg.com/@serialport/parser-inter-byte-timeout/-/parser-inter-byte-timeout-10.3.0.tgz#57e4fceeeeb13415dcded3ef1ba5d28a9fa0c611"
   integrity sha512-wKP0QK85NHgvT6BBB1qBfKBBU4pf8kespNXAZBUYmFT+P4n8r8IZE2mqigCD+AiZcfWNQoAizwOsT/Jx/qeVig==
-
-"@serialport/parser-inter-byte-timeout@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-inter-byte-timeout/-/parser-inter-byte-timeout-9.2.4.tgz#0ffb7f1449636f6363e894127d1f819b38e91c3c"
-  integrity sha512-SOAdvr0oBQIOCXX198hiTlxs4JTKg9j5piapw5tNq52fwDOWdbYrFneT/wN04UTMKaDrJuEvXq6T4rv4j7nJ5A==
 
 "@serialport/parser-packet-length@10.3.0":
   version "10.3.0"
@@ -1642,32 +1595,15 @@
   dependencies:
     "@serialport/parser-delimiter" "10.3.0"
 
-"@serialport/parser-readline@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-readline/-/parser-readline-9.2.4.tgz#15a4ec7e86ddc33ac84faac7bffd4560e4544ccb"
-  integrity sha512-Z1/qrZTQUVhNSJP1hd9YfDvq0o7d87rNwAjjRKbVpa7Qi51tG5BnKt43IV3NFMyBlVcRe0rnIb3tJu57E0SOwg==
-  dependencies:
-    "@serialport/parser-delimiter" "9.2.4"
-
 "@serialport/parser-ready@10.3.0":
   version "10.3.0"
   resolved "https://registry.yarnpkg.com/@serialport/parser-ready/-/parser-ready-10.3.0.tgz#6a93d8970dc827e57829a9ee54802469be71f185"
   integrity sha512-1owywJ4p592dJyVrEJZPIh6pUZ3/y/LN6kGTDH2wxdewRUITo/sGvDy0er5i2+dJD3yuowiAz0dOHSdz8tevJA==
 
-"@serialport/parser-ready@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-ready/-/parser-ready-9.2.4.tgz#e1fc93b9e3057972104db3f9311263397f420f25"
-  integrity sha512-Pyi94Itjl6qAURwIZr/gmZpMAyTmKXThm6vL5DoAWGQjcRHWB0gwv2TY2v7N+mQLJYUKU3cMnvnATXxHm7xjxw==
-
 "@serialport/parser-regex@10.3.0":
   version "10.3.0"
   resolved "https://registry.yarnpkg.com/@serialport/parser-regex/-/parser-regex-10.3.0.tgz#7c7314036535414bb7ada3520598d233f5ea09d0"
   integrity sha512-tIogTs7CvTH+UUFnsvE7i33MSISyTPTGPWlglWYH2/5coipXY503jlaYS1YGe818wWNcSx6YAjMZRdhTWwM39w==
-
-"@serialport/parser-regex@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-regex/-/parser-regex-9.2.4.tgz#e232a84e00f3e8c366fc65ce20f8f4ac14960448"
-  integrity sha512-sI/cVvPOYz+Dbv4ZdnW16qAwvXiFf/1pGASQdbveRTlgJDdz7sRNlCBifzfTN2xljwvCTZYqiudKvDdC1TepRQ==
 
 "@serialport/parser-slip-encoder@10.3.0":
   version "10.3.0"
@@ -1685,13 +1621,6 @@
   integrity sha512-7sooi5fHogYNVEJwxVdg872xO6TuMgQd2E9iRmv+o8pk/1dbBnPkmH6Ka3st1mVE+0KnIJqVlgei+ncSsqXIGw==
   dependencies:
     "@serialport/bindings-interface" "1.2.1"
-    debug "^4.3.2"
-
-"@serialport/stream@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@serialport/stream/-/stream-9.2.4.tgz#9fce093d0b46ed4599953b4fae81718e050d2b33"
-  integrity sha512-bLye8Ub4vUFQGmkh8qEqehr7SE7EJs2yDs0h9jzuL5oKi+F34CFmWkEErO8GAOQ8YNn7p6b3GxUgs+0BrHHDZQ==
-  dependencies:
     debug "^4.3.2"
 
 "@sindresorhus/is@^0.14.0":
@@ -2151,14 +2080,14 @@
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
 
 "@types/node@*":
-  version "17.0.17"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.17.tgz#a8ddf6e0c2341718d74ee3dc413a13a042c45a0c"
-  integrity sha512-e8PUNQy1HgJGV3iU/Bp2+D/DXh3PYeyli8LgIwsQcs1Ar1LoaWHSIT6Rw+H2rNJmiq6SNWiDytfx8+gYj7wDHw==
+  version "17.0.18"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.18.tgz#3b4fed5cfb58010e3a2be4b6e74615e4847f1074"
+  integrity sha512-eKj4f/BsN/qcculZiRSujogjvp5O/k4lOW5m35NopjZM/QwLOR075a8pJW5hD+Rtdm2DaCVPENS6KtSQnUD6BA==
 
 "@types/node@^14.6.2":
-  version "14.18.11"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.11.tgz#9bd810a959e1728d78df0f68b5c825b8ea7156f4"
-  integrity sha512-zCoCEMA+IPpsRkyCFBqew5vGb7r8RSiB3uwdu/map7uwLAfu1MTazW26/pUDWoNnF88vJz4W3U56i5gtXNqxGg==
+  version "14.18.12"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.12.tgz#0d4557fd3b94497d793efd4e7d92df2f83b4ef24"
+  integrity sha512-q4jlIR71hUpWTnGhXWcakgkZeHa3CCjcQcnuzU8M891BAWA2jHiziiWEPEkdS5pFsz7H9HJiy8BrK7tBRNrY7A==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
@@ -2319,13 +2248,13 @@
     "@types/yargs-parser" "*"
 
 "@typescript-eslint/eslint-plugin@^5.5.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.11.0.tgz#3b866371d8d75c70f9b81535e7f7d3aa26527c7a"
-  integrity sha512-HJh33bgzXe6jGRocOj4FmefD7hRY4itgjzOrSs3JPrTNXsX7j5+nQPciAUj/1nZtwo2kAc3C75jZO+T23gzSGw==
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.12.0.tgz#bb46dd7ce7015c0928b98af1e602118e97df6c70"
+  integrity sha512-fwCMkDimwHVeIOKeBHiZhRUfJXU8n6xW1FL9diDxAyGAFvKcH4csy0v7twivOQdQdA0KC8TDr7GGRd3L4Lv0rQ==
   dependencies:
-    "@typescript-eslint/scope-manager" "5.11.0"
-    "@typescript-eslint/type-utils" "5.11.0"
-    "@typescript-eslint/utils" "5.11.0"
+    "@typescript-eslint/scope-manager" "5.12.0"
+    "@typescript-eslint/type-utils" "5.12.0"
+    "@typescript-eslint/utils" "5.12.0"
     debug "^4.3.2"
     functional-red-black-tree "^1.0.1"
     ignore "^5.1.8"
@@ -2334,75 +2263,75 @@
     tsutils "^3.21.0"
 
 "@typescript-eslint/experimental-utils@^5.0.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-5.11.0.tgz#e7b2bfd57ddda47c3f658faad57655ed9e01fea0"
-  integrity sha512-EPvC/bU2n1LKtzKWP1AjGWkp7r8tJ8giVlZHIODo6q7SAd6J+/9vjtEKHK2G/Qp+D2IGPsQge+oadDR3CZcFtQ==
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-5.12.0.tgz#b97c599a281f14a68015c25ee24966cb54ba9fc5"
+  integrity sha512-iFVADWH2CmiDF+E9kFK2r474BO2JILDKw1NVD5ytqHrM3ezsfdu5uo6B+77DH0suM7iUC/yOayHNziuiI9BPbQ==
   dependencies:
-    "@typescript-eslint/utils" "5.11.0"
+    "@typescript-eslint/utils" "5.12.0"
 
 "@typescript-eslint/parser@^5.5.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.11.0.tgz#b4fcaf65513f9b34bdcbffdda055724a5efb7e04"
-  integrity sha512-x0DCjetHZYBRovJdr3U0zG9OOdNXUaFLJ82ehr1AlkArljJuwEsgnud+Q7umlGDFLFrs8tU8ybQDFocp/eX8mQ==
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.12.0.tgz#0ca669861813df99ce54916f66f524c625ed2434"
+  integrity sha512-MfSwg9JMBojMUoGjUmX+D2stoQj1CBYTCP0qnnVtu9A+YQXVKNtLjasYh+jozOcrb/wau8TCfWOkQTiOAruBog==
   dependencies:
-    "@typescript-eslint/scope-manager" "5.11.0"
-    "@typescript-eslint/types" "5.11.0"
-    "@typescript-eslint/typescript-estree" "5.11.0"
+    "@typescript-eslint/scope-manager" "5.12.0"
+    "@typescript-eslint/types" "5.12.0"
+    "@typescript-eslint/typescript-estree" "5.12.0"
     debug "^4.3.2"
 
-"@typescript-eslint/scope-manager@5.11.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.11.0.tgz#f5aef83ff253f457ecbee5f46f762298f0101e4b"
-  integrity sha512-z+K4LlahDFVMww20t/0zcA7gq/NgOawaLuxgqGRVKS0PiZlCTIUtX0EJbC0BK1JtR4CelmkPK67zuCgpdlF4EA==
+"@typescript-eslint/scope-manager@5.12.0":
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.12.0.tgz#59619e6e5e2b1ce6cb3948b56014d3a24da83f5e"
+  integrity sha512-GAMobtIJI8FGf1sLlUWNUm2IOkIjvn7laFWyRx7CLrv6nLBI7su+B7lbStqVlK5NdLvHRFiJo2HhiDF7Ki01WQ==
   dependencies:
-    "@typescript-eslint/types" "5.11.0"
-    "@typescript-eslint/visitor-keys" "5.11.0"
+    "@typescript-eslint/types" "5.12.0"
+    "@typescript-eslint/visitor-keys" "5.12.0"
 
-"@typescript-eslint/type-utils@5.11.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/type-utils/-/type-utils-5.11.0.tgz#58be0ba73d1f6ef8983d79f7f0bc2209b253fefe"
-  integrity sha512-wDqdsYO6ofLaD4DsGZ0jGwxp4HrzD2YKulpEZXmgN3xo4BHJwf7kq49JTRpV0Gx6bxkSUmc9s0EIK1xPbFFpIA==
+"@typescript-eslint/type-utils@5.12.0":
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/type-utils/-/type-utils-5.12.0.tgz#aaf45765de71c6d9707c66ccff76ec2b9aa31bb6"
+  integrity sha512-9j9rli3zEBV+ae7rlbBOotJcI6zfc6SHFMdKI9M3Nc0sy458LJ79Os+TPWeBBL96J9/e36rdJOfCuyRSgFAA0Q==
   dependencies:
-    "@typescript-eslint/utils" "5.11.0"
+    "@typescript-eslint/utils" "5.12.0"
     debug "^4.3.2"
     tsutils "^3.21.0"
 
-"@typescript-eslint/types@5.11.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.11.0.tgz#ba345818a2540fdf2755c804dc2158517ab61188"
-  integrity sha512-cxgBFGSRCoBEhvSVLkKw39+kMzUKHlJGVwwMbPcTZX3qEhuXhrjwaZXWMxVfxDgyMm+b5Q5b29Llo2yow8Y7xQ==
+"@typescript-eslint/types@5.12.0":
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.12.0.tgz#5b4030a28222ee01e851836562c07769eecda0b8"
+  integrity sha512-JowqbwPf93nvf8fZn5XrPGFBdIK8+yx5UEGs2QFAYFI8IWYfrzz+6zqlurGr2ctShMaJxqwsqmra3WXWjH1nRQ==
 
-"@typescript-eslint/typescript-estree@5.11.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-5.11.0.tgz#53f9e09b88368191e52020af77c312a4777ffa43"
-  integrity sha512-yVH9hKIv3ZN3lw8m/Jy5I4oXO4ZBMqijcXCdA4mY8ull6TPTAoQnKKrcZ0HDXg7Bsl0Unwwx7jcXMuNZc0m4lg==
+"@typescript-eslint/typescript-estree@5.12.0":
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-5.12.0.tgz#cabf545fd592722f0e2b4104711e63bf89525cd2"
+  integrity sha512-Dd9gVeOqt38QHR0BEA8oRaT65WYqPYbIc5tRFQPkfLquVEFPD1HAtbZT98TLBkEcCkvwDYOAvuSvAD9DnQhMfQ==
   dependencies:
-    "@typescript-eslint/types" "5.11.0"
-    "@typescript-eslint/visitor-keys" "5.11.0"
+    "@typescript-eslint/types" "5.12.0"
+    "@typescript-eslint/visitor-keys" "5.12.0"
     debug "^4.3.2"
     globby "^11.0.4"
     is-glob "^4.0.3"
     semver "^7.3.5"
     tsutils "^3.21.0"
 
-"@typescript-eslint/utils@5.11.0", "@typescript-eslint/utils@^5.10.2":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/utils/-/utils-5.11.0.tgz#d91548ef180d74c95d417950336d9260fdbe1dc5"
-  integrity sha512-g2I480tFE1iYRDyMhxPAtLQ9HAn0jjBtipgTCZmd9I9s11OV8CTsG+YfFciuNDcHqm4csbAgC2aVZCHzLxMSUw==
+"@typescript-eslint/utils@5.12.0", "@typescript-eslint/utils@^5.10.2":
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/utils/-/utils-5.12.0.tgz#92fd3193191621ab863add2f553a7b38b65646af"
+  integrity sha512-k4J2WovnMPGI4PzKgDtQdNrCnmBHpMUFy21qjX2CoPdoBcSBIMvVBr9P2YDP8jOqZOeK3ThOL6VO/sy6jtnvzw==
   dependencies:
     "@types/json-schema" "^7.0.9"
-    "@typescript-eslint/scope-manager" "5.11.0"
-    "@typescript-eslint/types" "5.11.0"
-    "@typescript-eslint/typescript-estree" "5.11.0"
+    "@typescript-eslint/scope-manager" "5.12.0"
+    "@typescript-eslint/types" "5.12.0"
+    "@typescript-eslint/typescript-estree" "5.12.0"
     eslint-scope "^5.1.1"
     eslint-utils "^3.0.0"
 
-"@typescript-eslint/visitor-keys@5.11.0":
-  version "5.11.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.11.0.tgz#888542381f1a2ac745b06d110c83c0b261487ebb"
-  integrity sha512-E8w/vJReMGuloGxJDkpPlGwhxocxOpSVgSvjiLO5IxZPmxZF30weOeJYyPSEACwM+X4NziYS9q+WkN/2DHYQwA==
+"@typescript-eslint/visitor-keys@5.12.0":
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.12.0.tgz#1ac9352ed140b07ba144ebf371b743fdf537ec16"
+  integrity sha512-cFwTlgnMV6TgezQynx2c/4/tx9Tufbuo9LPzmWqyRC3QC4qTGkAG1C6pBr0/4I10PAI/FlYunI3vJjIcu+ZHMg==
   dependencies:
-    "@typescript-eslint/types" "5.11.0"
+    "@typescript-eslint/types" "5.12.0"
     eslint-visitor-keys "^3.0.0"
 
 "@webassemblyjs/ast@1.11.1":
@@ -4305,11 +4234,6 @@ detect-libc@^1.0.3:
   resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-1.0.3.tgz#fa137c4bd698edf55cd5cd02ac559f91a4c4ba9b"
   integrity sha1-+hN8S9aY7fVc1c0CrFWfkaTEups=
 
-detect-libc@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-2.0.0.tgz#c528bc09bc6d1aa30149228240917c225448f204"
-  integrity sha512-S55LzUl8HUav8l9E2PBTlC5PAJrHK7tkM+XXFGD+fbsbkTzhCpG6K05LxJcUOEWzMa4v6ptcMZ9s3fOdJDu0Zw==
-
 detect-newline@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
@@ -4630,9 +4554,9 @@ electron-rebuild@^3.2.7:
     yargs "^17.0.1"
 
 electron-to-chromium@^1.4.17:
-  version "1.4.68"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.68.tgz#d79447b6bd1bec9183f166bb33d4bef0d5e4e568"
-  integrity sha512-cId+QwWrV8R1UawO6b9BR1hnkJ4EJPCPAr4h315vliHUtVUJDk39Sg1PMNnaWKfj5x+93ssjeJ9LKL6r8LaMiA==
+  version "1.4.69"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.69.tgz#d52eb7887d2ec5ba62a8cb3491b990983cb6d2e0"
+  integrity sha512-0rxK21MqWhN/fVUXNOeBksRlw79Wq26y6R8lxEEL2v7vwzRWbYhXI7Id5msee7/q1NNgu4mG78qaablN2xtfTQ==
 
 electron-updater@^4.6.5:
   version "4.6.5"
@@ -7547,9 +7471,9 @@ nan@^2.15.0:
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
 
 nanoid@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.2.0.tgz#62667522da6673971cca916a6d3eff3f415ff80c"
-  integrity sha512-fmsZYa9lpn69Ad5eDn7FMcnnSR+8R34W9qJEijxYhTbfOWzr22n1QxCMzXLK+ODyW2973V3Fux959iQoUxzUIA==
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.0.tgz#5906f776fd886c66c24f3653e0c46fcb1d4ad6b0"
+  integrity sha512-JzxqqT5u/x+/KOFSd7JP15DOo9nOoHpx6DYatqIHUW2+flybkm+mdcraotSQR5WcnZr+qhGVh8Ted0KdfSMxlg==
 
 napi-build-utils@^1.0.1:
   version "1.0.2"
@@ -7586,7 +7510,7 @@ node-abi@^2.21.0:
   dependencies:
     semver "^5.4.1"
 
-node-abi@^3.0.0, node-abi@^3.3.0:
+node-abi@^3.0.0:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/node-abi/-/node-abi-3.8.0.tgz#679957dc8e7aa47b0a02589dbfde4f77b29ccb32"
   integrity sha512-tzua9qWWi7iW4I42vUPKM+SfaF0vQSLAm4yO5J83mSwB7GeoWrDKC/K+8YCnYNwqP5duwazbw2X9l4m8SC2cUw==
@@ -8681,25 +8605,6 @@ prebuild-install@^6.1.4:
     tar-fs "^2.0.0"
     tunnel-agent "^0.6.0"
 
-prebuild-install@^7.0.0:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-7.0.1.tgz#c10075727c318efe72412f333e0ef625beaf3870"
-  integrity sha512-QBSab31WqkyxpnMWQxubYAHR5S9B2+r81ucocew34Fkl98FhvKIF50jIJnNOBmAZfyNV7vE5T6gd3hTVWgY6tg==
-  dependencies:
-    detect-libc "^2.0.0"
-    expand-template "^2.0.3"
-    github-from-package "0.0.0"
-    minimist "^1.2.3"
-    mkdirp-classic "^0.5.3"
-    napi-build-utils "^1.0.1"
-    node-abi "^3.3.0"
-    npmlog "^4.0.1"
-    pump "^3.0.0"
-    rc "^1.2.7"
-    simple-get "^4.0.0"
-    tar-fs "^2.0.0"
-    tunnel-agent "^0.6.0"
-
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
@@ -9404,9 +9309,9 @@ sanitize.css@*:
   integrity sha512-ZRwKbh/eQ6w9vmTjkuG0Ioi3HBwPFce0O+v//ve+aOq1oeCy7jMV2qzzAlpsNuqpqCBjjriM1lbtZbF/Q8jVyA==
 
 sass-loader@^12.3.0:
-  version "12.4.0"
-  resolved "https://registry.yarnpkg.com/sass-loader/-/sass-loader-12.4.0.tgz#260b0d51a8a373bb8e88efc11f6ba5583fea0bcf"
-  integrity sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==
+  version "12.5.0"
+  resolved "https://registry.yarnpkg.com/sass-loader/-/sass-loader-12.5.0.tgz#8010243734ade76371db8ba3df3cb40295f2b81c"
+  integrity sha512-POCQch5T2PFYOaHGJJgPoVaxJ76Ks+OIqKsDv2ErD53HE/WdPRehkVqdc5Qbt2fD2iGmgIRILDgQGbSHjmPrCA==
   dependencies:
     klona "^2.0.4"
     neo-async "^2.6.2"
@@ -9574,23 +9479,6 @@ serialport@^10.3.0:
     "@serialport/stream" "10.3.0"
     debug "^4.3.3"
 
-serialport@^9.2.4:
-  version "9.2.8"
-  resolved "https://registry.yarnpkg.com/serialport/-/serialport-9.2.8.tgz#abf9f59ac50ac3d130f6a10de141765a9d86da73"
-  integrity sha512-FsWpMQgSJxi93JgWl5xM1f9/Z8IjRJuaUEoHqLf8FPBLw7gMhInuHOBhI2onQufWIYPGTz3H3oGcu1nCaK1EfA==
-  dependencies:
-    "@serialport/binding-mock" "9.2.4"
-    "@serialport/bindings" "9.2.8"
-    "@serialport/parser-byte-length" "9.2.4"
-    "@serialport/parser-cctalk" "9.2.4"
-    "@serialport/parser-delimiter" "9.2.4"
-    "@serialport/parser-inter-byte-timeout" "9.2.4"
-    "@serialport/parser-readline" "9.2.4"
-    "@serialport/parser-ready" "9.2.4"
-    "@serialport/parser-regex" "9.2.4"
-    "@serialport/stream" "9.2.4"
-    debug "^4.3.2"
-
 serve-index@^1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/serve-index/-/serve-index-1.9.1.tgz#d3768d69b1e7d82e5ce050fff5b453bea12a9239"
@@ -9671,15 +9559,6 @@ simple-get@^3.0.3:
   integrity sha512-CQ5LTKGfCpvE1K0n2us+kuMPbk/q0EKl82s4aheV9oXjFEz6W/Y7oQFVJuU6QG77hRT4Ghb5RURteF5vnWjupA==
   dependencies:
     decompress-response "^4.2.0"
-    once "^1.3.1"
-    simple-concat "^1.0.0"
-
-simple-get@^4.0.0:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/simple-get/-/simple-get-4.0.1.tgz#4a39db549287c979d352112fa03fd99fd6bc3543"
-  integrity sha512-brv7p5WgH0jmQJr1ZDDfKDOSeWWg+OVypG99A/5vYGPqJ6pxiaHLy8nxtFjBA7oMa01ebA9gfh1uMCFqOuXxvA==
-  dependencies:
-    decompress-response "^6.0.0"
     once "^1.3.1"
     simple-concat "^1.0.0"
 
@@ -10575,7 +10454,7 @@ url-parse-lax@^3.0.0:
   dependencies:
     prepend-http "^2.0.0"
 
-usb-detection@^4.10.0:
+usb-detection@^4.13.0:
   version "4.13.0"
   resolved "https://registry.yarnpkg.com/usb-detection/-/usb-detection-4.13.0.tgz#f98f350d236034645db99f4ce1b80928349c83a0"
   integrity sha512-5b0P+IYSN6Qv29hZ/m8P+iJyBDFYQR1UD8n4bWwPWbCIG6c2erQ9F8Owp69OSK0cwqf/InxYjIBuTVvl97bpZA==
@@ -10684,13 +10563,13 @@ watchpack@^2.3.1:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
 
-wbm-usb-device@^0.2.46:
-  version "0.2.46"
-  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.2.46.tgz#e8b1a4055a8e710ace8e278307044fa41031497f"
-  integrity sha512-qqSepjdPaLrKlc1uMOMrs+mLqz34NHnSuO2UUBoXVvAUKXcJ94e3/HKm3RepBwnOn8DrZ/IROhm+mJprjUmtJQ==
+wbm-usb-device@^0.2.47:
+  version "0.2.47"
+  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.2.47.tgz#fd860b745e2ee66a561527319606555e43adef85"
+  integrity sha512-YEDkS9AC6RUCg3JNVcd9KKLCSnE4Jk5Cn3bVNvIlRjhleKxxXfpaLkVyzCOWeeEFErC9MnXRaAI3aKru6Bpj9g==
   dependencies:
-    serialport "^9.2.4"
-    usb-detection "^4.10.0"
+    serialport "^10.3.0"
+    usb-detection "^4.13.0"
 
 wbm-version-manager@^0.0.31:
   version "0.0.31"
