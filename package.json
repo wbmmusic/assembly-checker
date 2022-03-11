@@ -8,7 +8,7 @@
     "private": true,
     "dependencies": {
         "@testing-library/jest-dom": "^5.16.2",
-        "@testing-library/react": "^12.1.3",
+        "@testing-library/react": "^12.1.4",
         "@testing-library/user-event": "^13.5.0",
         "bootstrap": "^5.1.3",
         "electron-updater": "^4.6.5",
@@ -19,7 +19,7 @@
         "react-router": "^6.2.2",
         "react-router-dom": "^6.2.2",
         "react-scripts": "5.0.0",
-        "serialport": "^10.3.0",
+        "serialport": "^10.4.0",
         "update-electron-app": "^2.0.1",
         "wbm-usb-device": "^0.2.47",
         "wbm-version-manager": "^0.0.31",
@@ -60,7 +60,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^17.1.0",
+        "electron": "^17.1.2",
         "electron-builder": "^22.14.13",
         "electron-rebuild": "^3.2.7"
     },
