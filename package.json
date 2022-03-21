@@ -22,7 +22,7 @@
         "serialport": "^10.4.0",
         "update-electron-app": "^2.0.1",
         "wbm-usb-device": "^0.2.47",
-        "wbm-version-manager": "^0.0.31",
+        "wbm-version-manager": "^0.0.40",
         "web-vitals": "^2.1.4"
     },
     "scripts": {
