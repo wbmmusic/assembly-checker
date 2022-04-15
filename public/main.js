@@ -207,13 +207,18 @@ const loadFirmware = (filePath) => {
     })
 }
 
-const waitForDevice = (device) => {
+const waitForDevice = async(device) => {
 
     let waitFor = ''
 
     switch (device) {
+
         case 'cvboard':
             waitFor = 'CV Board'
+            break;
+
+        case 'gpoboard':
+            waitFor = 'GPO Board'
             break;
 
         default:
@@ -233,8 +238,7 @@ const waitForDevice = (device) => {
         }, 3000);
 
         wbmUsbDevice.on('devList', (list) => {
-            let devIdx = list.findIndex(dev => dev.Model === waitFor)
-
+            const devIdx = list.findIndex(dev => dev.Model === waitFor)
             if (devIdx >= 0) exit(list[devIdx].path)
         })
 
@@ -286,6 +290,7 @@ const programAndTest = async(folder) => {
         win.webContents.send('programmingComplete')
 
     } catch (error) {
+        console.log(error)
         error.forEach(msg => win.webContents.send('jLinkProgress', msg))
         win.webContents.send('programmingComplete')
         throw error
@@ -446,7 +451,6 @@ app.on('ready', () => {
 
                 wbmUsbDevice.startMonitoring()
 
-                wbmUsbDevice.on('devList', list => console.log('------>>>>> GOT DEV LIST', list))
 
                 wbmUsbDevice.on('progress', (list) => {
                     console.log('progress', list)

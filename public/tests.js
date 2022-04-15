@@ -1,13 +1,12 @@
-let SerialPort = require('serialport')
-let ByteLength = require('@serialport/parser-byte-length')
+let { SerialPort } = require('serialport')
+let { ByteLengthParser } = require('@serialport/parser-byte-length')
 const EventEmitter = require('events')
 const myEmitter = new EventEmitter();
 
 let port = null
 
 const cvBoardTests = {
-    automated: [
-        {
+    automated: [{
             cmd: 'USB SERIAL',
             expectedChars: [0xC3]
         },
@@ -28,8 +27,7 @@ const cvBoardTests = {
 }
 
 const gpoBoardTests = {
-    automated: [
-        {
+    automated: [{
             cmd: 'USB SERIAL',
             expectedChars: [0xC3]
         },
@@ -54,8 +52,7 @@ const gpoBoardTests = {
 }
 
 const gpiBoardTests = {
-    automated: [
-        {
+    automated: [{
             cmd: 'USB SERIAL',
             expectedChars: [0xC3]
         },
@@ -80,8 +77,7 @@ const gpiBoardTests = {
 }
 
 const midiBoardTests = {
-    automated: [
-        {
+    automated: [{
             cmd: 'USB SERIAL',
             expectedChars: [0xC3]
         },
@@ -102,8 +98,7 @@ const midiBoardTests = {
 }
 
 const serialBoardTests = {
-    automated: [
-        {
+    automated: [{
             cmd: 'USB SERIAL',
             expectedChars: [0xC3]
         },
@@ -124,8 +119,7 @@ const serialBoardTests = {
 }
 
 const controlPanelTests = {
-    automated: [
-        {
+    automated: [{
             cmd: 'USB SERIAL',
             expectedChars: [0xC3]
         },
@@ -166,8 +160,7 @@ const controlPanelTests = {
 }
 
 const alarmPanelTests = {
-    automated: [
-        {
+    automated: [{
             cmd: 'USB SERIAL',
             expectedChars: [0xC3]
         },
@@ -191,8 +184,8 @@ const alarmPanelTests = {
     ]
 }
 
-const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
-    const parser = port.pipe(new ByteLength({ length: expectedChars.length }))
+const automatedTest = async({ cmd, time = 20, expectedChars }) => {
+    const parser = port.pipe(new ByteLengthParser({ length: expectedChars.length }))
     port.write('WBM TEST:' + cmd)
 
     return new Promise((resolve, reject) => {
@@ -206,7 +199,7 @@ const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
             resolve(msg)
         }
 
-        parser.on('data', function (data) {
+        parser.on('data', function(data) {
             if (expectedChars.every((val, i) => val === data[i])) {
                 exitTest(`> PASSED ${cmd}`)
             } else {
@@ -222,10 +215,10 @@ const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
     })
 }
 
-const runAutomatedTests = async (tests) => {
+const runAutomatedTests = async(tests) => {
     const results = []
 
-    await tests.reduce(async (acc, test) => {
+    await tests.reduce(async(acc, test) => {
         await acc
         const result = await automatedTest(test)
         if (result.includes('FAIL')) {
@@ -238,19 +231,20 @@ const runAutomatedTests = async (tests) => {
     return results
 }
 
-const runTests = async (board) => {
+const runTests = async(board) => {
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         try {
             let startTime = Date.now()
             const autTestResults = await runAutomatedTests(board.automated)
-            //autTestResults.forEach(result => console.log(result))
+                //autTestResults.forEach(result => console.log(result))
             const now = (Date.now() - startTime).toString() + 'ms'
             console.log('Automated test duration: ' + now)
-            //autTestResults.push('Automated test duration: ' + now)
+                //autTestResults.push('Automated test duration: ' + now)
             port.close()
             resolve(autTestResults)
         } catch (error) {
+            console.log(error)
             port.close()
             reject(JSON.parse(error.message).data)
         }
@@ -259,7 +253,7 @@ const runTests = async (board) => {
 
 }
 
-const startTest = async (testListObj) => {
+const startTest = async(testListObj) => {
     return new Promise((resolve, reject) => {
         SerialPort.list().then((ports) => {
             //console.log(ports)
@@ -269,11 +263,11 @@ const startTest = async (testListObj) => {
             })
 
             if (goodPorts.length === 1) {
-                console.log("Found device at", goodPorts[0].path)
-                port = new SerialPort(goodPorts[0].path)
+                console.log("Testing device at", goodPorts[0].path)
+                port = new SerialPort({ path: goodPorts[0].path, baudRate: 256000 })
 
                 ///////   Test Sequence
-                port.on('open', async () => {
+                port.on('open', async() => {
                     try {
                         let results = await runTests(testListObj)
                         resolve(results)
@@ -281,16 +275,15 @@ const startTest = async (testListObj) => {
                         reject([...error, "FAILED TESTS"])
                     }
                 })
-            }
-            else if (goodPorts.length < 1) reject('Didn\'t find a device')
+            } else if (goodPorts.length < 1) reject('Didn\'t find a device')
             else if (goodPorts.length > 1) reject('Found more than one WBM device')
             else reject('Unknown error detecting device')
-        })
+        }).catch(error => console.log("ERROR XXX", error))
     })
 }
 
-const configureAndStartTest = async (board) => {
-    return new Promise(async (resolve, reject) => {
+const configureAndStartTest = async(board) => {
+    return new Promise(async(resolve, reject) => {
         const mapToTests = () => {
             switch (board) {
                 case 'cvboard':
