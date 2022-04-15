@@ -20,10 +20,10 @@ let listenersApplied = false
 let workingDirectory = __dirname
 if (app.isPackaged) workingDirectory = path.join(process.resourcesPath, "public")
 
-let pathToJLink = path.join(workingDirectory, "JLink.exe")
-let pathToFiles = path.join(app.getPath('userData'), 'data')
-let pathToFile = path.join(pathToFiles, 'cmd.jlink')
-let pathToDevices = path.join(pathToFiles, 'devices')
+const pathToJLink = path.join(workingDirectory, "JLink.exe")
+const pathToFiles = path.join(app.getPath('userData'), 'data')
+const pathToFile = path.join(pathToFiles, 'cmd.jlink')
+const pathToDevices = path.join(pathToFiles, 'devices')
 
 
 const handleLine = async(line) => {
@@ -233,9 +233,7 @@ const waitForDevice = async(device) => {
             else resolve(passFail)
         }
 
-        let waitForDeviceTimer = setTimeout(() => {
-            exit('fail')
-        }, 3000);
+        let waitForDeviceTimer = setTimeout(() => exit('fail'), 3000);
 
         wbmUsbDevice.on('devList', (list) => {
             const devIdx = list.findIndex(dev => dev.Model === waitFor)
