@@ -89,8 +89,15 @@ export default function Device() {
       >
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" component="div">
               {location.state.boardName}
+            </Typography>
+            <Typography
+              component="div"
+              variant="body2"
+              sx={{ flexGrow: 1, marginLeft: "15px" }}
+            >
+              FIRMWARE NUMBER
             </Typography>
             <Button
               style={{ marginRight: "8px" }}

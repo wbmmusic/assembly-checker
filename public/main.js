@@ -33,10 +33,16 @@ const handleLine = async(line) => {
     //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
     //console.log("# of devices:", line.devices.length)
 
+    console.log(JSON.stringify(line, null, " "))
+
     await line.devices.reduce(async(acc, element) => {
         await acc
 
+        //console.log("EL", element)
+
         if (element.name !== "Brain") {
+            console.log("NOT BRAIN")
+
             const pathToDevice = join(pathToDevices, element.path)
 
             if (!fs.existsSync(pathToDevice)) fs.mkdirSync(pathToDevice)
@@ -44,10 +50,11 @@ const handleLine = async(line) => {
 
             if (element.current !== '???') {
                 currentFirmware = element.firmware.find(fw => fw.version === element.current)
+                if (!currentFirmware) throw new Error('ERROR HERE')
 
                 // If a firmware with this name is not already in this devices folder
                 if (!fs.existsSync(join(pathToDevice, currentFirmware.name))) {
-                    //console.log("Current firmware file doesn't exist")
+                    console.log("Current firmware file doesn't exist")
 
                     // get name of all files in this devices folder
                     const devFolderContents = fs.readdirSync(pathToDevice)
@@ -220,6 +227,10 @@ const waitForDevice = async(device) => {
 
         case 'cvboard':
             waitFor = 'CV Board'
+            break;
+
+        case 'gpiboard':
+            waitFor = 'GPI Board'
             break;
 
         case 'gpoboard':
