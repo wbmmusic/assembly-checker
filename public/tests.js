@@ -15,177 +15,49 @@ const usbTest = {
     expectedChars: [0xC3]
 }
 
-const cvBoardTests = {
-    automated: [{
-            cmd: 'USB SERIAL',
-            expectedChars: [0xC3]
-        },
-        {
-            cmd: 'MAC',
-            expectedChars: [0xFC, 0xC2, 0x3D]
-        },
-        {
-            cmd: 'WIZ',
-            expectedChars: [0x04]
-        },
-        {
-            cmd: 'INITMEMORY',
-            expectedChars: [0xAB],
-            time: 100
-        }
-    ]
+const sx0Test = {
+    cmd: 'SX0',
+    expectedChars: [0x00, 0xFF]
 }
 
-const gpoBoardTests = {
-    automated: [usbTest, macTest,
-        {
-            cmd: 'SX0',
-            expectedChars: [0x00, 0xFF]
-        },
-        {
-            cmd: 'WIZ',
-            expectedChars: [0x04] ////////////////////////// should be 0x04
-        },
-        {
-            cmd: 'INITMEMORY',
-            expectedChars: [0xAB],
-            time: 100
-        }
-    ]
+const sx1Test = {
+    cmd: 'SX1',
+    expectedChars: [0x00, 0xFF]
 }
 
-const gpiBoardTests = {
-    automated: [{
-            cmd: 'USB SERIAL',
-            expectedChars: [0xC3]
-        },
-        {
-            cmd: 'MAC',
-            expectedChars: [0xFC, 0xC2, 0x3D]
-        },
-        {
-            cmd: 'SX0',
-            expectedChars: [0x00, 0xFF]
-        },
-        {
-            cmd: 'WIZ',
-            expectedChars: [0x04]
-        },
-        {
-            cmd: 'INITMEMORY',
-            expectedChars: [0xAB],
-            time: 100
-        }
-    ]
+const tlc0Test = {
+    cmd: 'TLC0',
+    expectedChars: [0xD2]
 }
 
-const midiBoardTests = {
-    automated: [{
-            cmd: 'USB SERIAL',
-            expectedChars: [0xC3]
-        },
-        {
-            cmd: 'MAC',
-            expectedChars: [0xFC, 0xC2, 0x3D]
-        },
-        {
-            cmd: 'WIZ',
-            expectedChars: [0x04]
-        },
-        {
-            cmd: 'INITMEMORY',
-            expectedChars: [0xAB],
-            time: 100
-        }
-    ]
+const tlc1Test = {
+    cmd: 'TLC1',
+    expectedChars: [0xD2]
 }
 
-const serialBoardTests = {
-    automated: [{
-            cmd: 'USB SERIAL',
-            expectedChars: [0xC3]
-        },
-        {
-            cmd: 'MAC',
-            expectedChars: [0xFC, 0xC2, 0x3D]
-        },
-        {
-            cmd: 'WIZ',
-            expectedChars: [0x04]
-        },
-        {
-            cmd: 'INITMEMORY',
-            expectedChars: [0xAB],
-            time: 100
-        }
-    ]
+const adcTest = {
+    cmd: 'ADC',
+    expectedChars: [0xfc]
 }
 
-const controlPanelTests = {
-    automated: [{
-            cmd: 'USB SERIAL',
-            expectedChars: [0xC3]
-        },
-        {
-            cmd: 'MAC',
-            expectedChars: [0xFC, 0xC2, 0x3D]
-        },
-        {
-            cmd: 'SX0',
-            expectedChars: [0x00, 0xFF]
-        },
-        {
-            cmd: 'SX1',
-            expectedChars: [0x00, 0xFF]
-        },
-        {
-            cmd: 'TLC0',
-            expectedChars: [0xD2]
-        },
-        {
-            cmd: 'TLC1',
-            expectedChars: [0xd2]
-        },
-        {
-            cmd: 'ADC',
-            expectedChars: [0xfc]
-        },
-        {
-            cmd: 'WIZ',
-            expectedChars: [0x04]
-        },
-        {
-            cmd: 'INITMEMORY',
-            expectedChars: [0xAB],
-            time: 100
-        }
-    ]
+const wizTest = {
+    cmd: 'WIZ',
+    expectedChars: [0x04] ////////////////////////// should be 0x04
 }
 
-const alarmPanelTests = {
-    automated: [{
-            cmd: 'USB SERIAL',
-            expectedChars: [0xC3]
-        },
-        {
-            cmd: 'MAC',
-            expectedChars: [0xFC, 0xC2, 0x3D]
-        },
-        {
-            cmd: 'SX0',
-            expectedChars: [0x00, 0xFF]
-        },
-        {
-            cmd: 'WIZ',
-            expectedChars: [0x04]
-        },
-        {
-            cmd: 'INITMEMORY',
-            expectedChars: [0xAB],
-            time: 100
-        }
-    ]
+const initMemory = {
+    cmd: 'INITMEMORY',
+    expectedChars: [0xAB],
+    time: 100
 }
+
+const cvBoardTests = { automated: [usbTest, macTest, wizTest, initMemory] }
+const gpoBoardTests = { automated: [usbTest, macTest, sx0Test, wizTest, initMemory] }
+const gpiBoardTests = { automated: [usbTest, macTest, sx0Test, wizTest, initMemory] }
+const midiBoardTests = { automated: [usbTest, macTest, wizTest, initMemory] }
+const serialBoardTests = { automated: [usbTest, macTest, wizTest, initMemory] }
+const controlPanelTests = { automated: [usbTest, macTest, sx0Test, sx1Test, tlc0Test, tlc1Test, adcTest, wizTest, initMemory] }
+const alarmPanelTests = { automated: [usbTest, macTest, sx0Test, wizTest, initMemory] }
 
 const automatedTest = async({ cmd, time = 20, expectedChars }) => {
     const parser = port.pipe(new ByteLengthParser({ length: expectedChars.length }))
