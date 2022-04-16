@@ -3,7 +3,7 @@ import SelectDevice from "./SelectDevice";
 import Device from "./Device";
 import { Route, Routes, useLocation } from "react-router";
 import { TopExtras } from "./TopExtras";
-import { Box, CssBaseline } from "@mui/material";
+import { Box } from "@mui/material";
 
 export default function Top() {
   const location = useLocation();
@@ -11,7 +11,6 @@ export default function Top() {
 
   return (
     <Box sx={{ height: "100%" }}>
-      <CssBaseline />
       <Routes>
         <Route path="/device/*" element={<Device />} />
         <Route path="*" element={<SelectDevice />} />

@@ -1,21 +1,33 @@
+import { Box, LinearProgress, Modal, Typography } from "@mui/material";
 import React, { Fragment, useEffect, useState } from "react";
-import { Modal, Spinner } from "react-bootstrap";
 
 export default function Modals() {
   const defaultModalContents = { show: false };
   const [modalContents, setModalContents] = useState(defaultModalContents);
 
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+
   useEffect(() => {
     window.api.receive("chipErasing", () => {
       const tempContents = (
-        <Fragment>
-          <Modal.Header>
-            <Modal.Title>Erasing Chip</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Spinner animation="border" size="xl" />
-          </Modal.Body>
-        </Fragment>
+        <Box sx={modalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Erasing Chip
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <LinearProgress color="error" />
+          </Typography>
+        </Box>
       );
 
       setModalContents({
@@ -26,14 +38,14 @@ export default function Modals() {
 
     window.api.receive("programming", () => {
       const tempContents = (
-        <Fragment>
-          <Modal.Header>
-            <Modal.Title>Programming and Testing</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Spinner animation="border" size="xl" />
-          </Modal.Body>
-        </Fragment>
+        <Box sx={modalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Programming and Testing
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <LinearProgress />
+          </Typography>
+        </Box>
       );
 
       setModalContents({
@@ -64,12 +76,7 @@ export default function Modals() {
 
   return (
     <div>
-      <Modal
-        show={modalContents.show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
+      <Modal open={modalContents.show} onClose={handleClose}>
         {modalContents.contents}
       </Modal>
     </div>

@@ -1,3 +1,4 @@
+import { CssBaseline } from "@mui/material";
 import { useEffect } from "react";
 import Top from "./components/Top";
 import Updates from "./Updates";
@@ -23,6 +24,7 @@ function App() {
         height: "100vh",
       }}
     >
+      <CssBaseline />
       <Top />
       <Updates />
     </div>

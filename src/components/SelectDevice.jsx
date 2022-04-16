@@ -1,6 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import React from "react";
-import { Navbar } from "react-bootstrap";
 import { useNavigate } from "react-router";
 const join = window.api.join;
 
@@ -61,9 +60,15 @@ export default function SelectDevice() {
         textAlign: "center",
       }}
     >
-      <Navbar bg="light" expand="lg">
-        <Navbar.Brand style={{ marginLeft: "8px" }}>Select Board</Navbar.Brand>
-      </Navbar>
+      <AppBar position="static">
+        <Toolbar>
+          <Box>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Select Board
+            </Typography>
+          </Box>
+        </Toolbar>
+      </AppBar>
       <div style={{ height: "100%", overflowY: "auto" }}>
         {boards.map(board => (
           <div

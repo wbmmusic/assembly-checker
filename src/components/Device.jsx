@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Navbar } from "react-bootstrap";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router";
-import { Typography } from "@mui/material";
+import { AppBar, Button, Stack, Toolbar, Typography } from "@mui/material";
 const join = window.api.join;
 
 export default function Device() {
@@ -32,19 +32,21 @@ export default function Device() {
   const showIcon = () => {
     if (passFail === "pass") {
       return (
-        <div
-          style={{ display: "flex", alignItems: "center", color: "limeGreen" }}
+        <Stack
+          alignItems="center"
+          direction="row"
+          style={{ color: "lightGreen" }}
         >
           <Typography variant="h3">PASS</Typography>
           <CheckCircleOutlineIcon style={{ fontSize: "74px" }} />
-        </div>
+        </Stack>
       );
     } else if (passFail === "fail") {
       return (
-        <div style={{ display: "flex", alignItems: "center", color: "red" }}>
+        <Stack alignItems="center" direction="row" style={{ color: "red" }}>
           <Typography variant="h3">FAIL</Typography>
           <ErrorOutlineIcon style={{ fontSize: "74px" }} />
-        </div>
+        </Stack>
       );
     }
   };
@@ -85,19 +87,23 @@ export default function Device() {
           overflowY: "hidden",
         }}
       >
-        <Navbar bg="light" expand="lg">
-          <Navbar.Brand style={{ marginLeft: "8px" }}>
-            {location.state.boardName}
-          </Navbar.Brand>
-          <Button
-            style={{ marginRight: "8px" }}
-            size="sm"
-            variant="outline-primary"
-            onClick={() => navigate("/", { replace: true })}
-          >
-            Back To Boards
-          </Button>
-        </Navbar>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              {location.state.boardName}
+            </Typography>
+            <Button
+              style={{ marginRight: "8px" }}
+              size="small"
+              color="inherit"
+              onClick={() => navigate("/", { replace: true })}
+              startIcon={<ArrowBackIcon color="inherit" />}
+            >
+              Back To Boards
+            </Button>
+          </Toolbar>
+        </AppBar>
+
         <div
           style={{
             padding: "0px 10px 10px 10px",
@@ -133,14 +139,18 @@ export default function Device() {
                       <tbody>
                         <tr>
                           <td style={buttonStyle} onClick={program}>
-                            <Button size="sm" variant="outline-primary">
+                            <Button size="small" variant="contained">
                               Program and Test
                             </Button>
                           </td>
                         </tr>
                         <tr>
                           <td style={buttonStyle} onClick={chipErase}>
-                            <Button size="sm" variant="outline-danger">
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="error"
+                            >
                               Chip Erase
                             </Button>
                           </td>
