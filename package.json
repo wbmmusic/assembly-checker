@@ -89,8 +89,7 @@
                 "public/firmware/*",
                 "public/USBDriver/**/*",
                 "public/boardfiles/**/*"
-            ],
-            "target": "nsis"
+            ]
         }
     }
 }

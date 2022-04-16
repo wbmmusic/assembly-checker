@@ -1,9 +1,10 @@
 import { Alert, Snackbar, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modals from "./Modals";
 
 export const TopExtras = () => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [updatedFirmwares, setUpdatedFirmwares] = useState([]);
 
   const handleClose = () => setOpen(false);
 
@@ -23,6 +24,17 @@ export const TopExtras = () => {
       ))}
     </Stack>
   );
+
+  useEffect(() => {
+    window.api.receive("updatedFirmware", (event, arg) => {
+      console.log("Updated Firmware", arg);
+      setUpdatedFirmwares([...updatedFirmwares, arg]);
+    });
+
+    return () => {
+      window.api.removeAllListeners("updatedFirmware");
+    };
+  }, []);
 
   return (
     <>

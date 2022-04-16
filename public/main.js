@@ -10,10 +10,12 @@ wbmVer.setBase('http://versions.wbmtek.com/api')
 
 const { autoUpdater } = require('electron-updater');
 const { join } = require('path');
+const { title } = require('process');
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
 let listenersApplied = false
+let firstReactReady = true
 
 
 // PATHS to files and folders
@@ -27,15 +29,11 @@ const pathToDevices = path.join(pathToFiles, 'devices')
 
 
 const handleLine = async(line) => {
-    const space = () => console.log("------------------")
-        //space()
-        //console.log("Line Name:", line.name)
-        //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
-        //console.log("# of devices:", line.devices.length)
-        //space()
+    //console.log("Line Name:", line.name)
+    //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
+    //console.log("# of devices:", line.devices.length)
 
     await line.devices.reduce(async(acc, element) => {
-
         await acc
 
         if (element.name !== "Brain") {
@@ -47,25 +45,32 @@ const handleLine = async(line) => {
             if (element.current !== '???') {
                 currentFirmware = element.firmware.find(fw => fw.version === element.current)
 
+                // If a firmware with this name is not already in this devices folder
                 if (!fs.existsSync(join(pathToDevice, currentFirmware.name))) {
                     //console.log("Current firmware file doesn't exist")
 
+                    // get name of all files in this devices folder
                     const devFolderContents = fs.readdirSync(pathToDevice)
 
-                    // Delete All Files In this folder
+                    // Delete each File In this folder
                     devFolderContents.forEach(file => {
                         fs.unlinkSync(join(pathToDevice, file))
                     })
 
-                    //Put New / Current Firmware in folder
-                    await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
-                        //console.log(dl)
+                    try {
+                        // Put New / Current Firmware in folder
+                        await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
+                        console.log("Updated Firmware", currentFirmware)
+                        win.webContents.send('updatedFirmware', currentFirmware)
+                    } catch (error) {
+                        console.log(error)
+                    }
+
                 }
             }
             //console.log("Device", element.name)
             //console.log("Current FW:", element.current)
             //console.log("Last Mod:", new Date(element.modified).toLocaleDateString())
-            //space()
         }
     }, Promise.resolve([]))
 
@@ -359,7 +364,8 @@ function createWindow() {
         webPreferences: {
             preload: join(__dirname, 'preload.js')
         },
-        icon: path.join(__dirname, '/favicon.ico')
+        icon: path.join(__dirname, '/favicon.ico'),
+        title: 'WBM Tek PCB Assembly Checker --- v' + app.getVersion()
     })
 
     const startUrl = process.env.ELECTRON_START_URL || url.format({
@@ -441,50 +447,50 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
 app.on('ready', () => {
 
         //log("-APP IS READY");
+
         ipcMain.on('reactIsReady', () => {
+            if (firstReactReady) {
+                firstReactReady = false
+                console.log('React Is Ready')
+                win.webContents.send('message', 'React Is Ready')
 
-            if (listenersApplied === false) {
-                listenersApplied = true
-                createListeners()
+                if (listenersApplied === false) {
+                    listenersApplied = true
+                    createListeners()
 
-                wbmUsbDevice.startMonitoring()
+                    wbmUsbDevice.startMonitoring()
 
+                    wbmUsbDevice.on('progress', (list) => {
+                        console.log('progress', list)
+                        win.webContents.send('jLinkProgress', list)
+                    })
 
-                wbmUsbDevice.on('progress', (list) => {
-                    console.log('progress', list)
-                    win.webContents.send('jLinkProgress', list)
-                })
+                    tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
+                }
 
-                tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
+                if (app.isPackaged) {
+                    win.webContents.send('message', 'App is packaged')
 
-            }
-
-            console.log('React Is Ready')
-            win.webContents.send('message', 'React Is Ready')
-                //win.webContents.send('message', app.getAppPath())
-            win.webContents.send('app_version', { version: app.getVersion() });
-
-            if (app.isPackaged) {
-                win.webContents.send('message', 'App is packaged')
-
-                autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
-                autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
-                autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
-                autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
-                autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
-                autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
+                    autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
+                    autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
+                    autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
+                    autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
+                    autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
+                    autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
 
 
-                setInterval(() => {
-                    win.webContents.send('message', 'Interval Check for update')
+                    // Check for new version of app every 30 minutes
+                    setInterval(() => {
+                        win.webContents.send('message', 'Interval Check for update')
+                        autoUpdater.checkForUpdatesAndNotify()
+                    }, 30 * 60 * 1000);
+
+                    // check for new version of app on boot
                     autoUpdater.checkForUpdatesAndNotify()
-                }, 600000);
+                }
 
-                autoUpdater.checkForUpdatesAndNotify()
+                checkForUpdates()
             }
-
-            checkForUpdates()
-
         })
 
         createWindow()
