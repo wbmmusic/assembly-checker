@@ -5,6 +5,16 @@ const myEmitter = new EventEmitter();
 
 let port = null
 
+const macTest = {
+    cmd: 'MAC',
+    expectedChars: [0xFC, 0xC2, 0x3D]
+}
+
+const usbTest = {
+    cmd: 'USB SERIAL',
+    expectedChars: [0xC3]
+}
+
 const cvBoardTests = {
     automated: [{
             cmd: 'USB SERIAL',
@@ -27,14 +37,7 @@ const cvBoardTests = {
 }
 
 const gpoBoardTests = {
-    automated: [{
-            cmd: 'USB SERIAL',
-            expectedChars: [0xC3]
-        },
-        {
-            cmd: 'MAC',
-            expectedChars: [0xFC, 0xC2, 0x3D]
-        },
+    automated: [usbTest, macTest,
         {
             cmd: 'SX0',
             expectedChars: [0x00, 0xFF]
