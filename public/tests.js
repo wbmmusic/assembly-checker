@@ -41,7 +41,7 @@ const gpoBoardTests = {
         },
         {
             cmd: 'WIZ',
-            expectedChars: [0x04]
+            expectedChars: [0x04] ////////////////////////// should be 0x04
         },
         {
             cmd: 'INITMEMORY',

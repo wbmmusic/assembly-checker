@@ -226,6 +226,10 @@ const waitForDevice = async(device) => {
             waitFor = 'GPO Board'
             break;
 
+        case 'alarmpanel':
+            waitFor = 'Alarm Panel'
+            break;
+
         default:
             break;
     }
@@ -287,6 +291,7 @@ const programAndTest = async(folder) => {
             win.webContents.send('jLinkProgress', result)
         })
 
+        win.webContents.send('passFail', 'pass')
         win.webContents.send('jLinkProgress', '----------------------------')
         win.webContents.send('jLinkProgress', "Ready for delivery!! :)")
 
@@ -294,6 +299,7 @@ const programAndTest = async(folder) => {
 
     } catch (error) {
         console.log(error)
+        win.webContents.send('passFail', 'fail')
         error.forEach(msg => win.webContents.send('jLinkProgress', msg))
         win.webContents.send('programmingComplete')
         throw error
@@ -377,9 +383,7 @@ function createWindow() {
     //win.maximize()
 
     // Emitted when the window is closed.
-    win.on('closed', () => {
-        win = null
-    })
+    win.on('closed', () => win = null)
 
     win.on('ready-to-show', () => win.show())
 }
@@ -405,9 +409,7 @@ const createListeners = () => {
         }
     })
 
-    ipcMain.on('programAndTest', (e, folder) => {
-        programAndTest(folder)
-    })
+    ipcMain.on('programAndTest', (e, folder) => programAndTest(folder))
 
     win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 

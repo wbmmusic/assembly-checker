@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Navbar } from "react-bootstrap";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useLocation, useNavigate } from "react-router";
+import { Typography } from "@mui/material";
 const join = window.api.join;
 
 export default function Device() {
@@ -8,18 +11,47 @@ export default function Device() {
   const location = useLocation();
   const [termText, setTermText] = useState([]);
   const termRef = useRef(null);
+  const [passFail, setPassFail] = useState(null);
 
   console.log("DEVICE");
   console.log(location);
 
   const program = () => {
     console.log("Program");
+    setPassFail(null);
     setTermText([]);
     window.api.send("programAndTest", location.state.folder);
   };
 
+  const makeTerminalBack = () => {
+    if (passFail === "pass") return "lightGreen";
+    else if (passFail === "fail") return "salmon";
+    return;
+  };
+
+  const showIcon = () => {
+    if (passFail === "pass") {
+      return (
+        <div
+          style={{ display: "flex", alignItems: "center", color: "limeGreen" }}
+        >
+          <Typography variant="h3">PASS</Typography>
+          <CheckCircleOutlineIcon style={{ fontSize: "74px" }} />
+        </div>
+      );
+    } else if (passFail === "fail") {
+      return (
+        <div style={{ display: "flex", alignItems: "center", color: "red" }}>
+          <Typography variant="h3">FAIL</Typography>
+          <ErrorOutlineIcon style={{ fontSize: "74px" }} />
+        </div>
+      );
+    }
+  };
+
   const chipErase = () => {
     console.log("Top Chip Erase");
+    setPassFail(null);
     setTermText([]);
     window.api.send("chipErase");
   };
@@ -29,8 +61,12 @@ export default function Device() {
       console.log("JLINK-->>", theMessage);
       setTermText(oldTerm => [...oldTerm, theMessage.split("\r\n")]);
     });
+
+    window.api.receive("passFail", (e, result) => setPassFail(result));
+
     return () => {
       window.api.removeAllListeners("jLinkProgress");
+      window.api.removeAllListeners("passFail");
     };
   }, []);
 
@@ -112,6 +148,14 @@ export default function Device() {
                       </tbody>
                     </table>
                   </td>
+                  <td
+                    style={{
+                      textAlign: "center",
+                      width: "1%",
+                    }}
+                  >
+                    {showIcon()}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -128,6 +172,7 @@ export default function Device() {
               border: "1px solid lightGrey",
               overflowY: "auto",
               fontSize: "12px",
+              background: makeTerminalBack(),
             }}
           >
             {termText.map((line, idx) => (
