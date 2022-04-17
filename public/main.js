@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
-const fs = require('fs')
+const { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync, readFileSync } = require('fs')
 const { execFileSync, execFile } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
@@ -10,7 +10,6 @@ wbmVer.setBase('http://versions.wbmtek.com/api')
 
 const { autoUpdater } = require('electron-updater');
 const { join } = require('path');
-const { title } = require('process');
 
 ////////////////// App Startup ///////////////////////////////////////////////////////////////////
 let win
@@ -33,7 +32,7 @@ const handleLine = async(line) => {
     //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
     //console.log("# of devices:", line.devices.length)
 
-    console.log(JSON.stringify(line, null, " "))
+    //console.log(JSON.stringify(line, null, " "))
 
     await line.devices.reduce(async(acc, element) => {
         await acc
@@ -41,11 +40,10 @@ const handleLine = async(line) => {
         //console.log("EL", element)
 
         if (element.name !== "Brain") {
-            console.log("NOT BRAIN")
 
             const pathToDevice = join(pathToDevices, element.path)
 
-            if (!fs.existsSync(pathToDevice)) fs.mkdirSync(pathToDevice)
+            if (!existsSync(pathToDevice)) mkdirSync(pathToDevice)
             let currentFirmware = null
 
             if (element.current !== '???') {
@@ -53,15 +51,15 @@ const handleLine = async(line) => {
                 if (!currentFirmware) throw new Error('ERROR HERE')
 
                 // If a firmware with this name is not already in this devices folder
-                if (!fs.existsSync(join(pathToDevice, currentFirmware.name))) {
+                if (!existsSync(join(pathToDevice, currentFirmware.name))) {
                     console.log("Current firmware file doesn't exist")
 
                     // get name of all files in this devices folder
-                    const devFolderContents = fs.readdirSync(pathToDevice)
+                    const devFolderContents = readdirSync(pathToDevice)
 
                     // Delete each File In this folder
                     devFolderContents.forEach(file => {
-                        fs.unlinkSync(join(pathToDevice, file))
+                        unlinkSync(join(pathToDevice, file))
                     })
 
                     try {
@@ -99,19 +97,19 @@ const checkForUpdates = async() => {
 }
 
 const checkFolderStructure = () => {
-    if (!fs.existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
+    if (!existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
         console.log('Creating WBM Tek folder')
-        fs.mkdirSync(path.join('C:', 'ProgramData', 'WBM Tek'))
+        mkdirSync(path.join('C:', 'ProgramData', 'WBM Tek'))
     }
 
-    if (!fs.existsSync(pathToFiles)) {
+    if (!existsSync(pathToFiles)) {
         console.log('Creating pcbChecker folder')
-        fs.mkdirSync(pathToFiles)
+        mkdirSync(pathToFiles)
     }
 
-    if (!fs.existsSync(pathToDevices)) {
+    if (!existsSync(pathToDevices)) {
         console.log('Creating devices folder')
-        fs.mkdirSync(pathToDevices)
+        mkdirSync(pathToDevices)
     }
 }
 checkFolderStructure()
@@ -125,7 +123,7 @@ const getProgrammer = async() => {
 
         let programmer = false
 
-        fs.writeFileSync(pathToFile, 'ShowEmuList USB\r\nexit', 'utf8')
+        writeFileSync(pathToFile, 'ShowEmuList USB\r\nexit', 'utf8')
 
         let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
@@ -167,8 +165,8 @@ const loadFirmware = (filePath) => {
 
     //console.log('pathToFirm', pathToFirmware)
 
-    const boot = new Buffer.alloc(0x2000, fs.readFileSync(pathToBoot))
-    const firm = new Buffer.from(fs.readFileSync(pathToFirmware))
+    const boot = new Buffer.alloc(0x2000, readFileSync(pathToBoot))
+    const firm = new Buffer.from(readFileSync(pathToFirmware))
 
     return new Promise(async(resolve, reject) => {
         let programmerSerial = null
@@ -183,8 +181,8 @@ const loadFirmware = (filePath) => {
 
         win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
         let out = null
-        fs.writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
-        fs.writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nUSB ' + programmerSerial + '\r\nrnh\r\nexit', 'utf8')
+        writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
+        writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nUSB ' + programmerSerial + '\r\nrnh\r\nexit', 'utf8')
 
         let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
 
@@ -265,7 +263,7 @@ const waitForDevice = async(device) => {
 
 const getFwFile = async(folder) => {
     return new Promise((resolve, reject) => {
-        let files = fs.readdirSync(join(pathToDevices, folder))
+        let files = readdirSync(join(pathToDevices, folder))
         if (files.length <= 0) {
             console.log('No firmware file found for ' + folder)
             reject(['No firmware file found for ' + folder])
@@ -346,7 +344,7 @@ const chipErase = async() => {
         win.webContents.send('message', pathToFile)
         win.webContents.send('message', workingDirectory)
 
-        fs.writeFileSync(pathToFile, "erase\r\nUSB " + programmerSerial + "rnh\r\nexit", 'utf8')
+        writeFileSync(pathToFile, "erase\r\nUSB " + programmerSerial + "rnh\r\nexit", 'utf8')
 
         console.log("Execute erase command")
         let outErr = 'CHIP ERASE ERROR'
@@ -427,7 +425,7 @@ const createListeners = () => {
     /////// CHECK FOR DRIVER
     const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
     try {
-        if (fs.existsSync(drvChk)) {
+        if (existsSync(drvChk)) {
             //console.log('File Exists')
             win.webContents.send('message', 'File Exists')
         } else {
