@@ -1,22 +1,21 @@
 import { AppBar, Box, Toolbar, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 const join = window.api.join;
 
 export default function SelectDevice() {
   const navigate = useNavigate();
+  const [boards, setBoards] = useState([
+    { name: "alarmpanel", ver: "" },
+    { name: "controlpanel", ver: "" },
+    { name: "cvboard", ver: "" },
+    { name: "gpiboard", ver: "" },
+    { name: "gpoboard", ver: "" },
+    { name: "midiboard", ver: "" },
+    { name: "serialboard", ver: "" },
+  ]);
 
   console.log("Selected Device");
-
-  let boards = [
-    "alarmpanel",
-    "controlpanel",
-    "cvboard",
-    "gpiboard",
-    "gpoboard",
-    "midiboard",
-    "serialboard",
-  ];
 
   const makeBoardName = board => {
     switch (board) {
@@ -49,6 +48,17 @@ export default function SelectDevice() {
     }
   };
 
+  const getVersions = () => {
+    window.api.ipcRenderer
+      .invoke("getFw", boards)
+      .then(res => setBoards(res))
+      .catch(err => console.log(err));
+  };
+
+  useEffect(() => {
+    getVersions();
+  }, []);
+
   return (
     <div
       style={{
@@ -72,19 +82,33 @@ export default function SelectDevice() {
       <div style={{ height: "100%", overflowY: "auto" }}>
         {boards.map(board => (
           <div
-            key={board}
+            key={board.name}
             style={{
               display: "inline-block",
               cursor: "pointer",
               margin: "3px",
+              position: "relative",
             }}
             onClick={() =>
-              navigate("/device/" + board, {
+              navigate("/device/" + board.name, {
                 replace: true,
-                state: { boardName: makeBoardName(board), folder: board },
+                state: {
+                  boardName: makeBoardName(board.name),
+                  folder: board.name,
+                },
               })
             }
           >
+            <div
+              style={{
+                position: "absolute",
+                bottom: "0px",
+                right: "7px",
+                color: "lightGrey",
+              }}
+            >
+              <Typography variant="body2">{board.ver}</Typography>
+            </div>
             <Box
               height={250}
               width={250}
@@ -104,7 +128,9 @@ export default function SelectDevice() {
                   borderRadius: "5px",
                 }}
               >
-                <Typography variant="h6">{makeBoardName(board)}</Typography>
+                <Typography variant="h6">
+                  {makeBoardName(board.name)}
+                </Typography>
               </Box>
               <div
                 style={{
@@ -121,7 +147,7 @@ export default function SelectDevice() {
                     maxWidth: "100%",
                     maxHeight: "100%",
                   }}
-                  src={join("boardfiles", board, "render.png")}
+                  src={join("boardfiles", board.name, "render.png")}
                   alt="devicePic"
                 />
               </div>

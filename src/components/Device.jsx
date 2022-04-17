@@ -12,6 +12,7 @@ export default function Device() {
   const [termText, setTermText] = useState([]);
   const termRef = useRef(null);
   const [passFail, setPassFail] = useState(null);
+  const [ver, setVer] = useState("");
 
   console.log("DEVICE");
   console.log(location);
@@ -58,7 +59,15 @@ export default function Device() {
     window.api.send("chipErase");
   };
 
+  const getVersions = () => {
+    window.api.ipcRenderer
+      .invoke("getFw", [{ name: location.state.folder, ver: "" }])
+      .then(res => setVer(res[0].ver))
+      .catch(err => console.log(err));
+  };
+
   useEffect(() => {
+    getVersions();
     window.api.receive("jLinkProgress", (e, theMessage) => {
       console.log("JLINK-->>", theMessage);
       setTermText(oldTerm => [...oldTerm, theMessage.split("\r\n")]);
@@ -97,7 +106,7 @@ export default function Device() {
               variant="body2"
               sx={{ flexGrow: 1, marginLeft: "15px" }}
             >
-              FIRMWARE NUMBER
+              {ver}
             </Typography>
             <Button
               style={{ marginRight: "8px" }}

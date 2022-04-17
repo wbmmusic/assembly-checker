@@ -420,6 +420,8 @@ const createListeners = () => {
 
     ipcMain.on('programAndTest', (e, folder) => programAndTest(folder))
 
+
+
     win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
     /////// CHECK FOR DRIVER
@@ -502,6 +504,23 @@ app.on('ready', () => {
 
                 checkForUpdates()
             }
+        })
+
+        ipcMain.handle('getFw', (e, theBoards) => {
+            let boards = theBoards
+            const numOfBoards = boards.length
+
+            for (let i = 0; i < numOfBoards; i++) {
+                const deviceFiles = readdirSync(join(pathToDevices, boards[i].name))
+                const binFile = deviceFiles.filter(file => file.includes('.bin'))
+                if (binFile.length === 0) boards[i].ver = "no fw"
+                else {
+                    let fileName = binFile[0].replace('.bin', '')
+                    fileName = fileName.replace(/^(.*)FW/, '')
+                    boards[i].ver = fileName
+                }
+            }
+            return boards
         })
 
         createWindow()
