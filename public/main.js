@@ -5,8 +5,8 @@ const { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync, readFileS
 const { execFileSync, execFile } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
-const wbmVer = require('wbm-version-manager')
-wbmVer.setBase('http://versions.wbmtek.com/api')
+const { setBase, downloadFirmware, getLines, getLine } = require('wbm-version-manager')
+setBase('http://versions.wbmtek.com/api')
 
 const { autoUpdater } = require('electron-updater');
 const { join } = require('path');
@@ -64,9 +64,10 @@ const handleLine = async(line) => {
 
                     try {
                         // Put New / Current Firmware in folder
-                        await wbmVer.downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
+                        await downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
                         console.log("Updated Firmware", currentFirmware)
                         win.webContents.send('updatedFirmware', currentFirmware)
+                        win.webContents.send('refreshFW', currentFirmware)
                     } catch (error) {
                         console.log(error)
                     }
@@ -84,11 +85,11 @@ const handleLine = async(line) => {
 
 const checkForUpdates = async() => {
     try {
-        let lines = await wbmVer.getLines()
+        let lines = await getLines()
         if (lines === undefined) console.log("LINES IS UNDEFINED")
         let lineID = lines.find(line => line.path === 'iomanager').id
         if (lineID === undefined) console.log("THE LINEID IS UNDEFINED")
-        let theLine = await wbmVer.getLine(lineID)
+        let theLine = await getLine(lineID)
         handleLine(theLine)
     } catch (error) {
         console.log(error)

@@ -57,6 +57,12 @@ export default function SelectDevice() {
 
   useEffect(() => {
     getVersions();
+    window.api.receive("updatedFirmware", () => getVersions());
+    window.api.receive("refreshFW", () => getVersions());
+    return () => {
+      window.api.removeAllListeners("updatedFirmware");
+      window.api.removeAllListeners("refreshFW");
+    };
   }, []);
 
   return (
