@@ -1,4 +1,5 @@
 import { CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/system";
 import { useEffect } from "react";
 import Top from "./components/Top";
 import Updates from "./Updates";

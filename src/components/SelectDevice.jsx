@@ -77,7 +77,7 @@ export default function SelectDevice() {
       }}
     >
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar variant="dense">
           <Box>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Select Board

@@ -97,7 +97,7 @@ export default function Device() {
         }}
       >
         <AppBar position="static">
-          <Toolbar>
+          <Toolbar variant="dense">
             <Typography variant="h6" component="div">
               {location.state.boardName}
             </Typography>
