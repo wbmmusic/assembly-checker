@@ -240,6 +240,18 @@ const waitForDevice = async(device) => {
             waitFor = 'Alarm Panel'
             break;
 
+        case 'midiboard':
+            waitFor = 'MIDI Board'
+            break;
+
+        case 'serialboard':
+            waitFor = 'Serial Board'
+            break;
+
+        case 'controlpanel':
+            waitFor = 'Control Panel'
+            break;
+
         default:
             break;
     }
