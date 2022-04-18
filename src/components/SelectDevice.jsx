@@ -1,4 +1,4 @@
-import { AppBar, Box, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, Stack, Toolbar, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 const join = window.api.join;
@@ -55,6 +55,10 @@ export default function SelectDevice() {
       .catch(err => console.log(err));
   };
 
+  const handleCheckForNewFirmwares = () => {
+    window.api.send("checkForNewFW");
+  };
+
   useEffect(() => {
     getVersions();
     window.api.receive("updatedFirmware", () => getVersions());
@@ -79,10 +83,24 @@ export default function SelectDevice() {
       <AppBar position="static">
         <Toolbar variant="dense">
           <Box>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ flexGrow: 1, whiteSpace: "nowrap" }}
+            >
               Select Board
             </Typography>
           </Box>
+          <Stack justifyContent="right" direction="row" width="100%">
+            <Button
+              variant="outlined"
+              size="small"
+              color="inherit"
+              onClick={handleCheckForNewFirmwares}
+            >
+              Check for new firmwares
+            </Button>
+          </Stack>
         </Toolbar>
       </AppBar>
       <div style={{ height: "100%", overflowY: "auto" }}>

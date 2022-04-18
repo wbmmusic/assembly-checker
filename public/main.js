@@ -26,6 +26,18 @@ const pathToFiles = path.join(app.getPath('userData'), 'data')
 const pathToFile = path.join(pathToFiles, 'cmd.jlink')
 const pathToDevices = path.join(pathToFiles, 'devices')
 
+let notifications = []
+
+
+const addNotification = (data) => {
+    notifications.push(data)
+    win.webContents.send('notifications', notifications)
+}
+
+const clearAllNotifications = () => {
+    notifications = []
+    win.webContents.send('notifications', notifications)
+}
 
 const handleLine = async(line) => {
     //console.log("Line Name:", line.name)
@@ -66,6 +78,7 @@ const handleLine = async(line) => {
                         // Put New / Current Firmware in folder
                         await downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
                         console.log("Updated Firmware", currentFirmware)
+                        addNotification({ type: "fw updated", message: element.name + " FW updated to " + currentFirmware.version })
                         win.webContents.send('updatedFirmware', currentFirmware)
                         win.webContents.send('refreshFW', currentFirmware)
                     } catch (error) {
@@ -83,7 +96,7 @@ const handleLine = async(line) => {
     //space()
 }
 
-const checkForUpdates = async() => {
+const checkForFwUpdates = async() => {
     try {
         let lines = await getLines()
         if (lines === undefined) console.log("LINES IS UNDEFINED")
@@ -515,7 +528,10 @@ app.on('ready', () => {
                     autoUpdater.checkForUpdatesAndNotify()
                 }
 
-                checkForUpdates()
+                checkForFwUpdates()
+                setInterval(() => {
+                    checkForFwUpdates()
+                }, 10 * 60 * 1000);
             }
         })
 
@@ -536,8 +552,19 @@ app.on('ready', () => {
             return boards
         })
 
-        createWindow()
+        ipcMain.on('checkForNewFW', () => checkForFwUpdates())
 
+        ipcMain.on('clearNotification', (e, not) => {
+            console.log("Clear Notification", not)
+            notifications = notifications.filter(notification => JSON.stringify(notification) !== JSON.stringify(not))
+            win.webContents.send('notifications', notifications)
+        })
+
+        ipcMain.on('clearAllNotifications', () => {
+            clearAllNotifications()
+        })
+
+        createWindow()
     })
     ///////////////////////
 

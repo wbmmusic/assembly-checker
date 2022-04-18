@@ -1,25 +1,40 @@
-import { Alert, Snackbar, Stack, Typography } from "@mui/material";
+import { Alert, Button, Snackbar, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import Modals from "./Modals";
 
 export const TopExtras = () => {
   const [open, setOpen] = useState(false);
   const [updatedFirmwares, setUpdatedFirmwares] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
-  const handleClose = () => setOpen(false);
+  const handleClose = not => {
+    window.api.send("clearNotification", not);
+  };
 
-  const msgs = [
-    "This Is A Test Message",
-    "This Is A Test Message 2",
-    "This Is A Test Message 3",
-    "This Is A Test Message 4",
-  ];
+  const handleClearAll = () => {
+    window.api.send("clearAllNotifications");
+  };
+
+  const clearAll = () => {
+    if (notifications.length > 1) {
+      return (
+        <Button onClick={handleClearAll} variant="contained" size="small">
+          Clear All notifications
+        </Button>
+      );
+    }
+  };
 
   const action = (
     <Stack spacing={1}>
-      {msgs.map((msg, i) => (
-        <Alert key={"msg" + i} onClose={handleClose} severity="success">
-          <Typography variant="body2">{msg}</Typography>
+      {clearAll()}
+      {notifications.map((not, i) => (
+        <Alert
+          key={"notification" + i}
+          onClose={() => handleClose(not)}
+          severity="success"
+        >
+          <Typography variant="body2">{not.message}</Typography>
         </Alert>
       ))}
     </Stack>
@@ -31,10 +46,21 @@ export const TopExtras = () => {
       setUpdatedFirmwares([...updatedFirmwares, arg]);
     });
 
+    window.api.receive("notifications", (e, data) => {
+      console.log("Notifications", data);
+      setNotifications(data);
+      setOpen(true);
+    });
+
     return () => {
       window.api.removeAllListeners("updatedFirmware");
+      window.api.removeAllListeners("notifications");
     };
   }, []);
+
+  useEffect(() => {
+    if (notifications.length === 0) setOpen(false);
+  }, [notifications]);
 
   return (
     <>
