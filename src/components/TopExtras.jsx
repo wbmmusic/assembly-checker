@@ -1,4 +1,5 @@
 import { Alert, Button, Snackbar, Stack, Typography } from "@mui/material";
+import ClearAllIcon from "@mui/icons-material/ClearAll";
 import { useEffect, useState } from "react";
 import Modals from "./Modals";
 
@@ -18,7 +19,12 @@ export const TopExtras = () => {
   const clearAll = () => {
     if (notifications.length > 1) {
       return (
-        <Button onClick={handleClearAll} variant="contained" size="small">
+        <Button
+          startIcon={<ClearAllIcon />}
+          onClick={handleClearAll}
+          variant="contained"
+          size="small"
+        >
           Clear All notifications
         </Button>
       );
