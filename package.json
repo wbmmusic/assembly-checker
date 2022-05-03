@@ -1,6 +1,6 @@
 {
     "name": "pcb-assebmly-checker",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "author": "Marece Williams",
     "description": "App for programming and testing io-manager PCBs",
     "homepage": "./",
