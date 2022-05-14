@@ -1,6 +1,6 @@
 {
     "name": "pcb-assebmly-checker",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "author": "Marece Williams",
     "description": "App for programming and testing io-manager PCBs",
     "homepage": "./",
@@ -23,8 +23,8 @@
         "react-scripts": "^5.0.1",
         "serialport": "^10.4.0",
         "update-electron-app": "^2.0.1",
-        "wbm-usb-device": "^0.2.54",
-        "wbm-version-manager": "^0.0.49",
+        "wbm-usb-device": "^0.2.57",
+        "wbm-version-manager": "^0.0.51",
         "web-vitals": "^2.1.4"
     },
     "scripts": {
@@ -34,14 +34,13 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "install": "electron-rebuild",
-        "rebuild": "electron-rebuild -f",
         "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
         "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
         "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
         "try": "yarn build && yarn package ",
         "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-        "refresh": "yarn upgrade --latest && yarn rebuild"
+        "refresh": "yarn upgrade --latest && yarn",
+        "postinstall": "electron-builder install-app-deps"
     },
     "eslintConfig": {
         "extends": [
@@ -63,8 +62,7 @@
     },
     "devDependencies": {
         "electron": "^18.2.3",
-        "electron-builder": "^23.0.3",
-        "electron-rebuild": "^3.2.7"
+        "electron-builder": "^23.0.3"
     },
     "repository": {
         "type": "git",
