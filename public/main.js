@@ -403,7 +403,8 @@ function createWindow() {
         show: false,
         autoHideMenuBar: true,
         webPreferences: {
-            preload: join(__dirname, 'preload.js')
+            preload: join(__dirname, 'preload.js'),
+            sandbox: false
         },
         icon: path.join(__dirname, '/favicon.ico'),
         title: 'WBM Tek PCB Assembly Checker --- v' + app.getVersion()
