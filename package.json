@@ -25,7 +25,7 @@
         "update-electron-app": "^2.0.1",
         "wbm-usb-device": "^0.2.57",
         "wbm-version-manager": "^0.0.51",
-        "web-vitals": "^3.0.0-rc.0"
+        "web-vitals": "^3.0.0"
     },
     "scripts": {
         "dev": "nf start",
@@ -61,7 +61,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^20.0.3",
+        "electron": "^20.1.0",
         "electron-builder": "^23.3.3"
     },
     "repository": {
