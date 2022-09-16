@@ -18,14 +18,14 @@
         "foreman": "^3.0.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-router": "^6.3.0",
-        "react-router-dom": "^6.3.0",
+        "react-router": "^6.4.0",
+        "react-router-dom": "^6.4.0",
         "react-scripts": "^5.0.1",
         "serialport": "^10.4.0",
         "update-electron-app": "^2.0.1",
         "wbm-usb-device": "^0.2.57",
         "wbm-version-manager": "^0.0.51",
-        "web-vitals": "^3.0.1"
+        "web-vitals": "^3.0.2"
     },
     "scripts": {
         "dev": "nf start",
@@ -61,7 +61,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^20.1.3",
+        "electron": "^20.1.4",
         "electron-builder": "^23.3.3"
     },
     "repository": {
