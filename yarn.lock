@@ -10152,10 +10152,10 @@ watchpack@^2.3.1:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
 
-wbm-usb-device@^0.2.59:
-  version "0.2.59"
-  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.2.59.tgz#375794aaa5745ec15dce5ea115a16fd409599890"
-  integrity sha512-5bLWPhKuyIdOdLOOZTjnsGnLVJwpRU7sYLnqnPHT2kLqXo6Z9dgimagjM2nE6EKJ5nzTM3N2otS4rSxElkulaA==
+wbm-usb-device@^0.2.60:
+  version "0.2.60"
+  resolved "https://registry.yarnpkg.com/wbm-usb-device/-/wbm-usb-device-0.2.60.tgz#0f0ffefc2059df9a2eafc7e4b17d8c7332f3d7ae"
+  integrity sha512-Jid7ivuRHxl/PoJiJuwJe7osnOiWIkHg7rX9rKyPab5liWZE6rvcmD8BXbTwKhbvpl58IhRdkkVG8j1T9sWleA==
   dependencies:
     serialport "^10.4.0"
     usb "^2.5.1"

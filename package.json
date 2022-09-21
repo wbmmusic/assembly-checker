@@ -23,7 +23,7 @@
         "react-scripts": "^5.0.1",
         "serialport": "^10.4.0",
         "update-electron-app": "^2.0.1",
-        "wbm-usb-device": "^0.2.59",
+        "wbm-usb-device": "^0.2.60",
         "wbm-version-manager": "^0.0.51",
         "web-vitals": "^3.0.2"
     },
