@@ -1,15 +1,11 @@
 import { CssBaseline } from "@mui/material";
-import { ThemeProvider } from "@mui/system";
 import { useEffect } from "react";
 import Top from "./components/Top";
 import Updates from "./Updates";
 
 function App() {
   useEffect(() => {
-    window.api.receive("message", (e, theMessage) => {
-      console.log(theMessage);
-    });
-
+    window.api.receive("message", (e, theMessage) => console.log(theMessage));
     window.api.send("reactIsReady");
 
     return () => {

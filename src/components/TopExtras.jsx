@@ -8,13 +8,9 @@ export const TopExtras = () => {
   const [updatedFirmwares, setUpdatedFirmwares] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
-  const handleClose = not => {
-    window.api.send("clearNotification", not);
-  };
+  const handleClose = not => window.api.send("clearNotification", not);
 
-  const handleClearAll = () => {
-    window.api.send("clearAllNotifications");
-  };
+  const handleClearAll = () => window.api.send("clearAllNotifications");
 
   const clearAll = () => {
     if (notifications.length > 1) {

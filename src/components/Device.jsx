@@ -14,8 +14,7 @@ export default function Device() {
   const [passFail, setPassFail] = useState(null);
   const [ver, setVer] = useState("");
 
-  console.log("DEVICE");
-  console.log(location);
+  // console.log("DEVICE", location);
 
   const program = () => {
     console.log("Program");
@@ -53,7 +52,7 @@ export default function Device() {
   };
 
   const chipErase = () => {
-    console.log("Top Chip Erase");
+    // console.log("Top Chip Erase");
     setPassFail(null);
     setTermText([]);
     window.api.send("chipErase");
@@ -69,7 +68,7 @@ export default function Device() {
   useEffect(() => {
     getVersions();
     window.api.receive("jLinkProgress", (e, theMessage) => {
-      console.log("JLINK-->>", theMessage);
+      // console.log("JLINK-->>", theMessage);
       setTermText(oldTerm => [...oldTerm, theMessage.split("\r\n")]);
     });
 

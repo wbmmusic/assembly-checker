@@ -15,8 +15,6 @@ export default function SelectDevice() {
     { name: "serialboard", ver: "" },
   ]);
 
-  console.log("Selected Device");
-
   const makeBoardName = board => {
     switch (board) {
       case "alarmpanel":

@@ -7,7 +7,7 @@ export default function Updates() {
   });
 
   useEffect(() => {
-    console.log("Top Of Updates");
+    // console.log("Top Of Updates");
     window.api.receive("checkingForUpdates", () => {
       console.log("Checking for updates");
     });

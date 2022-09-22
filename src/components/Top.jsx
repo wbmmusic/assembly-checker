@@ -7,7 +7,6 @@ import { Box } from "@mui/material";
 
 export default function Top() {
   const location = useLocation();
-  console.log(location.pathname);
 
   return (
     <Box sx={{ height: "100%" }}>

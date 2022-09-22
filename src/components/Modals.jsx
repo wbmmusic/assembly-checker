@@ -77,7 +77,7 @@ export default function Modals() {
   return (
     <div>
       <Modal open={modalContents.show} onClose={handleClose}>
-        {modalContents.contents}
+        {modalContents.contents ? modalContents.contents : <></>}
       </Modal>
     </div>
   );
