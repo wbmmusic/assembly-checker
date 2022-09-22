@@ -18,8 +18,8 @@
         "foreman": "^3.0.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-router": "^6.4.0",
-        "react-router-dom": "^6.4.0",
+        "react-router": "^6.4.1",
+        "react-router-dom": "^6.4.1",
         "react-scripts": "^5.0.1",
         "serialport": "^10.4.0",
         "update-electron-app": "^2.0.1",
@@ -61,7 +61,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^20.1.4",
+        "electron": "^20.2.0",
         "electron-builder": "^23.3.3"
     },
     "repository": {
