@@ -1,6 +1,6 @@
 {
     "name": "pcb-assebmly-checker",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "author": "Marece Williams",
     "description": "App for programming and testing io-manager PCBs",
     "homepage": "./",
@@ -87,7 +87,7 @@
                 "public/USBDriver/**/*",
                 "public/boardfiles/**/*"
             ],
-            "publisherName": "WBM Tek"
+            "publisherName": "William Mareci"
         }
     }
 }
