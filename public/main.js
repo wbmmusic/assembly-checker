@@ -179,8 +179,9 @@ const loadFirmware = (filePath) => {
 
     //console.log('pathToFirm', pathToFirmware)
 
-    const boot = new Buffer.alloc(0x2000, readFileSync(pathToBoot))
-    const firm = new Buffer.from(readFileSync(pathToFirmware))
+    const boot = new Buffer.alloc(0x8000, readFileSync(pathToBoot))
+    const firm = new Buffer.alloc(0x38000, readFileSync(pathToFirmware))
+    firm[firm.length - 1] = 0;
 
     return new Promise(async(resolve, reject) => {
         let programmerSerial = null
