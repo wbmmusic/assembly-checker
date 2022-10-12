@@ -517,7 +517,10 @@ app.on('ready', () => {
                     autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
                     autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
                     autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
-                    autoUpdater.on('error', (message) => win.webContents.send('updateError', message))
+                    autoUpdater.on('error', (e, message) => {
+                        console.log("updateError", e, message)
+                        win.webContents.send('updateError', message)
+                    })
 
 
                     // Check for new version of app every 30 minutes

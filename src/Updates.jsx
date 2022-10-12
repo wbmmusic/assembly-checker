@@ -39,6 +39,10 @@ export default function Updates() {
       setShow(true);
     });
 
+    window.api.receive("updateError", msg => {
+      console.log("Update Error", msg);
+    });
+
     window.api.receive("noUpdate", () => {
       console.log("Up to date");
     });
