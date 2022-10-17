@@ -134,7 +134,9 @@ const startTest = async(testListObj) => {
             //console.log(ports)
             let goodPorts = []
             ports.forEach(port => {
-                if (port.serialNumber.includes('WBM:')) goodPorts.push(port)
+                if (port.serialNumber) {
+                    if (port.serialNumber.includes('WBM:')) goodPorts.push(port)
+                }
             })
 
             if (goodPorts.length === 1) {
