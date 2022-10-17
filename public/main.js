@@ -181,7 +181,8 @@ const loadFirmware = (filePath) => {
 
     const boot = new Buffer.alloc(0x8000, readFileSync(pathToBoot))
     const firm = new Buffer.alloc(0x38000, readFileSync(pathToFirmware))
-    firm[firm.length - 1] = 0;
+    firm[firm.length - 1] = 255;
+    firm[firm.length - 2] = 0;
 
     return new Promise(async(resolve, reject) => {
         let programmerSerial = null
@@ -389,6 +390,7 @@ const chipErase = async() => {
             if (code === 0) {
                 resolve('Chip erase complete')
             } else {
+                console.log("ERROR CODE", code)
                 reject(outErr)
             }
             win.webContents.send('chipEraseComplete')
