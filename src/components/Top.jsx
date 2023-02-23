@@ -1,13 +1,11 @@
-import React from "react";
-import SelectDevice from "./SelectDevice";
-import Device from "./Device";
-import { Route, Routes, useLocation } from "react-router";
-import { TopExtras } from "./TopExtras";
 import { Box } from "@mui/material";
+import React from "react";
+import { Route, Routes } from "react-router";
+import Device from "./Device";
+import SelectDevice from "./SelectDevice";
+import { TopExtras } from "./TopExtras";
 
 export default function Top() {
-  const location = useLocation();
-
   return (
     <Box sx={{ height: "100%" }}>
       <Routes>

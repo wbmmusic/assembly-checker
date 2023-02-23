@@ -1,6 +1,7 @@
 import { AppBar, Box, Button, Stack, Toolbar, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import WarningIcon from "@mui/icons-material/Warning";
 const join = window.api.join;
 
 export default function SelectDevice() {
@@ -14,6 +15,7 @@ export default function SelectDevice() {
     { name: "midiboard", ver: "" },
     { name: "serialboard", ver: "" },
   ]);
+  const [skipInitMemory, setSkipInitMemory] = useState(false);
 
   const makeBoardName = board => {
     switch (board) {
@@ -57,10 +59,19 @@ export default function SelectDevice() {
     window.api.send("checkForNewFW");
   };
 
+  const handleToggleInitMemory = () => {
+    window.api.ipcRenderer
+      .invoke("toggleInitMemory")
+      .then(res => setSkipInitMemory(res));
+  };
+
   useEffect(() => {
     getVersions();
     window.api.receive("updatedFirmware", () => getVersions());
     window.api.receive("refreshFW", () => getVersions());
+    window.api.ipcRenderer
+      .invoke("getInitMemory")
+      .then(res => setSkipInitMemory(res));
     return () => {
       window.api.removeAllListeners("updatedFirmware");
       window.api.removeAllListeners("refreshFW");
@@ -89,7 +100,21 @@ export default function SelectDevice() {
               Select Board
             </Typography>
           </Box>
-          <Stack justifyContent="right" direction="row" width="100%">
+          <Stack
+            justifyContent="right"
+            direction="row"
+            width="100%"
+            spacing={1}
+          >
+            <Button
+              variant={skipInitMemory ? "contained" : "outlined"}
+              size="small"
+              color={skipInitMemory ? "error" : "inherit"}
+              onClick={handleToggleInitMemory}
+              startIcon={skipInitMemory ? <WarningIcon /> : null}
+            >
+              skip init memory
+            </Button>
             <Button
               variant="outlined"
               size="small"

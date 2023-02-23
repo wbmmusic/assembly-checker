@@ -59,7 +59,7 @@ const serialBoardTests = { automated: [usbTest, macTest, wizTest, initMemory] }
 const controlPanelTests = { automated: [usbTest, macTest, sx0Test, sx1Test, tlc0Test, tlc1Test, adcTest, wizTest, initMemory] }
 const alarmPanelTests = { automated: [usbTest, macTest, sx0Test, wizTest, initMemory] }
 
-const automatedTest = async({ cmd, time = 20, expectedChars }) => {
+const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
     const parser = port.pipe(new ByteLengthParser({ length: expectedChars.length }))
     port.write('WBM TEST:' + cmd)
 
@@ -74,7 +74,7 @@ const automatedTest = async({ cmd, time = 20, expectedChars }) => {
             resolve(msg)
         }
 
-        parser.on('data', function(data) {
+        parser.on('data', function (data) {
             if (expectedChars.every((val, i) => val === data[i])) {
                 exitTest(`> PASSED ${cmd}`)
             } else {
@@ -90,32 +90,37 @@ const automatedTest = async({ cmd, time = 20, expectedChars }) => {
     })
 }
 
-const runAutomatedTests = async(tests) => {
+const runAutomatedTests = async (tests, skipInit) => {
     const results = []
 
-    await tests.reduce(async(acc, test) => {
+    await tests.reduce(async (acc, test) => {
         await acc
-        const result = await automatedTest(test)
-        if (result.includes('FAIL')) {
+        if (skipInit && test.cmd === "INITMEMORY") {
+            console.log("Skipping Init Memory")
+        } else {
+            const result = await automatedTest(test)
+            if (result.includes('FAIL')) {
+                results.push(result)
+                throw new Error(JSON.stringify({ data: results }))
+            }
             results.push(result)
-            throw new Error(JSON.stringify({ data: results }))
         }
-        results.push(result)
+
     }, Promise.resolve([]))
 
     return results
 }
 
-const runTests = async(board) => {
+const runTests = async (board, skipInit) => {
 
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             let startTime = Date.now()
-            const autTestResults = await runAutomatedTests(board.automated)
-                //autTestResults.forEach(result => console.log(result))
+            const autTestResults = await runAutomatedTests(board.automated, skipInit)
+            //autTestResults.forEach(result => console.log(result))
             const now = (Date.now() - startTime).toString() + 'ms'
             console.log('Automated test duration: ' + now)
-                //autTestResults.push('Automated test duration: ' + now)
+            //autTestResults.push('Automated test duration: ' + now)
             port.close()
             resolve(autTestResults)
         } catch (error) {
@@ -128,7 +133,7 @@ const runTests = async(board) => {
 
 }
 
-const startTest = async(testListObj) => {
+const startTest = async (testListObj, skipInit) => {
     return new Promise((resolve, reject) => {
         SerialPort.list().then((ports) => {
             //console.log(ports)
@@ -144,9 +149,9 @@ const startTest = async(testListObj) => {
                 port = new SerialPort({ path: goodPorts[0].path, baudRate: 256000 })
 
                 ///////   Test Sequence
-                port.on('open', async() => {
+                port.on('open', async () => {
                     try {
-                        let results = await runTests(testListObj)
+                        let results = await runTests(testListObj, skipInit)
                         resolve(results)
                     } catch (error) {
                         reject([...error, "FAILED TESTS"])
@@ -159,8 +164,8 @@ const startTest = async(testListObj) => {
     })
 }
 
-const configureAndStartTest = async(board) => {
-    return new Promise(async(resolve, reject) => {
+const configureAndStartTest = async (board, skipInit) => {
+    return new Promise(async (resolve, reject) => {
         const mapToTests = () => {
             switch (board) {
                 case 'cvboard':
@@ -193,7 +198,7 @@ const configureAndStartTest = async(board) => {
 
         try {
             if (target !== 'XXX') {
-                let results = await startTest(target)
+                let results = await startTest(target, skipInit)
                 resolve(results)
             } else reject(['No Device'])
         } catch (error) {

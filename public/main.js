@@ -16,6 +16,8 @@ let win
 let listenersApplied = false
 let firstReactReady = true
 
+let skipInitMemory = false
+
 
 // PATHS to files and folders
 let workingDirectory = __dirname
@@ -39,14 +41,14 @@ const clearAllNotifications = () => {
     win.webContents.send('notifications', notifications)
 }
 
-const handleLine = async(line) => {
+const handleLine = async (line) => {
     //console.log("Line Name:", line.name)
     //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
     //console.log("# of devices:", line.devices.length)
 
     //console.log(JSON.stringify(line, null, " "))
 
-    await line.devices.reduce(async(acc, element) => {
+    await line.devices.reduce(async (acc, element) => {
         await acc
 
         //console.log("EL", element)
@@ -96,7 +98,7 @@ const handleLine = async(line) => {
     //space()
 }
 
-const checkForFwUpdates = async() => {
+const checkForFwUpdates = async () => {
     try {
         let lines = await getLines()
         if (lines === undefined) console.log("LINES IS UNDEFINED")
@@ -128,7 +130,7 @@ const checkFolderStructure = () => {
 }
 checkFolderStructure()
 
-const getProgrammer = async() => {
+const getProgrammer = async () => {
     return new Promise((resolve, reject) => {
         const args = [
             '-CommanderScript "' + pathToFile + '"',
@@ -184,7 +186,7 @@ const loadFirmware = (filePath) => {
     firm[firm.length - 1] = 255;
     firm[firm.length - 2] = 0;
 
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         let programmerSerial = null
         try {
             programmerSerial = await getProgrammer()
@@ -233,7 +235,7 @@ const loadFirmware = (filePath) => {
     })
 }
 
-const waitForDevice = async(device) => {
+const waitForDevice = async (device) => {
 
     let waitFor = ''
 
@@ -289,7 +291,7 @@ const waitForDevice = async(device) => {
     })
 }
 
-const getFwFile = async(folder) => {
+const getFwFile = async (folder) => {
     return new Promise((resolve, reject) => {
         let files = readdirSync(join(pathToDevices, folder))
         if (files.length <= 0) {
@@ -300,7 +302,7 @@ const getFwFile = async(folder) => {
 
 }
 
-const programAndTest = async(folder) => {
+const programAndTest = async (folder) => {
     console.log('Program and test', folder)
 
     let deviceIsOnPort
@@ -322,7 +324,7 @@ const programAndTest = async(folder) => {
         // Run Tests on device
         console.log("Run Tests")
         win.webContents.send('jLinkProgress', 'TESTING')
-        let testResults = await tests.runTests(folder, deviceIsOnPort)
+        let testResults = await tests.runTests(folder, deviceIsOnPort, skipInitMemory)
         testResults.forEach(result => {
             console.log(result)
             win.webContents.send('jLinkProgress', result)
@@ -343,8 +345,8 @@ const programAndTest = async(folder) => {
     }
 }
 
-const chipErase = async() => {
-    return new Promise(async(resolve, reject) => {
+const chipErase = async () => {
+    return new Promise(async (resolve, reject) => {
         let programmerSerial = null
         try {
             programmerSerial = await getProgrammer()
@@ -382,7 +384,7 @@ const chipErase = async() => {
         child.stdout.on('data', (data) => {
             //win.webContents.send('jLinkProgress', data)
             if (data.toString().includes('Cannot connect to target.')) outErr = "FAILED: Could not communicate with MicroController"
-                //console.log("SDATTA", data.toString())
+            //console.log("SDATTA", data.toString())
         })
 
         child.on('close', (code) => {
@@ -437,7 +439,7 @@ const createListeners = () => {
         loadFirmware(firmware)
     })
 
-    ipcMain.on('chipErase', async() => {
+    ipcMain.on('chipErase', async () => {
         try {
             let result = await chipErase()
             win.webContents.send('jLinkProgress', result)
@@ -450,7 +452,12 @@ const createListeners = () => {
 
     ipcMain.on('programAndTest', (e, folder) => programAndTest(folder))
 
+    ipcMain.handle('getInitMemory', () => skipInitMemory)
 
+    ipcMain.handle('toggleInitMemory', () => {
+        skipInitMemory = !skipInitMemory
+        return skipInitMemory
+    })
 
     win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
@@ -477,103 +484,103 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) app.quit()
 
 app.on('second-instance', (event, commandLine, workingDirectory) => {
-        // Someone tried to run a second instance, we should focus our window.
-        if (win) {
-            if (win.isMinimized()) win.restore()
-            win.focus()
-        }
-    })
-    //////  END SINGLE INSTANCE ////////
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+        if (win.isMinimized()) win.restore()
+        win.focus()
+    }
+})
+//////  END SINGLE INSTANCE ////////
 
 
 // Create myWindow, load the rest of the app, etc...
 app.on('ready', () => {
 
-        //log("-APP IS READY");
+    //log("-APP IS READY");
 
-        ipcMain.on('reactIsReady', () => {
-            if (firstReactReady) {
-                firstReactReady = false
-                console.log('React Is Ready')
-                win.webContents.send('message', 'React Is Ready')
+    ipcMain.on('reactIsReady', () => {
+        if (firstReactReady) {
+            firstReactReady = false
+            console.log('React Is Ready')
+            win.webContents.send('message', 'React Is Ready')
 
-                if (listenersApplied === false) {
-                    listenersApplied = true
-                    createListeners()
+            if (listenersApplied === false) {
+                listenersApplied = true
+                createListeners()
 
-                    wbmUsbDevice.startMonitoring()
+                wbmUsbDevice.startMonitoring()
 
-                    wbmUsbDevice.on('progress', (list) => {
-                        console.log('progress', list)
-                        win.webContents.send('jLinkProgress', list)
-                    })
+                wbmUsbDevice.on('progress', (list) => {
+                    console.log('progress', list)
+                    win.webContents.send('jLinkProgress', list)
+                })
 
-                    tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
-                }
+                tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
+            }
 
-                if (app.isPackaged) {
-                    win.webContents.send('message', 'App is packaged')
+            if (app.isPackaged) {
+                win.webContents.send('message', 'App is packaged')
 
-                    autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
-                    autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
-                    autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
-                    autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
-                    autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
-                    autoUpdater.on('error', (e, message) => {
-                        console.log("updateError", e, message)
-                        win.webContents.send('updateError', message)
-                    })
+                autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
+                autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
+                autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
+                autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
+                autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
+                autoUpdater.on('error', (e, message) => {
+                    console.log("updateError", e, message)
+                    win.webContents.send('updateError', message)
+                })
 
 
-                    // Check for new version of app every 30 minutes
-                    setInterval(() => {
-                        win.webContents.send('message', 'Interval Check for update')
-                        autoUpdater.checkForUpdatesAndNotify()
-                    }, 30 * 60 * 1000);
-
-                    // check for new version of app on boot
-                    autoUpdater.checkForUpdatesAndNotify()
-                }
-
-                checkForFwUpdates()
+                // Check for new version of app every 30 minutes
                 setInterval(() => {
-                    checkForFwUpdates()
-                }, 10 * 60 * 1000);
+                    win.webContents.send('message', 'Interval Check for update')
+                    autoUpdater.checkForUpdatesAndNotify()
+                }, 30 * 60 * 1000);
+
+                // check for new version of app on boot
+                autoUpdater.checkForUpdatesAndNotify()
             }
-        })
 
-        ipcMain.handle('getFw', (e, theBoards) => {
-            let boards = theBoards
-            const numOfBoards = boards.length
-
-            for (let i = 0; i < numOfBoards; i++) {
-                const deviceFiles = readdirSync(join(pathToDevices, boards[i].name))
-                const binFile = deviceFiles.filter(file => file.includes('.bin'))
-                if (binFile.length === 0) boards[i].ver = "no fw"
-                else {
-                    let fileName = binFile[0].replace('.bin', '')
-                    fileName = fileName.replace(/^(.*)FW/, '')
-                    boards[i].ver = fileName
-                }
-            }
-            return boards
-        })
-
-        ipcMain.on('checkForNewFW', () => checkForFwUpdates())
-
-        ipcMain.on('clearNotification', (e, not) => {
-            console.log("Clear Notification", not)
-            notifications = notifications.filter(notification => JSON.stringify(notification) !== JSON.stringify(not))
-            win.webContents.send('notifications', notifications)
-        })
-
-        ipcMain.on('clearAllNotifications', () => {
-            clearAllNotifications()
-        })
-
-        createWindow()
+            checkForFwUpdates()
+            setInterval(() => {
+                checkForFwUpdates()
+            }, 10 * 60 * 1000);
+        }
     })
-    ///////////////////////
+
+    ipcMain.handle('getFw', (e, theBoards) => {
+        let boards = theBoards
+        const numOfBoards = boards.length
+
+        for (let i = 0; i < numOfBoards; i++) {
+            const deviceFiles = readdirSync(join(pathToDevices, boards[i].name))
+            const binFile = deviceFiles.filter(file => file.includes('.bin'))
+            if (binFile.length === 0) boards[i].ver = "no fw"
+            else {
+                let fileName = binFile[0].replace('.bin', '')
+                fileName = fileName.replace(/^(.*)FW/, '')
+                boards[i].ver = fileName
+            }
+        }
+        return boards
+    })
+
+    ipcMain.on('checkForNewFW', () => checkForFwUpdates())
+
+    ipcMain.on('clearNotification', (e, not) => {
+        console.log("Clear Notification", not)
+        notifications = notifications.filter(notification => JSON.stringify(notification) !== JSON.stringify(not))
+        win.webContents.send('notifications', notifications)
+    })
+
+    ipcMain.on('clearAllNotifications', () => {
+        clearAllNotifications()
+    })
+
+    createWindow()
+})
+///////////////////////
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
