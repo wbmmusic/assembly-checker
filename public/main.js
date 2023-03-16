@@ -333,7 +333,6 @@ const programAndTest = async (folder) => {
         win.webContents.send('passFail', 'pass')
         win.webContents.send('jLinkProgress', '----------------------------')
         win.webContents.send('jLinkProgress', "Ready for delivery!! :)")
-
         win.webContents.send('programmingComplete')
 
     } catch (error) {
