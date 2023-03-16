@@ -6,7 +6,7 @@ import Updates from "./Updates";
 function App() {
   useEffect(() => {
     window.api.receive("message", (e, theMessage) => console.log(theMessage));
-    window.api.send("reactIsReady");
+    window.api.send("reactIsReady"); //
 
     return () => {
       window.api.removeAllListeners("message");
