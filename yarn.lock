@@ -10061,10 +10061,10 @@ wbm-usb-device@^0.2.60:
     serialport "^10.4.0"
     usb "^2.5.1"
 
-wbm-version-manager@^0.0.65:
-  version "0.0.65"
-  resolved "https://registry.yarnpkg.com/wbm-version-manager/-/wbm-version-manager-0.0.65.tgz#931d8d7b15854c22c2064fd1bd629d3b7ffb5712"
-  integrity sha512-KBqFKhVkMJ4yRUTeuJ/W7HPg09fj6Y82CLQgvhGW7JAwJyasoZzr+rVPDj9dMQOzP89hplQj6p0NV/QKIe/HBg==
+wbm-version-manager@^0.0.69:
+  version "0.0.69"
+  resolved "https://registry.yarnpkg.com/wbm-version-manager/-/wbm-version-manager-0.0.69.tgz#f8b5f53e4073c64da169d74b55265f7a31818bfb"
+  integrity sha512-bwtREVCdhS3P3Ow3QXQOrCtQSNCbgwBBNfqQz/cRS08DJhy1wJn9VrP7+xQEVX9iiZz6eVao2y5i/Uny2TlKLg==
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"
