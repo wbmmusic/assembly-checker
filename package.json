@@ -9,13 +9,13 @@
     "dependencies": {
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
-        "@mui/icons-material": "^5.13.7",
-        "@mui/material": "^5.13.7",
+        "@mui/icons-material": "^5.14.0",
+        "@mui/material": "^5.14.0",
         "@testing-library/jest-dom": "^5.16.5",
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
         "axios": "^1.4.0",
-        "caniuse-lite": "^1.0.30001514",
+        "caniuse-lite": "^1.0.30001516",
         "electron-updater": "^6.1.1",
         "foreman": "^3.0.1",
         "react": "^18.2.0",
@@ -27,7 +27,7 @@
         "update-electron-app": "^2.0.1",
         "wbm-usb-device": "^0.2.60",
         "wbm-version-manager": "^0.0.69",
-        "web-vitals": "^3.3.2"
+        "web-vitals": "^3.4.0"
     },
     "scripts": {
         "dev": "nf start",
@@ -63,7 +63,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^25.2.0",
+        "electron": "^25.3.0",
         "electron-builder": "^24.4.0"
     },
     "repository": {
