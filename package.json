@@ -15,13 +15,13 @@
         "@testing-library/react": "^14.1.2",
         "@testing-library/user-event": "^14.5.1",
         "axios": "^1.6.2",
-        "caniuse-lite": "^1.0.30001570",
+        "caniuse-lite": "^1.0.30001571",
         "electron-updater": "^6.1.7",
         "foreman": "^3.0.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-router": "^6.21.0",
-        "react-router-dom": "^6.21.0",
+        "react-router": "^6.21.1",
+        "react-router-dom": "^6.21.1",
         "react-scripts": "^5.0.1",
         "serialport": "^12.0.0",
         "update-electron-app": "^3.0.0",
@@ -63,7 +63,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^28.0.0",
+        "electron": "^28.1.0",
         "electron-builder": "^24.9.1"
     },
     "repository": {
