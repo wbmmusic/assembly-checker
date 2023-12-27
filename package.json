@@ -14,7 +14,7 @@
         "@testing-library/jest-dom": "^6.1.5",
         "@testing-library/react": "^14.1.2",
         "@testing-library/user-event": "^14.5.1",
-        "axios": "^1.6.2",
+        "axios": "^1.6.3",
         "caniuse-lite": "^1.0.30001571",
         "electron-updater": "^6.1.7",
         "foreman": "^3.0.1",
