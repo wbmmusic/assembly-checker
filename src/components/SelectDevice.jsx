@@ -49,7 +49,7 @@ export default function SelectDevice() {
   };
 
   const getVersions = () => {
-    window.api.ipcRenderer
+    window.api
       .invoke("getFw", boards)
       .then(res => setBoards(res))
       .catch(err => console.log(err));
@@ -60,18 +60,14 @@ export default function SelectDevice() {
   };
 
   const handleToggleInitMemory = () => {
-    window.api.ipcRenderer
-      .invoke("toggleInitMemory")
-      .then(res => setSkipInitMemory(res));
+    window.api.invoke("toggleInitMemory").then(res => setSkipInitMemory(res));
   };
 
   useEffect(() => {
     getVersions();
     window.api.receive("updatedFirmware", () => getVersions());
     window.api.receive("refreshFW", () => getVersions());
-    window.api.ipcRenderer
-      .invoke("getInitMemory")
-      .then(res => setSkipInitMemory(res));
+    window.api.invoke("getInitMemory").then(res => setSkipInitMemory(res));
     return () => {
       window.api.removeAllListeners("updatedFirmware");
       window.api.removeAllListeners("refreshFW");

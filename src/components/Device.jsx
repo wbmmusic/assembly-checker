@@ -59,7 +59,7 @@ export default function Device() {
   };
 
   const getVersions = () => {
-    window.api.ipcRenderer
+    window.api
       .invoke("getFw", [{ name: location.state.folder, ver: "" }])
       .then(res => setVer(res[0].ver))
       .catch(err => console.log(err));
