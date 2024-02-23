@@ -501,7 +501,7 @@ app.on('ready', () => {
         if (firstReactReady) {
             firstReactReady = false
             console.log('React Is Ready')
-            win.webContents.send('message', 'React Is Ready')
+
 
             if (listenersApplied === false) {
                 listenersApplied = true
@@ -545,6 +545,8 @@ app.on('ready', () => {
             setInterval(() => {
                 checkForFwUpdates()
             }, 10 * 60 * 1000);
+
+            win.webContents.send('message', 'React Is Ready')
         }
     })
 

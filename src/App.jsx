@@ -1,17 +1,24 @@
 import { CssBaseline } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Top from "./components/Top";
 import Updates from "./Updates";
 
 function App() {
+  const [reactIsReady, setReactIsReady] = useState(false);
   useEffect(() => {
-    window.api.receive("message", (e, theMessage) => console.log(theMessage));
+    window.api.receive("message", (e, theMessage) => {
+      console.log(theMessage);
+
+      if (theMessage === "React Is Ready") setReactIsReady(true);
+    });
     window.api.send("reactIsReady"); //
 
     return () => {
       window.api.removeAllListeners("message");
     };
   }, []);
+
+  if (!reactIsReady) return <></>;
 
   return (
     <div

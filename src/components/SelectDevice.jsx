@@ -68,6 +68,7 @@ export default function SelectDevice() {
     window.api.receive("updatedFirmware", () => getVersions());
     window.api.receive("refreshFW", () => getVersions());
     window.api.invoke("getInitMemory").then(res => setSkipInitMemory(res));
+
     return () => {
       window.api.removeAllListeners("updatedFirmware");
       window.api.removeAllListeners("refreshFW");
