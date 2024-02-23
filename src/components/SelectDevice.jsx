@@ -48,8 +48,6 @@ export default function SelectDevice() {
     }
   };
 
-  //Dummy
-
   const getVersions = () => {
     window.api
       .invoke("getFw", boards)
