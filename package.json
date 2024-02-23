@@ -89,7 +89,8 @@
                 "public/USBDriver/**/*",
                 "public/boardfiles/**/*"
             ],
-            "publisherName": "William Mareci"
+            "publisherName": "William Mareci",
+            "certificateSubjectName": "WBM Tek (Mareci, William)"
         }
     }
 }
