@@ -12,10 +12,10 @@
         "@mui/icons-material": "^5.15.15",
         "@mui/material": "^5.15.15",
         "@testing-library/jest-dom": "^6.4.2",
-        "@testing-library/react": "^14.3.0",
+        "@testing-library/react": "^15.0.2",
         "@testing-library/user-event": "^14.5.2",
         "axios": "^1.6.8",
-        "caniuse-lite": "^1.0.30001607",
+        "caniuse-lite": "^1.0.30001610",
         "electron-updater": "^6.1.8",
         "foreman": "^3.0.1",
         "react": "^18.2.0",
@@ -63,7 +63,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^29.2.0",
+        "electron": "^30.0.0",
         "electron-builder": "^24.13.3"
     },
     "repository": {
