@@ -13,11 +13,11 @@
         "@mui/material": "^5.15.19",
         "@serialport/parser-byte-length": "^12.0.0",
         "@testing-library/jest-dom": "^6.4.5",
-        "@testing-library/react": "^15.0.7",
+        "@testing-library/react": "^16.0.0",
         "@testing-library/user-event": "^14.5.2",
         "axios": "^1.7.2",
-        "caniuse-lite": "^1.0.30001626",
-        "electron-updater": "^6.1.8",
+        "caniuse-lite": "^1.0.30001629",
+        "electron-updater": "^6.2.1",
         "foreman": "^3.0.1",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
@@ -28,7 +28,7 @@
         "update-electron-app": "^3.0.0",
         "wbm-usb-device": "^0.2.60",
         "wbm-version-manager": "^0.0.69",
-        "web-vitals": "^4.0.1"
+        "web-vitals": "^4.1.0"
     },
     "scripts": {
         "dev": "nf start",
@@ -39,10 +39,10 @@
         "eject": "react-scripts eject",
         "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
         "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
-        "upload": "yarn build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && yarn deploy ",
-        "try": "yarn build && yarn package ",
+        "upload": "pnpm build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && pnpm deploy ",
+        "try": "pnpm build && pnpm package ",
         "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-        "refresh": "yarn upgrade --latest",
+        "refresh": "pnpm upgrade --latest",
         "postinstall": "electron-builder install-app-deps"
     },
     "eslintConfig": {
@@ -64,8 +64,9 @@
         ]
     },
     "devDependencies": {
-        "electron": "^30.0.9",
-        "electron-builder": "^24.13.3"
+        "electron": "^30.1.0",
+        "electron-builder": "^24.13.3",
+        "eslint": "^9.4.0"
     },
     "repository": {
         "type": "git",
@@ -92,5 +93,6 @@
             ],
             "certificateSubjectName": "WBM Tek (Mareci, William)"
         }
-    }
+    },
+    "packageManager": "pnpm@9.2.0+sha512.98a80fd11c2e7096747762304106432b3ddc67dcf54b5a8c01c93f68a2cd5e05e6821849522a06fb76284d41a2660d5e334f2ee3bbf29183bf2e739b1dafa771"
 }
