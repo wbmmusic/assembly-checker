@@ -24,8 +24,8 @@ importers:
         specifier: ^12.0.0
         version: 12.0.0
       '@testing-library/jest-dom':
-        specifier: ^6.4.5
-        version: 6.4.5(jest@27.5.1)
+        specifier: ^6.4.6
+        version: 6.4.6(jest@27.5.1)
       '@testing-library/react':
         specifier: ^16.0.0
         version: 16.0.0(@testing-library/dom@10.1.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -76,8 +76,8 @@ importers:
         version: 4.1.0
     devDependencies:
       electron:
-        specifier: ^30.1.0
-        version: 30.1.0
+        specifier: ^31.0.0
+        version: 31.0.0
       electron-builder:
         specifier: ^24.13.3
         version: 24.13.3(electron-builder-squirrel-windows@25.0.0-alpha.9(dmg-builder@24.13.3))
@@ -1574,8 +1574,8 @@ packages:
     resolution: {integrity: sha512-wdsYKy5zupPyLCW2Je5DLHSxSfbIp6h80WoHOQc+RPtmPGA52O9x5MJEkv92Sjonpq+poOAtUKhh1kBGAXBrNA==}
     engines: {node: '>=18'}
 
-  '@testing-library/jest-dom@6.4.5':
-    resolution: {integrity: sha512-AguB9yvTXmCnySBP1lWjfNNUwpbElsaQ567lt2VdGqAdHtpieLgjmcVyv1q7PMIvLbgpDdkWV5Ydv3FEejyp2A==}
+  '@testing-library/jest-dom@6.4.6':
+    resolution: {integrity: sha512-8qpnGVincVDLEcQXWaHOf6zmlbwTKc6Us6PPu4CRnPXCzo2OGBS5cwgMMOWdxDpEz1mkbvXHpEy99M5Yvt682w==}
     engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
     peerDependencies:
       '@jest/globals': '>= 28'
@@ -3046,8 +3046,8 @@ packages:
   electron-updater@6.2.1:
     resolution: {integrity: sha512-83eKIPW14qwZqUUM6wdsIRwVKZyjmHxQ4/8G+1C6iS5PdDt7b1umYQyj1/qPpH510GmHEQe4q0kCPe3qmb3a0Q==}
 
-  electron@30.1.0:
-    resolution: {integrity: sha512-9O8m7kinjwMH5Df0hpXbwUaqI6pk3aJm1sKQUkQGCF7NDbNkGhu2BXgqaicPU6oe26zQPc5vtwWnHmiKlh1hYA==}
+  electron@31.0.0:
+    resolution: {integrity: sha512-yJMhwu5NVqor7h5mt65uKtBsjSAD7NiRwNCigK8xAlJMaP0X2FKipEzQocOzusy7E0dny4gkTgOTATy+ucDtjw==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -4695,8 +4695,8 @@ packages:
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
 
-  node-abi@3.63.0:
-    resolution: {integrity: sha512-vAszCsOUrUxjGAmdnM/pq7gUgie0IRteCQMX6d4A534fQCR93EJU5qgzBvU6EkFfK27s0T3HEV3BOyJIr7OMYw==}
+  node-abi@3.64.0:
+    resolution: {integrity: sha512-lxowHVCx3o1zfKJthjWh6WI8Eyi4gdTaK9bUc3oTjYv9j8sp5gSiufkOvoYZ1LgmZKngWUkS5a8G1RSuLWtPgg==}
     engines: {node: '>=10'}
 
   node-addon-api@1.7.2:
@@ -7868,7 +7868,7 @@ snapshots:
       detect-libc: 2.0.3
       fs-extra: 10.1.0
       got: 11.8.6
-      node-abi: 3.63.0
+      node-abi: 3.64.0
       node-api-version: 0.2.0
       node-gyp: 9.4.1
       ora: 5.4.1
@@ -8653,7 +8653,7 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@6.4.5(jest@27.5.1)':
+  '@testing-library/jest-dom@6.4.6(jest@27.5.1)':
     dependencies:
       '@adobe/css-tools': 4.4.0
       '@babel/runtime': 7.24.7
@@ -10453,7 +10453,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron@30.1.0:
+  electron@31.0.0:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 20.14.2
@@ -12527,7 +12527,7 @@ snapshots:
       lower-case: 2.0.2
       tslib: 2.6.3
 
-  node-abi@3.63.0:
+  node-abi@3.64.0:
     dependencies:
       semver: 7.6.2
 
