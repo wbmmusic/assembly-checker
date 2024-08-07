@@ -16,7 +16,7 @@
         "@testing-library/react": "^16.0.0",
         "@testing-library/user-event": "^14.5.2",
         "axios": "^1.7.3",
-        "caniuse-lite": "^1.0.30001649",
+        "caniuse-lite": "^1.0.30001650",
         "electron-updater": "^6.2.1",
         "foreman": "^3.0.1",
         "react": "^18.3.1",
@@ -28,7 +28,7 @@
         "update-electron-app": "^3.0.0",
         "wbm-usb-device": "^0.2.60",
         "wbm-version-manager": "^0.0.69",
-        "web-vitals": "^4.2.2"
+        "web-vitals": "^4.2.3"
     },
     "scripts": {
         "dev": "nf start",
