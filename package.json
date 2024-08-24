@@ -7,15 +7,15 @@
     "main": "public/main.js",
     "private": true,
     "dependencies": {
-        "@emotion/react": "^11.13.0",
+        "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
         "@mui/icons-material": "^5.16.7",
         "@mui/material": "^5.16.7",
         "@serialport/parser-byte-length": "^12.0.0",
-        "@testing-library/jest-dom": "^6.4.8",
+        "@testing-library/jest-dom": "^6.5.0",
         "@testing-library/react": "^16.0.0",
         "@testing-library/user-event": "^14.5.2",
-        "axios": "^1.7.4",
+        "axios": "^1.7.5",
         "caniuse-lite": "^1.0.30001651",
         "electron-updater": "^6.2.1",
         "foreman": "^3.0.1",
@@ -64,9 +64,9 @@
         ]
     },
     "devDependencies": {
-        "electron": "^31.4.0",
+        "electron": "^32.0.1",
         "electron-builder": "^24.13.3",
-        "eslint": "^9.9.0"
+        "eslint": "^9.9.1"
     },
     "repository": {
         "type": "git",
