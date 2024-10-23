@@ -9,8 +9,8 @@
     "dependencies": {
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
-        "@mui/icons-material": "^6.1.4",
-        "@mui/material": "^6.1.4",
+        "@mui/icons-material": "^6.1.5",
+        "@mui/material": "^6.1.5",
         "@serialport/parser-byte-length": "^12.0.0",
         "@testing-library/jest-dom": "^6.6.2",
         "@testing-library/react": "^16.0.1",
@@ -28,7 +28,7 @@
         "update-electron-app": "^3.0.0",
         "wbm-usb-device": "^0.2.60",
         "wbm-version-manager": "^0.0.69",
-        "web-vitals": "^4.2.3"
+        "web-vitals": "^4.2.4"
     },
     "scripts": {
         "dev": "nf start",
@@ -64,7 +64,7 @@
         ]
     },
     "devDependencies": {
-        "electron": "^33.0.1",
+        "electron": "^33.0.2",
         "electron-builder": "^25.1.8",
         "eslint": "^9.13.0"
     },
