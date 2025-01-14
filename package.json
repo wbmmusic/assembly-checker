@@ -9,14 +9,14 @@
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
-        "@mui/icons-material": "^6.3.0",
-        "@mui/material": "^6.3.0",
+        "@mui/icons-material": "^6.4.0",
+        "@mui/material": "^6.4.0",
         "@serialport/parser-byte-length": "^13.0.0",
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.1.0",
         "@testing-library/user-event": "^14.5.2",
         "axios": "^1.7.9",
-        "caniuse-lite": "^1.0.30001690",
+        "caniuse-lite": "^1.0.30001692",
         "electron-updater": "^6.3.9",
         "foreman": "^3.0.1",
         "react": "^19.0.0",
@@ -64,9 +64,9 @@
         ]
     },
     "devDependencies": {
-        "electron": "^33.2.1",
+        "electron": "^34.0.0",
         "electron-builder": "^25.1.8",
-        "eslint": "^9.17.0"
+        "eslint": "^9.18.0"
     },
     "repository": {
         "type": "git",
