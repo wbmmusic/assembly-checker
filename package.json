@@ -9,26 +9,26 @@
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
-        "@mui/icons-material": "^7.0.2",
-        "@mui/material": "^7.0.2",
+        "@mui/icons-material": "^7.1.0",
+        "@mui/material": "^7.1.0",
         "@serialport/parser-byte-length": "^13.0.0",
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",
         "axios": "^1.9.0",
-        "caniuse-lite": "^1.0.30001716",
+        "caniuse-lite": "^1.0.30001717",
         "electron-updater": "^6.6.2",
         "foreman": "^3.0.1",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
-        "react-router": "^7.5.3",
-        "react-router-dom": "^7.5.3",
+        "react-router": "^7.6.0",
+        "react-router-dom": "^7.6.0",
         "react-scripts": "^5.0.1",
         "serialport": "^13.0.0",
         "update-electron-app": "^3.1.1",
         "wbm-usb-device": "^0.2.60",
         "wbm-version-manager": "^0.0.69",
-        "web-vitals": "^4.2.4"
+        "web-vitals": "^5.0.0"
     },
     "scripts": {
         "dev": "nf start",
@@ -64,9 +64,9 @@
         ]
     },
     "devDependencies": {
-        "electron": "^36.1.0",
+        "electron": "^36.2.0",
         "electron-builder": "^26.0.12",
-        "eslint": "^9.25.1"
+        "eslint": "^9.26.0"
     },
     "repository": {
         "type": "git",
