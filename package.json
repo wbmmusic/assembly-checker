@@ -15,8 +15,8 @@
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",
-        "axios": "^1.9.0",
-        "caniuse-lite": "^1.0.30001721",
+        "axios": "^1.10.0",
+        "caniuse-lite": "^1.0.30001723",
         "electron-updater": "^6.6.2",
         "foreman": "^3.0.1",
         "react": "^19.1.0",
@@ -28,7 +28,7 @@
         "update-electron-app": "^3.1.1",
         "wbm-usb-device": "^0.2.60",
         "wbm-version-manager": "^0.0.69",
-        "web-vitals": "^5.0.2"
+        "web-vitals": "^5.0.3"
     },
     "scripts": {
         "dev": "nf start",
@@ -66,7 +66,7 @@
     "devDependencies": {
         "electron": "^36.4.0",
         "electron-builder": "^26.0.12",
-        "eslint": "^9.28.0"
+        "eslint": "^9.29.0"
     },
     "repository": {
         "type": "git",
