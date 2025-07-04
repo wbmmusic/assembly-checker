@@ -1,7 +1,15 @@
-import { AppBar, Box, Button, Stack, Toolbar, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import WarningIcon from "@mui/icons-material/Warning";
+import {
+  AppBar,
+  Box,
+  Button,
+  Stack,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 const join = window.api.join;
 
 export default function SelectDevice() {
@@ -103,15 +111,23 @@ export default function SelectDevice() {
             width="100%"
             spacing={1}
           >
-            <Button
-              variant={skipInitMemory ? "contained" : "outlined"}
-              size="small"
-              color={skipInitMemory ? "error" : "inherit"}
-              onClick={handleToggleInitMemory}
-              startIcon={skipInitMemory ? <WarningIcon /> : null}
+            <Tooltip
+              title={
+                skipInitMemory
+                  ? "Will not change settings"
+                  : "Will initialize memory on startup. Default IP etc"
+              }
             >
-              skip init memory
-            </Button>
+              <Button
+                variant={skipInitMemory ? "contained" : "outlined"}
+                size="small"
+                color={skipInitMemory ? "error" : "inherit"}
+                onClick={handleToggleInitMemory}
+                startIcon={skipInitMemory ? <WarningIcon /> : null}
+              >
+                skip init memory
+              </Button>
+            </Tooltip>
             <Button
               variant="outlined"
               size="small"

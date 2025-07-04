@@ -1,5 +1,4 @@
 import { Box } from "@mui/material";
-import React from "react";
 import { Route, Routes } from "react-router";
 import Device from "./Device";
 import SelectDevice from "./SelectDevice";

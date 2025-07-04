@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Modal, Typography } from "@mui/material";
-import React, { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Modals() {
   const defaultModalContents = { show: false };
