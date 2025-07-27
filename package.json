@@ -12,7 +12,7 @@
         "@mui/icons-material": "^7.2.0",
         "@mui/material": "^7.2.0",
         "@serialport/parser-byte-length": "^13.0.0",
-        "@testing-library/jest-dom": "^6.6.3",
+        "@testing-library/jest-dom": "^6.6.4",
         "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",
         "axios": "^1.11.0",
@@ -66,7 +66,7 @@
     "devDependencies": {
         "electron": "^37.2.4",
         "electron-builder": "^26.0.12",
-        "eslint": "^9.31.0"
+        "eslint": "^9.32.0"
     },
     "repository": {
         "type": "git",
