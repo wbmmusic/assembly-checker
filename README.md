@@ -68,3 +68,13 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `yarn build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Security Notes
+
+### Log Injection
+This is an Electron desktop application that runs locally. Log injection vulnerabilities (CWE-117) are not a security concern in this context because:
+- Console logs are local to the user's machine
+- No web server logs are exposed
+- No remote log aggregation systems are used
+
+Code review tools may flag `console.log(err)` as a log injection risk, but this is a false positive for Electron applications.

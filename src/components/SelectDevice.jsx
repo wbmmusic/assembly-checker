@@ -8,7 +8,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 const join = window.api.join;
 
@@ -25,36 +25,16 @@ export default function SelectDevice() {
   ]);
   const [skipInitMemory, setSkipInitMemory] = useState(false);
 
-  const makeBoardName = board => {
-    switch (board) {
-      case "alarmpanel":
-        return "Alarm Panel";
-
-      case "controlpanel":
-        return "Control Panel";
-
-      case "cvboard":
-        return "CV Board";
-
-      case "gpiboard":
-        return "GPI Board";
-
-      case "gpoboard":
-        return "GPO Board";
-
-      case "lampboard":
-        return "Lamp Board";
-
-      case "midiboard":
-        return "MIDI Board";
-
-      case "serialboard":
-        return "Serial Board";
-
-      default:
-        break;
-    }
-  };
+  const boardNames = useMemo(() => ({
+    alarmpanel: "Alarm Panel",
+    controlpanel: "Control Panel",
+    cvboard: "CV Board",
+    gpiboard: "GPI Board",
+    gpoboard: "GPO Board",
+    lampboard: "Lamp Board",
+    midiboard: "MIDI Board",
+    serialboard: "Serial Board"
+  }), []);
 
   const getVersions = () => {
     window.api
@@ -153,7 +133,7 @@ export default function SelectDevice() {
               navigate("/device/" + board.name, {
                 replace: true,
                 state: {
-                  boardName: makeBoardName(board.name),
+                  boardName: boardNames[board.name] || board.name,
                   folder: board.name,
                 },
               })
@@ -189,7 +169,7 @@ export default function SelectDevice() {
                 }}
               >
                 <Typography variant="h6">
-                  {makeBoardName(board.name)}
+                  {boardNames[board.name] || board.name}
                 </Typography>
               </Box>
               <div
