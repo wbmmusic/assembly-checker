@@ -41,6 +41,12 @@ const clearAllNotifications = () => {
     win.webContents.send('notifications', notifications)
 }
 
+/**
+ * Handles a line object representing a production line and its devices.
+ * For each device, ensures the correct firmware is present in the device folder.
+ * Downloads and updates firmware files as needed.
+ * @param {Object} line - Line object containing devices and metadata.
+ */
 const handleLine = async (line) => {
     //console.log("Line Name:", line.name)
     //console.log("Last Mod:", new Date(line.modified).toLocaleDateString())
@@ -112,6 +118,10 @@ const checkForFwUpdates = async () => {
 
 }
 
+/**
+ * Ensures required folders for the application exist on disk.
+ * Creates WBM Tek, pcbChecker, and devices folders if missing.
+ */
 const checkFolderStructure = () => {
     if (!existsSync(path.join('C:', 'ProgramData', 'WBM Tek'))) {
         console.log('Creating WBM Tek folder')
@@ -130,6 +140,11 @@ const checkFolderStructure = () => {
 }
 checkFolderStructure()
 
+/**
+ * Detects and returns the serial number of the connected J-Link programmer.
+ * Uses JLink.exe to query available programmers via USB.
+ * @returns {Promise<string>} Serial number of programmer, or rejects if not found.
+ */
 const getProgrammer = async () => {
     return new Promise((resolve, reject) => {
         const args = [
@@ -160,6 +175,11 @@ const getProgrammer = async () => {
     })
 }
 
+/**
+ * Loads and programs firmware to the connected device using J-Link.
+ * Combines bootloader and firmware, writes to device, and reports progress via IPC.
+ * @param {string} filePath - Path to firmware file to program.
+ */
 const loadFirmware = (filePath) => {
     win.webContents.send('programming')
     win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
@@ -291,6 +311,11 @@ const waitForDevice = async (device) => {
     })
 }
 
+/**
+ * Retrieves the firmware file name for a given device folder.
+ * @param {string} folder - Device folder name.
+ * @returns {Promise<string>} Resolves with firmware file name, or rejects if not found.
+ */
 const getFwFile = async (folder) => {
     return new Promise((resolve, reject) => {
         let files = readdirSync(join(pathToDevices, folder))
@@ -302,6 +327,11 @@ const getFwFile = async (folder) => {
 
 }
 
+/**
+ * Orchestrates the full workflow for programming and testing a device.
+ * Loads firmware, waits for device connection, runs automated tests, and reports results.
+ * @param {string} folder - Device folder name.
+ */
 const programAndTest = async (folder) => {
     console.log('Program and test', folder)
 

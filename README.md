@@ -1,30 +1,35 @@
+
 # PCB Assembly Checker
 
-React + Electron desktop application used during manufacturing for programming and testing PAM system PCBs. This production tool provides comprehensive PCB programming, automated testing, and quality control validation before deployment.
+## Overview
+PCB Assembly Checker is a React + Electron desktop application for programming and testing PAM system PCBs in a manufacturing environment. It automates firmware programming, device detection, and board-level testing to ensure quality control before deployment.
 
-## Key Features
+## Workflow
+1. **Plug in device**: Operator connects a PCB to the workstation via USB/Serial.
+2. **Program and test**: The app programs the device firmware using J-Link, then runs automated tests for the selected board type.
+3. **Result reporting**: Pass/fail status and detailed test results are displayed in the UI. All steps are automated; no manual test steps are required.
 
-- **PCB Programming**: J-Link integration for firmware programming with bootloader support during manufacturing
-- **Automated Testing**: Comprehensive automated test sequences for 7 different PAM board types
-- **Serial Communication**: SerialPort integration for device communication and testing validation
-- **Component Testing**: Tests USB serial, MAC, network (WIZ), memory, shift registers, TLC drivers, ADC functionality
-- **Multi-Board Support**: Supports CV, GPO, GPI, MIDI, Serial, Control Panel, and Alarm Panel boards
-- **USB Driver Integration**: Includes USB drivers for reliable device recognition and communication
-- **Board Documentation**: Integrated board files, images, and specifications for assembly reference
-- **Quality Control**: Pass/fail validation with detailed test results and comprehensive error reporting
-- **Manufacturing Tool**: Production-ready tool designed specifically for PCB assembly and quality control
-- **Auto-Update**: Electron auto-updater for maintaining production tool versions
+## Main Modules
+- **Electron Main Process (`public/main.js`)**: Handles window creation, device communication, firmware programming, test orchestration, and IPC between backend and frontend.
+- **Preload Script (`public/preload.js`)**: Exposes safe APIs to the frontend via Electron contextBridge for IPC.
+- **React Frontend (`src/`)**: UI for device selection, test status, and progress display. Key components:
+	- `App.jsx`: Entry point, waits for backend readiness.
+	- `Device.jsx`: Manages device programming and test status.
+	- `SelectDevice.jsx`: Board selection and firmware version display.
+	- `Modals.jsx`: Progress and status dialogs.
+	- `Updates.jsx`: Handles update notifications.
+	- `TopExtras.jsx`: Notification and firmware update alerts.
+- **Test Logic (`public/tests.js`)**: Defines automated test sequences for each board type and runs tests via serial communication.
 
-## Architecture
-
-Electron application with React frontend, serial communication, and J-Link programming integration designed for manufacturing and assembly processes.
-
-## Production Usage
-
-Used during PAM system manufacturing to program firmware and validate board functionality, ensuring quality control and proper operation before deployment to customers.
+## Developer Notes
+- All device programming and testing is fully automated once a device is connected and a board type is selected.
+- The app is designed for use in PCB assembly shops; advanced options are not exposed to end-users.
+- Only one device should be connected at a time; multiple device support is not implemented.
+- Failure modes (e.g., device not found, firmware mismatch, test failure) should be handled and reported in the UI.
+- Board-specific test sequences and firmware handling are defined in `tests.js` and main process logic.
+- USB drivers and board documentation are included for reliable operation and reference.
 
 ## Dependencies
-
 - React
 - Electron
 - Material-UI

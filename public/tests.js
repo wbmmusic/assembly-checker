@@ -59,6 +59,12 @@ const serialBoardTests = { automated: [usbTest, macTest, wizTest, initMemory] }
 const controlPanelTests = { automated: [usbTest, macTest, sx0Test, sx1Test, tlc0Test, tlc1Test, adcTest, wizTest, initMemory] }
 const alarmPanelTests = { automated: [usbTest, macTest, sx0Test, wizTest, initMemory] }
 
+/**
+ * Runs a single automated test command on the connected device via serial port.
+ * Sends command, waits for response, checks expected bytes, and resolves with result.
+ * @param {Object} test - Test definition with command, timeout, and expected response bytes.
+ * @returns {Promise<string>} Test result string.
+ */
 const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
     const parser = port.pipe(new ByteLengthParser({ length: expectedChars.length }))
     port.write('WBM TEST:' + cmd)
@@ -90,6 +96,13 @@ const automatedTest = async ({ cmd, time = 20, expectedChars }) => {
     })
 }
 
+/**
+ * Runs all automated tests for a board, optionally skipping INITMEMORY.
+ * Aggregates results and throws on first failure.
+ * @param {Array<Object>} tests - List of test definitions.
+ * @param {boolean} skipInit - Whether to skip INITMEMORY test.
+ * @returns {Promise<Array<string>>} Array of test result strings.
+ */
 const runAutomatedTests = async (tests, skipInit) => {
     const results = []
 
@@ -111,6 +124,12 @@ const runAutomatedTests = async (tests, skipInit) => {
     return results
 }
 
+/**
+ * Runs the full test sequence for a board, timing execution and aggregating results.
+ * @param {Object} board - Board test definition object.
+ * @param {boolean} skipInit - Whether to skip INITMEMORY test.
+ * @returns {Promise<Array<string>>} Array of test result strings.
+ */
 const runTests = async (board, skipInit) => {
 
     return new Promise(async (resolve, reject) => {

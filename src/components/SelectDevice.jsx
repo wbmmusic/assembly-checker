@@ -25,16 +25,19 @@ export default function SelectDevice() {
   ]);
   const [skipInitMemory, setSkipInitMemory] = useState(false);
 
-  const boardNames = useMemo(() => ({
-    alarmpanel: "Alarm Panel",
-    controlpanel: "Control Panel",
-    cvboard: "CV Board",
-    gpiboard: "GPI Board",
-    gpoboard: "GPO Board",
-    lampboard: "Lamp Board",
-    midiboard: "MIDI Board",
-    serialboard: "Serial Board"
-  }), []);
+  const boardNames = useMemo(
+    () => ({
+      alarmpanel: "Alarm Panel",
+      controlpanel: "Control Panel",
+      cvboard: "CV Board",
+      gpiboard: "GPI Board",
+      gpoboard: "GPO Board",
+      lampboard: "Lamp Board",
+      midiboard: "MIDI Board",
+      serialboard: "Serial Board",
+    }),
+    []
+  );
 
   const getVersions = () => {
     window.api
