@@ -1,98 +1,98 @@
 {
-    "name": "pcb-assebmly-checker",
-    "version": "0.1.25",
-    "author": "Marece Williams",
-    "description": "App for programming and testing io-manager PCBs",
-    "homepage": "./",
-    "main": "public/main.js",
-    "private": true,
-    "dependencies": {
-        "@emotion/react": "^11.14.0",
-        "@emotion/styled": "^11.14.1",
-        "@mui/icons-material": "^7.3.2",
-        "@mui/material": "^7.3.2",
-        "@serialport/parser-byte-length": "^13.0.0",
-        "@testing-library/jest-dom": "^6.9.0",
-        "@testing-library/react": "^16.3.0",
-        "@testing-library/user-event": "^14.6.1",
-        "axios": "^1.12.2",
-        "caniuse-lite": "^1.0.30001746",
-        "electron-updater": "^6.6.2",
-        "foreman": "^3.0.1",
-        "react": "^19.1.1",
-        "react-dom": "^19.1.1",
-        "react-router": "^7.9.3",
-        "react-router-dom": "^7.9.3",
-        "react-scripts": "^5.0.1",
-        "serialport": "^13.0.0",
-        "update-electron-app": "^3.1.1",
-        "wbm-usb-device": "^0.2.60",
-        "wbm-version-manager": "^0.0.69",
-        "web-vitals": "^5.1.0"
-    },
-    "scripts": {
-        "dev": "nf start",
-        "electron": "electron .",
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
-        "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
-        "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
-        "upload": "pnpm build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && pnpm deploy ",
-        "try": "pnpm build && pnpm package ",
-        "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
-        "refresh": "pnpm upgrade --latest",
-        "postinstall": "electron-builder install-app-deps"
-    },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
-    },
-    "devDependencies": {
-        "electron": "^38.2.0",
-        "electron-builder": "^26.0.12",
-        "eslint": "^9.36.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/wbmmusic/assembly-checker.git"
-    },
-    "build": {
-        "productName": "WBM Tek PCB Assembly Checker",
-        "appId": "com.electron.pcbchk",
-        "copyright": "WBM Tek",
-        "extends": null,
-        "npmRebuild": false,
-        "files": [
-            "build/**/*",
-            "electron/*"
-        ],
-        "win": {
-            "icon": "public/favicon.ico",
-            "extraResources": [
-                "public/JLink.exe",
-                "public/JLinkARM.dll",
-                "public/firmware/*",
-                "public/USBDriver/**/*",
-                "public/boardfiles/**/*"
-            ],
-            "certificateSubjectName": "WBM Tek (Mareci, William)"
-        }
-    },
-    "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
+  "name": "pcb-assebmly-checker",
+  "version": "0.1.25",
+  "author": "Marece Williams",
+  "description": "App for programming and testing io-manager PCBs",
+  "homepage": "./",
+  "main": "public/main.js",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
+    "@serialport/parser-byte-length": "^13.0.0",
+    "@testing-library/jest-dom": "^6.9.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "axios": "^1.12.2",
+    "caniuse-lite": "^1.0.30001750",
+    "electron-updater": "^6.6.2",
+    "foreman": "^3.0.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router": "^7.9.3",
+    "react-router-dom": "^7.9.3",
+    "react-scripts": "^5.0.1",
+    "serialport": "^13.0.0",
+    "update-electron-app": "^3.1.1",
+    "wbm-usb-device": "^0.2.60",
+    "wbm-version-manager": "^0.0.69",
+    "web-vitals": "^5.1.0"
+  },
+  "scripts": {
+    "dev": "nf start",
+    "electron": "electron .",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
+    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
+    "upload": "pnpm build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && pnpm deploy ",
+    "try": "pnpm build && pnpm package ",
+    "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
+    "refresh": "pnpm upgrade --latest",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^38.3.0",
+    "electron-builder": "^26.0.12",
+    "eslint": "^8.57.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wbmmusic/assembly-checker.git"
+  },
+  "build": {
+    "productName": "WBM Tek PCB Assembly Checker",
+    "appId": "com.electron.pcbchk",
+    "copyright": "WBM Tek",
+    "extends": null,
+    "npmRebuild": false,
+    "files": [
+      "build/**/*",
+      "electron/*"
+    ],
+    "win": {
+      "icon": "public/favicon.ico",
+      "extraResources": [
+        "public/JLink.exe",
+        "public/JLinkARM.dll",
+        "public/firmware/*",
+        "public/USBDriver/**/*",
+        "public/boardfiles/**/*"
+      ],
+      "certificateSubjectName": "WBM Tek (Mareci, William)"
+    }
+  },
+  "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
 }
