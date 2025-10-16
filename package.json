@@ -16,7 +16,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "axios": "^1.12.2",
-    "caniuse-lite": "^1.0.30001750",
+    "caniuse-lite": "^1.0.30001751",
     "electron-updater": "^6.6.2",
     "foreman": "^3.0.1",
     "react": "^19.1.1",
@@ -66,7 +66,7 @@
   "devDependencies": {
     "electron": "^38.3.0",
     "electron-builder": "^26.0.12",
-    "eslint": "^8.57.0"
+    "eslint": "^9.37.0"
   },
   "repository": {
     "type": "git",
