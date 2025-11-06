@@ -16,7 +16,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "axios": "^1.13.2",
-    "caniuse-lite": "^1.0.30001753",
+    "caniuse-lite": "^1.0.30001754",
     "electron-updater": "^6.6.2",
     "foreman": "^3.0.1",
     "react": "^19.1.1",
