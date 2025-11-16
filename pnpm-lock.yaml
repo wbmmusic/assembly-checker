@@ -36,8 +36,8 @@ importers:
         specifier: ^1.13.2
         version: 1.13.2
       caniuse-lite:
-        specifier: ^1.0.30001754
-        version: 1.0.30001754
+        specifier: ^1.0.30001755
+        version: 1.0.30001755
       electron-updater:
         specifier: ^6.6.2
         version: 6.6.2
@@ -76,8 +76,8 @@ importers:
         version: 5.1.0
     devDependencies:
       electron:
-        specifier: ^39.2.0
-        version: 39.2.0
+        specifier: ^39.2.1
+        version: 39.2.1
       electron-builder:
         specifier: ^26.0.12
         version: 26.0.12(electron-builder-squirrel-windows@26.0.12)
@@ -2364,8 +2364,8 @@ packages:
   caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
 
-  caniuse-lite@1.0.30001754:
-    resolution: {integrity: sha512-x6OeBXueoAceOmotzx3PO4Zpt4rzpeIFsSr6AAePTZxSkXiYDUmpypEl7e2+8NCd9bD7bXjqyef8CJYPC1jfxg==}
+  caniuse-lite@1.0.30001755:
+    resolution: {integrity: sha512-44V+Jm6ctPj7R52Na4TLi3Zri4dWUljJd+RDm+j8LtNCc/ihLCT+X1TzoOAkRETEWqjuLnh9581Tl80FvK7jVA==}
 
   case-sensitive-paths-webpack-plugin@2.4.0:
     resolution: {integrity: sha512-roIFONhcxog0JSSWbvVAh3OocukmSgpqOH6YpMkCvav/ySIV3JKg4Dc8vYtQjYi/UxpNE36r/9v+VqTQqgkYmw==}
@@ -2730,8 +2730,8 @@ packages:
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
-  csstype@3.2.0:
-    resolution: {integrity: sha512-si++xzRAY9iPp60roQiFta7OFbhrgvcthrhlNAGeQptSY25uJjkfUV8OArC3KLocB8JT8ohz+qgxWCmz8RhjIg==}
+  csstype@3.2.1:
+    resolution: {integrity: sha512-98XGutrXoh75MlgLihlNxAGbUuFQc7l1cqcnEZlLNKc0UrVdPndgmaDmYTDDh929VS/eqTZV0rozmhu2qqT1/g==}
 
   damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
@@ -2992,8 +2992,8 @@ packages:
     resolution: {integrity: sha512-bO3y10YikuUwUuDUQRM4KfwNkKhnpVO7IPdbsrejwN9/AABJzzTQ4GeHwyzNSrVO+tEH3/Np255a3sVZpZDjvg==}
     engines: {node: '>=8.0.0'}
 
-  electron@39.2.0:
-    resolution: {integrity: sha512-iISf3nmZYOBb2WZXETNr46Ot7Ny5nq7aTAWxkPnpaFvdVnDTk9ixK4JgC9NNctKR+VS/pXP1Ryp86mudny3sDQ==}
+  electron@39.2.1:
+    resolution: {integrity: sha512-5oSki3qzLBsJAcXl0yWOLRArkufugbXd1qBb2UNZRrrKkYiVhM8GLE+KE3P16PC8UxGxGqCCfaB3Y1TK1dUuHg==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -8810,7 +8810,7 @@ snapshots:
 
   '@types/react@19.2.2':
     dependencies:
-      csstype: 3.2.0
+      csstype: 3.2.1
 
   '@types/resolve@1.17.1':
     dependencies:
@@ -9321,7 +9321,7 @@ snapshots:
   autoprefixer@10.4.21(postcss@8.5.6):
     dependencies:
       browserslist: 4.26.3
-      caniuse-lite: 1.0.30001754
+      caniuse-lite: 1.0.30001755
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -9540,7 +9540,7 @@ snapshots:
   browserslist@4.26.3:
     dependencies:
       baseline-browser-mapping: 2.8.16
-      caniuse-lite: 1.0.30001754
+      caniuse-lite: 1.0.30001755
       electron-to-chromium: 1.5.237
       node-releases: 2.0.23
       update-browserslist-db: 1.1.3(browserslist@4.26.3)
@@ -9659,11 +9659,11 @@ snapshots:
   caniuse-api@3.0.0:
     dependencies:
       browserslist: 4.26.3
-      caniuse-lite: 1.0.30001754
+      caniuse-lite: 1.0.30001755
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
-  caniuse-lite@1.0.30001754: {}
+  caniuse-lite@1.0.30001755: {}
 
   case-sensitive-paths-webpack-plugin@2.4.0: {}
 
@@ -10017,7 +10017,7 @@ snapshots:
 
   csstype@3.1.3: {}
 
-  csstype@3.2.0: {}
+  csstype@3.2.1: {}
 
   damerau-levenshtein@1.0.8: {}
 
@@ -10315,7 +10315,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron@39.2.0:
+  electron@39.2.1:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 22.19.1
