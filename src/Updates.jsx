@@ -14,28 +14,29 @@ export default function Updates() {
 
     window.api.receive("updateAvailable", () => {
       console.log("Downloading update");
-      let tempPopupContents = { ...popupContents };
-      tempPopupContents.contents = (
-        <div>
-          A new version is being downloaded
-          <table style={{ width: "100%" }}>
-            <tbody>
-              <tr>
-                <td>
-                  <progress style={{ width: "100%" }} max={100} value="0" />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button onClick={() => setShow(false)}>close</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      );
+      setPopupContents(prev => ({
+        ...prev,
+        contents: (
+          <div>
+            A new version is being downloaded
+            <table style={{ width: "100%" }}>
+              <tbody>
+                <tr>
+                  <td>
+                    <progress style={{ width: "100%" }} max={100} value="0" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <button onClick={() => setShow(false)}>close</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ),
+      }));
 
-      setPopupContents(tempPopupContents);
       setShow(true);
     });
 
@@ -50,35 +51,36 @@ export default function Updates() {
     window.api.receive("updateDownloaded", (e, releaseInfo) => {
       console.log("Update Downloaded");
       //console.log(releaseInfo)
-      let tempPopupContents = { ...popupContents };
-      tempPopupContents.contents = (
-        <div>
-          <p>New update {"v" + releaseInfo.version} downloaded</p>
-          <table>
-            <tbody>
-              <tr>
-                <td>
-                  <button onClick={() => setPopupContents()}>
-                    Update on exit
-                  </button>
-                </td>
-                <td>
-                  <button
-                    onClick={() => {
-                      window.api.send("installUpdate");
-                      setShow(false);
-                    }}
-                  >
-                    Update and restart app now
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      );
+      setPopupContents(prev => ({
+        ...prev,
+        contents: (
+          <div>
+            <p>New update {"v" + releaseInfo.version} downloaded</p>
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    <button onClick={() => setPopupContents({ contents: [] })}>
+                      Update on exit
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => {
+                        window.api.send("installUpdate");
+                        setShow(false);
+                      }}
+                    >
+                      Update and restart app now
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ),
+      }));
 
-      setPopupContents(tempPopupContents);
       setShow(true);
     });
 
@@ -87,31 +89,32 @@ export default function Updates() {
     });
 
     window.api.receive("updateDownloadProgress", (e, progressPercent) => {
-      let tempPopupContents = { ...popupContents };
-      tempPopupContents.contents = (
-        <div>
-          A new version is being downloaded
-          <table style={{ width: "100%" }}>
-            <tbody>
-              <tr>
-                <td>
-                  <progress
-                    style={{ width: "100%" }}
-                    max="100"
-                    value={Math.round(progressPercent).toString()}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button onClick={() => setShow(false)}>hide</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      );
-      setPopupContents(tempPopupContents);
+      setPopupContents(prev => ({
+        ...prev,
+        contents: (
+          <div>
+            A new version is being downloaded
+            <table style={{ width: "100%" }}>
+              <tbody>
+                <tr>
+                  <td>
+                    <progress
+                      style={{ width: "100%" }}
+                      max="100"
+                      value={Math.round(progressPercent).toString()}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <button onClick={() => setShow(false)}>hide</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ),
+      }));
     });
 
     return () => {

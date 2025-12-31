@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -58,12 +58,12 @@ export default function Device() {
     window.api.send("chipErase");
   };
 
-  const getVersions = () => {
+  const getVersions = useCallback(() => {
     window.api
       .invoke("getFw", [{ name: location.state.folder, ver: "" }])
       .then(res => setVer(res[0].ver))
       .catch(err => console.log(err));
-  };
+  }, [location.state.folder]);
 
   useEffect(() => {
     getVersions();
@@ -78,7 +78,7 @@ export default function Device() {
       window.api.removeAllListeners("jLinkProgress");
       window.api.removeAllListeners("passFail");
     };
-  }, []);
+  }, [getVersions]);
 
   // Keep div scrolled to bottom
   useEffect(() => {

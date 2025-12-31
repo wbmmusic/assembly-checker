@@ -5,7 +5,6 @@ import Modals from "./Modals";
 
 export const TopExtras = () => {
   const [open, setOpen] = useState(false);
-  const [updatedFirmwares, setUpdatedFirmwares] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
   const handleClose = not => window.api.send("clearNotification", not);
@@ -43,11 +42,6 @@ export const TopExtras = () => {
   );
 
   useEffect(() => {
-    window.api.receive("updatedFirmware", (event, arg) => {
-      console.log("Updated Firmware", arg);
-      setUpdatedFirmwares([...updatedFirmwares, arg]);
-    });
-
     window.api.receive("notifications", (e, data) => {
       console.log("Notifications", data);
       setNotifications(data);
@@ -55,7 +49,6 @@ export const TopExtras = () => {
     });
 
     return () => {
-      window.api.removeAllListeners("updatedFirmware");
       window.api.removeAllListeners("notifications");
     };
   }, []);

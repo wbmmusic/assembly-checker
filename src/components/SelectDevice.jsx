@@ -8,21 +8,23 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 const join = window.api.join;
 
+const initialBoards = [
+  { name: "alarmpanel", ver: "" },
+  { name: "controlpanel", ver: "" },
+  { name: "cvboard", ver: "" },
+  { name: "gpiboard", ver: "" },
+  { name: "gpoboard", ver: "" },
+  { name: "midiboard", ver: "" },
+  { name: "serialboard", ver: "" },
+];
+
 export default function SelectDevice() {
   const navigate = useNavigate();
-  const [boards, setBoards] = useState([
-    { name: "alarmpanel", ver: "" },
-    { name: "controlpanel", ver: "" },
-    { name: "cvboard", ver: "" },
-    { name: "gpiboard", ver: "" },
-    { name: "gpoboard", ver: "" },
-    { name: "midiboard", ver: "" },
-    { name: "serialboard", ver: "" },
-  ]);
+  const [boards, setBoards] = useState(initialBoards);
   const [skipInitMemory, setSkipInitMemory] = useState(false);
 
   const boardNames = useMemo(
@@ -39,12 +41,12 @@ export default function SelectDevice() {
     []
   );
 
-  const getVersions = () => {
+  const getVersions = useCallback(() => {
     window.api
-      .invoke("getFw", boards)
+      .invoke("getFw", initialBoards)
       .then(res => setBoards(res))
       .catch(err => console.log(err));
-  };
+  }, []);
 
   const handleCheckForNewFirmwares = () => {
     window.api.send("checkForNewFW");
@@ -64,7 +66,7 @@ export default function SelectDevice() {
       window.api.removeAllListeners("updatedFirmware");
       window.api.removeAllListeners("refreshFW");
     };
-  }, []);
+  }, [getVersions]);
 
   return (
     <div
