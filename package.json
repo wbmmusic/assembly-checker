@@ -26,8 +26,8 @@
     "react-scripts": "^5.0.1",
     "serialport": "^13.0.0",
     "update-electron-app": "^3.1.2",
-    "wbm-usb-device": "^0.2.60",
-    "wbm-version-manager": "^0.0.69",
+    "wbm-usb-device": "^0.2.61",
+    "@wbm-tek/version-manager": "^0.0.71",
     "web-vitals": "^5.1.0"
   },
   "scripts": {
@@ -66,7 +66,7 @@
   "devDependencies": {
     "electron": "^40.6.1",
     "electron-builder": "^26.8.1",
-    "eslint": "^10.0.2"
+    "eslint": "^8.57.1"
   },
   "repository": {
     "type": "git",

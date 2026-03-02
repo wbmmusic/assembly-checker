@@ -5,8 +5,16 @@ const { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync, readFileS
 const { execFileSync, execFile } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
-const { setBase, downloadFirmware, getLines, getLine } = require('wbm-version-manager')
-setBase('http://versions.wbmtek.com/api')
+const { setBase, setAuth, setToken, downloadFirmware, getLines, getLine } = require('@wbm-tek/version-manager')
+const apiOrigin = (process.env.WBM_API_ORIGIN || process.env.WBM_SERVER_URL || 'https://api.wbmtek.com')
+    .replace(/\/$/, '')
+    .replace(/\/api$/, '')
+setBase(`${apiOrigin}/api`)
+if (process.env.WBM_API_TOKEN) {
+    setToken(process.env.WBM_API_TOKEN)
+} else if (process.env.WBM_USERNAME && process.env.WBM_PASSWORD) {
+    setAuth(process.env.WBM_USERNAME, process.env.WBM_PASSWORD)
+}
 
 const { autoUpdater } = require('electron-updater');
 const { join } = require('path');
@@ -17,6 +25,8 @@ let listenersApplied = false
 let firstReactReady = true
 
 let skipInitMemory = false
+let updateCheckInterval = null
+let fwCheckInterval = null
 
 
 // PATHS to files and folders
@@ -562,7 +572,7 @@ app.on('ready', () => {
 
 
                 // Check for new version of app every 30 minutes
-                setInterval(() => {
+                updateCheckInterval = setInterval(() => {
                     win.webContents.send('message', 'Interval Check for update')
                     autoUpdater.checkForUpdatesAndNotify()
                 }, 30 * 60 * 1000);
@@ -572,7 +582,7 @@ app.on('ready', () => {
             }
 
             checkForFwUpdates()
-            setInterval(() => {
+            fwCheckInterval = setInterval(() => {
                 checkForFwUpdates()
             }, 10 * 60 * 1000);
 
@@ -615,10 +625,25 @@ app.on('ready', () => {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit()
-    }
+    console.log('Calling stopMonitoring')
+    wbmUsbDevice.stopMonitoring()
+    console.log('stopMonitoring called')
+    if (updateCheckInterval) clearInterval(updateCheckInterval)
+    if (fwCheckInterval) clearInterval(fwCheckInterval)
+    
+    // Check for open handles
+    const { SerialPort } = require('serialport')
+    SerialPort.list().then(ports => {
+        console.log('Serial ports listed, quitting')
+        // Force exit after a short delay
+        setTimeout(() => {
+            console.log('Force exiting')
+            process.exit(0)
+        }, 100)
+    })
 })
+
+
 
 app.on('activate', () => {
     if (win === null) {

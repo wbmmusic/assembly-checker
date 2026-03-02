@@ -5,3 +5,6 @@ onlyBuiltDependencies:
   - electron
   - electron-winstaller
   - usb
+
+overrides:
+  wbm-usb-device: link:../../../node modules/wbm-usb-device
