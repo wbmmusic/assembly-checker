@@ -9,14 +9,15 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.8",
-    "@mui/material": "^7.3.8",
+    "@mui/icons-material": "^7.3.9",
+    "@mui/material": "^7.3.9",
     "@serialport/parser-byte-length": "^13.0.0",
     "@testing-library/jest-dom": "^6.9.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@wbm-tek/version-manager": "^0.0.79",
     "axios": "^1.13.6",
-    "caniuse-lite": "^1.0.30001776",
+    "caniuse-lite": "^1.0.30001777",
     "electron-updater": "^6.8.3",
     "foreman": "^3.0.1",
     "react": "^19.2.4",
@@ -27,7 +28,6 @@
     "serialport": "^13.0.0",
     "update-electron-app": "^3.1.2",
     "wbm-usb-device": "^0.2.61",
-    "@wbm-tek/version-manager": "^0.0.74",
     "web-vitals": "^5.1.0"
   },
   "scripts": {
@@ -64,9 +64,9 @@
     ]
   },
   "devDependencies": {
-    "electron": "^40.6.1",
+    "electron": "^40.8.0",
     "electron-builder": "^26.8.1",
-    "eslint": "^10.0.2"
+    "eslint": "^10.0.3"
   },
   "repository": {
     "type": "git",

@@ -9,7 +9,7 @@ const { setBase, setAuth, setToken, downloadFirmware, getLines, getLine } = requ
 const apiOrigin = (process.env.WBM_API_ORIGIN || process.env.WBM_SERVER_URL || 'https://api.wbmtek.com')
     .replace(/\/$/, '')
     .replace(/\/api$/, '')
-setBase(`${apiOrigin}/api`)
+setBase(apiOrigin)
 if (process.env.WBM_API_TOKEN) {
     setToken(process.env.WBM_API_TOKEN)
 } else if (process.env.WBM_USERNAME && process.env.WBM_PASSWORD) {
