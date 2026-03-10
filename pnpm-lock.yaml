@@ -36,8 +36,8 @@ importers:
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@wbm-tek/version-manager':
-        specifier: ^0.0.79
-        version: 0.0.79
+        specifier: ^0.0.81
+        version: 0.0.81
       axios:
         specifier: ^1.13.6
         version: 1.13.6
@@ -1835,8 +1835,8 @@ packages:
     resolution: {integrity: sha512-07ny+LHRzQXepkGg6w0mFY41fVUNBrL2Roj/++7V1txKugfjm/Ci/qSND03r2RhlJhJYMcTn9AhhSSqQp0Ysyw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@wbm-tek/version-manager@0.0.79':
-    resolution: {integrity: sha1-ZsnbOr2q5RUQIRNurM7AX3Z7qOk=, tarball: https://api.wbmtek.com/api/npm/download?id=3470e16c-d929-4326-95e9-96a18228021d}
+  '@wbm-tek/version-manager@0.0.81':
+    resolution: {integrity: sha1-+d0bhwbZfn9maYk1Fkxxb8fE4LI=}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -9101,7 +9101,7 @@ snapshots:
       '@typescript-eslint/types': 5.62.0
       eslint-visitor-keys: 3.4.3
 
-  '@wbm-tek/version-manager@0.0.79': {}
+  '@wbm-tek/version-manager@0.0.81': {}
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:

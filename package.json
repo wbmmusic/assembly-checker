@@ -15,7 +15,7 @@
     "@testing-library/jest-dom": "^6.9.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@wbm-tek/version-manager": "^0.0.79",
+    "@wbm-tek/version-manager": "^0.0.81",
     "axios": "^1.13.6",
     "caniuse-lite": "^1.0.30001777",
     "electron-updater": "^6.8.3",
