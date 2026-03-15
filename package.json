@@ -17,7 +17,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@wbm-tek/version-manager": "^0.0.81",
     "axios": "^1.13.6",
-    "caniuse-lite": "^1.0.30001778",
+    "caniuse-lite": "^1.0.30001779",
     "electron-updater": "^6.8.3",
     "foreman": "^3.0.1",
     "react": "^19.2.4",
