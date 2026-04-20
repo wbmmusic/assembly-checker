@@ -29,6 +29,23 @@ PCB Assembly Checker is a React + Electron desktop application for programming a
 - Board-specific test sequences and firmware handling are defined in `tests.js` and main process logic.
 - USB drivers and board documentation are included for reliable operation and reference.
 
+## Development
+- Dev runtime now uses `electron-vite` (renderer dev server defaults to `http://localhost:5173`).
+- Run the app in development mode:
+	- `pnpm dev`
+- Build app bundles (main, preload, renderer):
+	- `pnpm build`
+- Package installer artifacts with electron-builder:
+	- `pnpm package`
+
+## Environment Variables
+- Keep local API credentials in `.env` on your machine.
+- Use `.env.example` as the template for local setup.
+- Typical keys used by the main process:
+	- `WBM_API_TOKEN`
+	- `WBM_API_ORIGIN` or `WBM_SERVER_URL`
+	- `WBM_USERNAME` and `WBM_PASSWORD` (legacy fallback)
+
 ## Dependencies
 - React
 - Electron

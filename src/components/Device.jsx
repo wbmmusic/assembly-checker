@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router";
 import { AppBar, Button, Stack, Toolbar, Typography } from "@mui/material";
@@ -32,20 +32,16 @@ export default function Device() {
   const showIcon = () => {
     if (passFail === "pass") {
       return (
-        <Stack
-          alignItems="center"
-          direction="row"
-          style={{ color: "lightGreen" }}
-        >
+        <Stack direction="row" sx={{ alignItems: "center", color: "lightGreen" }}>
           <Typography variant="h3">PASS</Typography>
-          <CheckCircleOutlineIcon style={{ fontSize: "74px" }} />
+          <CheckCircleOutlinedIcon sx={{ fontSize: "74px" }} />
         </Stack>
       );
     } else if (passFail === "fail") {
       return (
-        <Stack alignItems="center" direction="row" style={{ color: "red" }}>
+        <Stack direction="row" sx={{ alignItems: "center", color: "red" }}>
           <Typography variant="h3">FAIL</Typography>
-          <ErrorOutlineIcon style={{ fontSize: "74px" }} />
+          <ErrorOutlinedIcon sx={{ fontSize: "74px" }} />
         </Stack>
       );
     }
@@ -108,7 +104,7 @@ export default function Device() {
               {ver}
             </Typography>
             <Button
-              style={{ marginRight: "8px" }}
+              sx={{ mr: 1 }}
               size="small"
               color="inherit"
               onClick={() => navigate("/", { replace: true })}

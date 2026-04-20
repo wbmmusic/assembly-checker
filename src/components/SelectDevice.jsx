@@ -91,10 +91,9 @@ export default function SelectDevice() {
             </Typography>
           </Box>
           <Stack
-            justifyContent="right"
             direction="row"
-            width="100%"
             spacing={1}
+            sx={{ justifyContent: "flex-end", width: "100%" }}
           >
             <Tooltip
               title={
@@ -155,10 +154,10 @@ export default function SelectDevice() {
               <Typography variant="body2">{board.ver}</Typography>
             </div>
             <Box
-              height={250}
-              width={250}
-              p={1}
-              style={{
+              sx={{
+                height: 250,
+                width: 250,
+                p: 1,
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",

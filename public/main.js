@@ -2,18 +2,26 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
 const { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync, readFileSync } = require('fs')
-const { execFileSync, execFile } = require('child_process');
+const { execFile } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
 const { setBase, setAuth, setToken, downloadFirmware, getLines, getLine } = require('@wbm-tek/version-manager')
+const bootLog = (message) => {
+    console.log(`[${new Date().toISOString()}] ${message}`)
+}
+
 const apiOrigin = (process.env.WBM_API_ORIGIN || process.env.WBM_SERVER_URL || 'https://api.wbmtek.com')
     .replace(/\/$/, '')
     .replace(/\/api$/, '')
 setBase(apiOrigin)
 if (process.env.WBM_API_TOKEN) {
     setToken(process.env.WBM_API_TOKEN)
+    bootLog('Version manager auth: using WBM_API_TOKEN')
 } else if (process.env.WBM_USERNAME && process.env.WBM_PASSWORD) {
     setAuth(process.env.WBM_USERNAME, process.env.WBM_PASSWORD)
+    bootLog('Version manager auth: using username/password')
+} else {
+    bootLog('Version manager auth: no credentials configured')
 }
 
 const { autoUpdater } = require('electron-updater');
@@ -27,6 +35,7 @@ let firstReactReady = true
 let skipInitMemory = false
 let updateCheckInterval = null
 let fwCheckInterval = null
+let shuttingDown = false
 
 
 // PATHS to files and folders
@@ -115,6 +124,8 @@ const handleLine = async (line) => {
 }
 
 const checkForFwUpdates = async () => {
+    const startTime = Date.now()
+    bootLog('Firmware update check started')
     try {
         let lines = await getLines()
         if (lines === undefined) console.log("LINES IS UNDEFINED")
@@ -122,8 +133,10 @@ const checkForFwUpdates = async () => {
         if (lineID === undefined) console.log("THE LINEID IS UNDEFINED")
         let theLine = await getLine(lineID)
         handleLine(theLine)
+        bootLog(`Firmware update check completed in ${Date.now() - startTime}ms`)
     } catch (error) {
         console.log(error)
+        bootLog(`Firmware update check failed in ${Date.now() - startTime}ms`)
     }
 
 }
@@ -440,6 +453,7 @@ const chipErase = async () => {
 }
 
 function createWindow() {
+    bootLog('Creating BrowserWindow')
     // Create the browser window.
     win = new BrowserWindow({
         width: 900,
@@ -454,18 +468,97 @@ function createWindow() {
         title: 'WBM Tek PCB Assembly Checker --- v' + app.getVersion()
     })
 
-    const startUrl = process.env.ELECTRON_START_URL || url.format({
+    const startUrl = process.env.ELECTRON_RENDERER_URL || process.env.ELECTRON_START_URL || url.format({
         pathname: path.join(__dirname, '/../build/index.html'),
         protocol: 'file:',
         slashes: true
     });
+    bootLog(`Loading renderer URL: ${startUrl}`)
     win.loadURL(startUrl);
     //win.maximize()
 
     // Emitted when the window is closed.
     win.on('closed', () => win = null)
+    win.on('close', () => bootLog('Window close requested'))
 
-    win.on('ready-to-show', () => win.show())
+    win.on('ready-to-show', () => {
+        bootLog('Window ready-to-show')
+        win.show()
+    })
+}
+
+const shutdownApp = () => {
+    if (shuttingDown) return
+    shuttingDown = true
+    bootLog('Shutdown started')
+
+    if (updateCheckInterval) {
+        clearInterval(updateCheckInterval)
+        updateCheckInterval = null
+    }
+    if (fwCheckInterval) {
+        clearInterval(fwCheckInterval)
+        fwCheckInterval = null
+    }
+
+    if (typeof wbmUsbDevice.stopMonitoring === 'function') {
+        try {
+            wbmUsbDevice.stopMonitoring()
+            bootLog('USB monitoring stopped')
+        } catch (error) {
+            bootLog(`Failed to stop USB monitoring: ${error.message}`)
+        }
+    } else {
+        bootLog('stopMonitoring not available on this wbm-usb-device version')
+    }
+
+    const forceExitTimer = setTimeout(() => {
+        bootLog('Shutdown timeout reached, forcing process exit')
+        process.exit(0)
+    }, 3000)
+
+    try {
+        const { SerialPort } = require('serialport')
+        SerialPort.list()
+            .then(() => bootLog('Serial ports listed during shutdown'))
+            .catch((error) => bootLog(`Serial port listing failed during shutdown: ${error.message}`))
+            .finally(() => {
+                clearTimeout(forceExitTimer)
+                bootLog('Exiting app')
+                app.exit(0)
+            })
+    } catch (error) {
+        clearTimeout(forceExitTimer)
+        bootLog(`Serialport module unavailable during shutdown: ${error.message}`)
+        app.exit(0)
+    }
+}
+
+const checkAndInstallDriverAsync = () => {
+    const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
+
+    if (existsSync(drvChk)) {
+        win.webContents.send('message', 'File Exists')
+        bootLog('J-Link driver already installed')
+        return
+    }
+
+    bootLog('J-Link driver missing; starting async driver install')
+    execFile(path.join(workingDirectory, 'USBDriver', 'InstDrivers.exe'), [], { shell: true }, (error, stdout, stderr) => {
+        if (error) {
+            console.error(error)
+            win.webContents.send('message', error.toString())
+            if (stderr) win.webContents.send('message', stderr.toString())
+            bootLog(`Driver install failed: ${error.message}`)
+            return
+        }
+
+        if (stdout) {
+            console.log(stdout)
+            win.webContents.send('message', stdout.toString())
+        }
+        bootLog('Driver install completed')
+    })
 }
 
 const createListeners = () => {
@@ -500,22 +593,7 @@ const createListeners = () => {
 
     win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
 
-    /////// CHECK FOR DRIVER
-    const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
-    try {
-        if (existsSync(drvChk)) {
-            //console.log('File Exists')
-            win.webContents.send('message', 'File Exists')
-        } else {
-            const driver = execFileSync(path.join(workingDirectory, "USBDriver", "InstDrivers.exe"), [], { shell: true }).toString()
-            console.log(driver)
-            win.webContents.send('message', driver.toString())
-        }
-    } catch (err) {
-        console.error(err)
-        win.webContents.send('message', err.toString())
-        console.log("In Error")
-    }
+    setTimeout(checkAndInstallDriverAsync, 0)
 }
 
 ////////  SINGLE INSTANCE //////////
@@ -534,20 +612,24 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
 
 // Create myWindow, load the rest of the app, etc...
 app.on('ready', () => {
+    bootLog('App ready event fired')
 
     //log("-APP IS READY");
 
     ipcMain.on('reactIsReady', () => {
         if (firstReactReady) {
             firstReactReady = false
-            console.log('React Is Ready')
+            bootLog('React is ready (first event)')
+            win.webContents.send('message', 'React Is Ready')
 
 
             if (listenersApplied === false) {
                 listenersApplied = true
                 createListeners()
+                bootLog('Main IPC listeners created')
 
                 wbmUsbDevice.startMonitoring()
+                bootLog('USB monitoring started')
 
                 wbmUsbDevice.on('progress', (list) => {
                     console.log('progress', list)
@@ -577,16 +659,21 @@ app.on('ready', () => {
                     autoUpdater.checkForUpdatesAndNotify()
                 }, 30 * 60 * 1000);
 
-                // check for new version of app on boot
-                autoUpdater.checkForUpdatesAndNotify()
+                // Defer first update check so UI can stabilize before network work.
+                setTimeout(() => {
+                    bootLog('Starting deferred updater check')
+                    autoUpdater.checkForUpdatesAndNotify()
+                }, 5000)
             }
 
-            checkForFwUpdates()
+            // Defer initial firmware check so first paint and IPC wiring finish first.
+            setTimeout(() => {
+                checkForFwUpdates()
+            }, 2000)
             fwCheckInterval = setInterval(() => {
                 checkForFwUpdates()
             }, 10 * 60 * 1000);
-
-            win.webContents.send('message', 'React Is Ready')
+            bootLog('Firmware update interval started (10 minutes)')
         }
     })
 
@@ -625,22 +712,7 @@ app.on('ready', () => {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-    console.log('Calling stopMonitoring')
-    wbmUsbDevice.stopMonitoring()
-    console.log('stopMonitoring called')
-    if (updateCheckInterval) clearInterval(updateCheckInterval)
-    if (fwCheckInterval) clearInterval(fwCheckInterval)
-    
-    // Check for open handles
-    const { SerialPort } = require('serialport')
-    SerialPort.list().then(ports => {
-        console.log('Serial ports listed, quitting')
-        // Force exit after a short delay
-        setTimeout(() => {
-            console.log('Force exiting')
-            process.exit(0)
-        }, 100)
-    })
+    shutdownApp()
 })
 
 

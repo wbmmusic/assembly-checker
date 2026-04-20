@@ -4,7 +4,7 @@
   "author": "Marece Williams",
   "description": "App for programming and testing io-manager PCBs",
   "homepage": "./",
-  "main": "public/main.js",
+  "main": "build/main.js",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -27,18 +27,21 @@
     "react-scripts": "^5.0.1",
     "serialport": "^13.0.0",
     "update-electron-app": "^3.1.2",
-    "wbm-usb-device": "^0.2.61",
+    "wbm-usb-device": "^0.2.60",
     "web-vitals": "^5.2.0"
   },
   "scripts": {
-    "dev": "nf start",
+    "dev": "electron-vite dev",
+    "start": "electron-vite dev",
+    "build": "electron-vite build",
+    "build:renderer": "vite build",
+    "preview": "vite preview",
     "electron": "electron .",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "package": "electron-builder build -c.extraMetadata.main=build/main.js --publish never",
-    "deploy": "electron-builder build -c.extraMetadata.main=build/main.js --publish always",
+    "package": "electron-builder build --publish never",
+    "deploy": "electron-builder build --publish always",
     "upload": "pnpm build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && pnpm deploy ",
     "try": "pnpm build && pnpm package ",
     "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
@@ -64,9 +67,13 @@
     ]
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
     "electron": "^41.2.1",
     "electron-builder": "^26.8.1",
-    "eslint": "^10.2.1"
+    "electron-vite": "^5.0.0",
+    "eslint": "^8.57.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.9"
   },
   "repository": {
     "type": "git",
@@ -79,8 +86,7 @@
     "extends": null,
     "npmRebuild": false,
     "files": [
-      "build/**/*",
-      "electron/*"
+      "build/**/*"
     ],
     "win": {
       "icon": "public/favicon.ico",
