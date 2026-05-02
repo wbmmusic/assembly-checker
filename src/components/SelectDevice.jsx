@@ -53,14 +53,18 @@ export default function SelectDevice() {
   };
 
   const handleToggleInitMemory = () => {
-    window.api.invoke("toggleInitMemory").then(res => setSkipInitMemory(res));
+    window.api.invoke("toggleInitMemory").then(res => {
+      setSkipInitMemory(res);
+      localStorage.setItem("skipInitMemory", res ? "true" : "false");
+    });
   };
 
   useEffect(() => {
     getVersions();
     window.api.receive("updatedFirmware", () => getVersions());
     window.api.receive("refreshFW", () => getVersions());
-    window.api.invoke("getInitMemory").then(res => setSkipInitMemory(res));
+    const stored = localStorage.getItem("skipInitMemory") === "true";
+    window.api.invoke("setInitMemory", stored).then(res => setSkipInitMemory(res));
 
     return () => {
       window.api.removeAllListeners("updatedFirmware");
@@ -98,18 +102,18 @@ export default function SelectDevice() {
             <Tooltip
               title={
                 skipInitMemory
-                  ? "Will not change settings"
-                  : "Will initialize memory on startup. Default IP etc"
+                  ? "Memory will be preserved (no INITMEMORY command)"
+                  : "Memory will be initialized on test (default IPs etc will be reset)"
               }
             >
               <Button
-                variant={skipInitMemory ? "contained" : "outlined"}
+                variant={skipInitMemory ? "outlined" : "contained"}
                 size="small"
-                color={skipInitMemory ? "error" : "inherit"}
+                color={skipInitMemory ? "inherit" : "error"}
                 onClick={handleToggleInitMemory}
-                startIcon={skipInitMemory ? <WarningIcon /> : null}
+                startIcon={skipInitMemory ? null : <WarningIcon />}
               >
-                skip init memory
+                {skipInitMemory ? "Preserve Memory" : "Init Memory"}
               </Button>
             </Tooltip>
             <Button

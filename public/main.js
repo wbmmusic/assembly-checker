@@ -586,6 +586,11 @@ const createListeners = () => {
 
     ipcMain.handle('getInitMemory', () => skipInitMemory)
 
+    ipcMain.handle('setInitMemory', (event, value) => {
+        skipInitMemory = !!value
+        return skipInitMemory
+    })
+
     ipcMain.handle('toggleInitMemory', () => {
         skipInitMemory = !skipInitMemory
         return skipInitMemory
