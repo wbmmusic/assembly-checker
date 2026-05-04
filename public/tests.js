@@ -196,7 +196,6 @@ const startTest = async (testListObj, skipInit, preferredPath) => {
     return new Promise((resolve, reject) => {
         const maxAttempts = 12
         const retryDelayMs = 250
-        const isControlPanel = testListObj === controlPanelTests
         let attempts = 0
 
         const openPortAndRun = (path, portAttempt = 0) => {
@@ -221,8 +220,7 @@ const startTest = async (testListObj, skipInit, preferredPath) => {
             })
 
             port.on('open', async () => {
-                // Longer settle on retries — firmware CDC stack may not be ready yet after fresh flash
-                const settleMs = portAttempt === 0 ? (isControlPanel ? 1700 : 1200) : 1500
+                const settleMs = 600
                 await new Promise(r => setTimeout(r, settleMs))
                 try {
                     let results = await runTests(testListObj, skipInit)
