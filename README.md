@@ -14,12 +14,20 @@ PCB Assembly Checker is a React + Electron desktop application for programming a
 - **Preload Script (`public/preload.js`)**: Exposes safe APIs to the frontend via Electron contextBridge for IPC.
 - **React Frontend (`src/`)**: UI for device selection, test status, and progress display. Key components:
 	- `App.jsx`: Entry point, waits for backend readiness.
-	- `Device.jsx`: Manages device programming and test status.
+	- `Device.jsx`: Manages device programming and test status, including firmware version dropdown.
 	- `SelectDevice.jsx`: Board selection and firmware version display.
 	- `Modals.jsx`: Progress and status dialogs.
 	- `Updates.jsx`: Handles update notifications.
 	- `TopExtras.jsx`: Notification and firmware update alerts.
 - **Test Logic (`public/tests.js`)**: Defines automated test sequences for each board type and runs tests via serial communication.
+
+## Firmware Version Management
+- On startup the app fetches firmware metadata for all device types from the API (`@wbm-tek/version-manager`) and caches it locally.
+- The `Device` screen shows a dropdown of all available firmware versions sourced from the API plus any locally cached `.bin` files.
+- The currently published version is pre-selected by default; a different version can be chosen before programming.
+- Firmware binaries are **lazy-downloaded** — only fetched when a version is actually selected for programming, not at boot time.
+- A **"Local firmware file…"** option in the dropdown opens a file picker for one-off custom `.bin` files.
+- After a successful flash the firmware catalog refreshes so the dropdown reflects the latest state.
 
 ## Developer Notes
 - All device programming and testing is fully automated once a device is connected and a board type is selected.
@@ -28,6 +36,9 @@ PCB Assembly Checker is a React + Electron desktop application for programming a
 - Failure modes (e.g., device not found, firmware mismatch, test failure) should be handled and reported in the UI.
 - Board-specific test sequences and firmware handling are defined in `tests.js` and main process logic.
 - USB drivers and board documentation are included for reliable operation and reference.
+- All active J-Link processes are tracked and forcibly terminated (`taskkill /F /T`) when the app closes, preventing orphaned programmer processes.
+- The active serial port is closed gracefully on app shutdown to release the COM port immediately.
+- After a J-Link flash the device re-enumerates; the serial port open is automatically retried (up to 12 × 250 ms) to handle the brief window where the COM port is not yet ready.
 
 ## Development
 - Dev runtime now uses `electron-vite` (renderer dev server defaults to `http://localhost:5173`).
