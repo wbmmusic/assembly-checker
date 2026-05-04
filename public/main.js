@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const url = require('url')
 const { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync, readFileSync } = require('fs')
@@ -36,6 +36,9 @@ let skipInitMemory = false
 let updateCheckInterval = null
 let fwCheckInterval = null
 let shuttingDown = false
+const activeJLinkProcesses = new Set()
+let firmwareCatalogByDevice = {}
+let firmwareCatalogUpdatedAt = null
 
 
 // PATHS to files and folders
@@ -58,6 +61,117 @@ const addNotification = (data) => {
 const clearAllNotifications = () => {
     notifications = []
     win.webContents.send('notifications', notifications)
+}
+
+const extractVersionFromFirmwareName = (fileName = '') => {
+    const withoutExt = fileName.replace(/\.bin$/i, '')
+    const parsed = withoutExt.replace(/^(.*)FW/i, '')
+    return parsed || withoutExt
+}
+
+const getLocalFirmwareEntries = (folder) => {
+    const folderPath = join(pathToDevices, folder)
+    if (!existsSync(folderPath)) return []
+
+    return readdirSync(folderPath)
+        .filter((file) => file.toLowerCase().endsWith('.bin'))
+        .map((file) => ({
+            name: file,
+            version: extractVersionFromFirmwareName(file),
+            isLocal: true,
+            localPath: join(folderPath, file)
+        }))
+}
+
+const updateFirmwareCatalogCache = (line) => {
+    if (!line || !Array.isArray(line.devices)) return
+
+    const nextCatalog = {}
+    line.devices.forEach((device) => {
+        if (!device || device.name === 'Brain' || !device.path) return
+        const apiFirmware = Array.isArray(device.firmware) ? device.firmware : []
+        nextCatalog[device.path] = {
+            current: device.current,
+            versions: apiFirmware.map((fw) => ({
+                id: fw.id,
+                name: fw.name,
+                version: fw.version,
+                isLocal: existsSync(join(pathToDevices, device.path, fw.name))
+            }))
+        }
+    })
+
+    firmwareCatalogByDevice = nextCatalog
+    firmwareCatalogUpdatedAt = Date.now()
+    bootLog(`Firmware catalog cache updated for ${Object.keys(nextCatalog).length} device(s)`)
+}
+
+const getFirmwareOptionsForDevice = (folder) => {
+    const cached = firmwareCatalogByDevice[folder] || { current: '???', versions: [] }
+    const localEntries = getLocalFirmwareEntries(folder)
+    const optionsByVersion = new Map()
+
+    cached.versions.forEach((entry) => {
+        optionsByVersion.set(entry.version, {
+            version: entry.version,
+            id: entry.id,
+            name: entry.name,
+            isLocal: existsSync(join(pathToDevices, folder, entry.name))
+        })
+    })
+
+    localEntries.forEach((entry) => {
+        if (optionsByVersion.has(entry.version)) {
+            const existing = optionsByVersion.get(entry.version)
+            existing.isLocal = true
+            existing.localPath = existing.localPath || entry.localPath
+            optionsByVersion.set(entry.version, existing)
+        } else {
+            optionsByVersion.set(entry.version, {
+                version: entry.version,
+                name: entry.name,
+                isLocal: true,
+                localPath: entry.localPath
+            })
+        }
+    })
+
+    const options = [...optionsByVersion.values()].sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true, sensitivity: 'base' }))
+    const fallbackCurrent = options.length > 0 ? options[0].version : 'no fw'
+    const currentVersion = cached.current && cached.current !== '???' ? cached.current : fallbackCurrent
+
+    return {
+        folder,
+        currentVersion,
+        options,
+        updatedAt: firmwareCatalogUpdatedAt
+    }
+}
+
+const ensureFirmwarePathForVersion = async (folder, version) => {
+    const localEntries = getLocalFirmwareEntries(folder)
+    const localMatch = localEntries.find((entry) => entry.version === version)
+    if (localMatch) return localMatch.localPath
+
+    const cached = firmwareCatalogByDevice[folder]
+    if (!cached || !Array.isArray(cached.versions)) {
+        throw new Error(`No firmware metadata available for ${folder}`)
+    }
+
+    const target = cached.versions.find((entry) => entry.version === version)
+    if (!target) {
+        throw new Error(`Firmware version ${version} not found for ${folder}`)
+    }
+
+    const outputPath = join(pathToDevices, folder, target.name)
+    if (!existsSync(outputPath)) {
+        win.webContents.send('jLinkProgress', `Downloading firmware ${version}`)
+        await downloadFirmware(target.id, outputPath)
+        win.webContents.send('jLinkProgress', `Downloaded firmware ${version}`)
+        target.isLocal = true
+    }
+
+    return outputPath
 }
 
 /**
@@ -132,7 +246,8 @@ const checkForFwUpdates = async () => {
         let lineID = lines.find(line => line.path === 'iomanager').id
         if (lineID === undefined) console.log("THE LINEID IS UNDEFINED")
         let theLine = await getLine(lineID)
-        handleLine(theLine)
+        updateFirmwareCatalogCache(theLine)
+        await handleLine(theLine)
         bootLog(`Firmware update check completed in ${Date.now() - startTime}ms`)
     } catch (error) {
         console.log(error)
@@ -180,6 +295,7 @@ const getProgrammer = async () => {
         writeFileSync(pathToFile, 'ShowEmuList USB\r\nexit', 'utf8')
 
         let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+        activeJLinkProcesses.add(child)
 
         child.stdout.on('data', (data) => {
             let theLine = data.toString()
@@ -189,6 +305,7 @@ const getProgrammer = async () => {
         })
 
         child.on('close', (code) => {
+            activeJLinkProcesses.delete(child)
             if (code === 0 && programmer !== false) {
                 resolve(programmer)
             } else {
@@ -246,6 +363,7 @@ const loadFirmware = (filePath) => {
         writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nUSB ' + programmerSerial + '\r\nrnh\r\nexit', 'utf8')
 
         let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
+        activeJLinkProcesses.add(child)
 
         child.stdout.on('data', (data) => {
             //win.webContents.send('jLinkProgress', data)
@@ -260,7 +378,7 @@ const loadFirmware = (filePath) => {
         })
 
         child.on('close', (code) => {
-
+            activeJLinkProcesses.delete(child)
             if (out === "Programming Successful") {
                 win.webContents.send('jLinkProgress', out)
                 resolve(out)
@@ -272,6 +390,7 @@ const loadFirmware = (filePath) => {
         })
 
         child.on('error', (error) => {
+            activeJLinkProcesses.delete(child)
             console.log('Error in J-LINK programming')
             reject(new Error('Error in J-LINK programming'))
         })
@@ -316,21 +435,39 @@ const waitForDevice = async (device) => {
             break;
     }
 
+    const findDevicePath = (list) => {
+        if (!Array.isArray(list)) return null
+        const dev = list.find((d) => {
+            const model = (d?.Model || '').toString().trim().toLowerCase()
+            return model === waitFor.toLowerCase()
+        })
+        return dev?.path || null
+    }
+
     return new Promise((resolve, reject) => {
         win.webContents.send('jLinkProgress', "Waiting to detect Device")
+
+        let settled = false
+        const onDevList = (list) => {
+            const path = findDevicePath(list)
+            if (path) exit(path)
+        }
+
         const exit = (passFail) => {
+            if (settled) return
+            settled = true
             clearTimeout(waitForDeviceTimer)
+            wbmUsbDevice.removeListener('devList', onDevList)
             if (passFail === 'fail') reject(['Timed out waiting for device'])
             else resolve(passFail)
         }
 
-        let waitForDeviceTimer = setTimeout(() => exit('fail'), 3000);
+        let waitForDeviceTimer = setTimeout(() => exit('fail'), 10000);
+        wbmUsbDevice.on('devList', onDevList)
 
-        wbmUsbDevice.on('devList', (list) => {
-            const devIdx = list.findIndex(dev => dev.Model === waitFor)
-            if (devIdx >= 0) exit(list[devIdx].path)
-        })
-
+        // Resolve immediately if monitor already has the target device (no new attach event required).
+        const existingPath = findDevicePath(wbmUsbDevice.wbmDevices)
+        if (existingPath) exit(existingPath)
     })
 }
 
@@ -355,17 +492,21 @@ const getFwFile = async (folder) => {
  * Loads firmware, waits for device connection, runs automated tests, and reports results.
  * @param {string} folder - Device folder name.
  */
-const programAndTest = async (folder) => {
+const programAndTest = async (folder, firmwarePath = null) => {
     console.log('Program and test', folder)
 
     let deviceIsOnPort
 
     try {
-        //Get File Name of current firmware for this device
-        let file = await getFwFile(folder)
+        let selectedFirmwarePath = firmwarePath
+        if (!selectedFirmwarePath) {
+            // Get file name of current firmware for this device
+            let file = await getFwFile(folder)
+            selectedFirmwarePath = join(pathToDevices, folder, file)
+        }
 
-        // Load BootLoader and Testing Firmware
-        await loadFirmware(join(pathToDevices, folder, file))
+        // Load BootLoader and testing firmware
+        await loadFirmware(selectedFirmwarePath)
         console.log("Firmware Loaded")
 
         // Wait for programmed device to be detected
@@ -377,7 +518,7 @@ const programAndTest = async (folder) => {
         // Run Tests on device
         console.log("Run Tests")
         win.webContents.send('jLinkProgress', 'TESTING')
-        let testResults = await tests.runTests(folder, deviceIsOnPort, skipInitMemory)
+        let testResults = await tests.runTests(folder, skipInitMemory, deviceIsOnPort)
         testResults.forEach(result => {
             console.log(result)
             win.webContents.send('jLinkProgress', result)
@@ -391,7 +532,10 @@ const programAndTest = async (folder) => {
     } catch (error) {
         console.log(error)
         win.webContents.send('passFail', 'fail')
-        error.forEach(msg => win.webContents.send('jLinkProgress', msg))
+        const messages = Array.isArray(error)
+            ? error
+            : [error?.message || String(error)]
+        messages.forEach(msg => win.webContents.send('jLinkProgress', msg))
         win.webContents.send('programmingComplete')
         throw error
     }
@@ -431,7 +575,7 @@ const chipErase = async () => {
         console.log("Execute erase command")
         let outErr = 'CHIP ERASE ERROR'
         let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
-
+        activeJLinkProcesses.add(child)
 
         child.stdout.on('data', (data) => {
             //win.webContents.send('jLinkProgress', data)
@@ -440,6 +584,7 @@ const chipErase = async () => {
         })
 
         child.on('close', (code) => {
+            activeJLinkProcesses.delete(child)
             console.log("close Erase")
             if (code === 0) {
                 resolve('Chip erase complete')
@@ -492,6 +637,27 @@ const shutdownApp = () => {
     shuttingDown = true
     bootLog('Shutdown started')
 
+    if (activeJLinkProcesses.size > 0) {
+        bootLog(`Killing ${activeJLinkProcesses.size} active JLink process(es)`)
+        for (const jlinkChild of activeJLinkProcesses) {
+            try {
+                jlinkChild.kill()
+                if (jlinkChild.pid) {
+                    require('child_process').execSync(`taskkill /PID ${jlinkChild.pid} /F /T`, { stdio: 'ignore' })
+                }
+            } catch (e) { /* already exited */ }
+        }
+        activeJLinkProcesses.clear()
+    }
+
+    try {
+        const tests = require('./tests')
+        if (typeof tests.closePort === 'function') {
+            tests.closePort().catch(() => {})
+            bootLog('Serial port closed')
+        }
+    } catch (e) { /* tests not loaded */ }
+
     if (updateCheckInterval) {
         clearInterval(updateCheckInterval)
         updateCheckInterval = null
@@ -517,21 +683,9 @@ const shutdownApp = () => {
         process.exit(0)
     }, 3000)
 
-    try {
-        const { SerialPort } = require('serialport')
-        SerialPort.list()
-            .then(() => bootLog('Serial ports listed during shutdown'))
-            .catch((error) => bootLog(`Serial port listing failed during shutdown: ${error.message}`))
-            .finally(() => {
-                clearTimeout(forceExitTimer)
-                bootLog('Exiting app')
-                app.exit(0)
-            })
-    } catch (error) {
-        clearTimeout(forceExitTimer)
-        bootLog(`Serialport module unavailable during shutdown: ${error.message}`)
-        app.exit(0)
-    }
+    clearTimeout(forceExitTimer)
+    bootLog('Exiting app')
+    app.exit(0)
 }
 
 const checkAndInstallDriverAsync = () => {
@@ -582,7 +736,58 @@ const createListeners = () => {
         }
     })
 
-    ipcMain.on('programAndTest', (e, folder) => programAndTest(folder))
+    ipcMain.on('programAndTest', (e, folder) => {
+        programAndTest(folder).catch((error) => {
+            console.error('programAndTest failed:', error)
+        })
+    })
+
+    ipcMain.on('programAndTestSelection', (e, payload) => {
+        const folder = payload?.folder
+        if (!folder) {
+            win.webContents.send('jLinkProgress', 'No board selected for programming')
+            return
+        }
+
+        const runWithSelection = async () => {
+            if (payload?.type === 'local') {
+                if (!payload.filePath || !existsSync(payload.filePath)) {
+                    throw new Error('Selected local firmware file was not found')
+                }
+                return payload.filePath
+            }
+
+            if (payload?.type === 'version' && payload.version) {
+                return ensureFirmwarePathForVersion(folder, payload.version)
+            }
+
+            return null
+        }
+
+        runWithSelection()
+            .then((firmwarePath) => programAndTest(folder, firmwarePath))
+            .catch((error) => {
+                const errorMessage = error?.message || String(error)
+                win.webContents.send('jLinkProgress', errorMessage)
+                win.webContents.send('programmingComplete')
+                win.webContents.send('passFail', 'fail')
+                console.error('programAndTestSelection failed:', error)
+            })
+    })
+
+    ipcMain.handle('chooseLocalFirmware', async () => {
+        const result = await dialog.showOpenDialog(win, {
+            title: 'Choose Local Firmware',
+            properties: ['openFile'],
+            filters: [{ name: 'Firmware', extensions: ['bin'] }]
+        })
+
+        if (result.canceled || result.filePaths.length === 0) {
+            return { canceled: true }
+        }
+
+        return { canceled: false, filePath: result.filePaths[0] }
+    })
 
     ipcMain.handle('getInitMemory', () => skipInitMemory)
 
@@ -697,6 +902,10 @@ app.on('ready', () => {
             }
         }
         return boards
+    })
+
+    ipcMain.handle('getFwVersions', (e, folder) => {
+        return getFirmwareOptionsForDevice(folder)
     })
 
     ipcMain.on('checkForNewFW', () => checkForFwUpdates())
