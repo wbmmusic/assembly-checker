@@ -1,0 +1,3 @@
+provider: generic
+url: https://api.wbmtek.com/api/releases/download
+updaterCacheDirName: pcb-assebmly-checker-updater

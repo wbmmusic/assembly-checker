@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld(
             func(event, ...args)
         })
     },
-    invoke: (a, b) => ipcRenderer.invoke(a, b),
+    invoke: (a, ...args) => ipcRenderer.invoke(a, ...args),
     removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
     join: join
 })

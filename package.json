@@ -3,7 +3,6 @@
   "version": "0.1.25",
   "author": "Marece Williams",
   "description": "App for programming and testing io-manager PCBs",
-  "homepage": "./",
   "main": "build/main.js",
   "private": true,
   "dependencies": {
@@ -12,20 +11,13 @@
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
     "@serialport/parser-byte-length": "^13.0.0",
-    "@testing-library/jest-dom": "^6.9.0",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
     "@wbm-tek/version-manager": "^0.0.81",
-    "axios": "^1.16.0",
-    "caniuse-lite": "^1.0.30001791",
     "electron-updater": "^6.8.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router": "^7.14.2",
     "react-router-dom": "^7.14.2",
-    "react-scripts": "^5.0.1",
     "serialport": "^13.0.0",
-    "update-electron-app": "^3.2.0",
     "wbm-usb-device": "^0.2.60",
     "web-vitals": "^5.2.0"
   },
@@ -33,37 +25,15 @@
     "dev": "electron-vite dev",
     "start": "electron-vite dev",
     "build": "electron-vite build",
-    "build:renderer": "vite build",
-    "preview": "vite preview",
     "electron": "electron .",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "package": "electron-builder build --publish never",
-    "deploy": "electron-builder build --publish always",
+    "package": "SET USE_PNPM=true && SET CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --dir",
+    "dist": "pnpm run build && SET USE_PNPM=true && electron-builder",
+    "deploy": "pnpm run build && SET USE_PNPM=true && electron-builder --publish always",
     "upload": "pnpm build && git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master && pnpm deploy ",
-    "try": "pnpm build && pnpm package ",
+    "try": "pnpm dist",
     "backup": "git add . && git commit -m %NPM_PACKAGE_VERSION% && git push origin master",
     "refresh": "pnpm upgrade --latest",
     "postinstall": "electron-builder install-app-deps"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.1",
@@ -83,24 +53,78 @@
     "appId": "com.electron.pcbchk",
     "copyright": "WBM Tek",
     "extends": null,
+    "asar": true,
     "npmRebuild": false,
+    "nodeGypRebuild": false,
+    "directories": {
+      "output": "dist",
+      "buildResources": "public"
+    },
     "files": [
-      "build/**/*"
+      "build/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "build/main.js"
+    },
+    "extraResources": [
+      {
+        "from": "public/favicon.ico",
+        "to": "favicon.ico"
+      },
+      {
+        "from": "app-update.yml",
+        "to": "app-update.yml"
+      },
+      "public/JLink.exe",
+      "public/JLinkARM.dll",
+      {
+        "from": "public/firmware",
+        "to": "public/firmware"
+      },
+      {
+        "from": "public/USBDriver",
+        "to": "public/USBDriver"
+      },
+      {
+        "from": "public/boardfiles",
+        "to": "public/boardfiles"
+      }
     ],
     "win": {
-      "icon": "public/favicon.ico",
-      "extraResources": [
-        "public/JLink.exe",
-        "public/JLinkARM.dll",
-        "public/firmware/*",
-        "public/USBDriver/**/*",
-        "public/boardfiles/**/*"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
-      "certificateSubjectName": "WBM Tek (Mareci, William)"
+      "icon": "public/favicon.ico",
+      "artifactName": "${productName}-${version}-Setup.${ext}",
+      "signtoolOptions": {
+        "signingHashAlgorithms": [
+          "sha256"
+        ],
+        "certificateSha1": "b281b2c2413406e54ac73f3f3b204121b4a66e64",
+        "rfc3161TimeStampServer": "http://timestamp.digicert.com"
+      }
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PCB Assembly Checker",
+      "perMachine": false,
+      "runAfterFinish": true
     },
     "publish": {
-      "provider": "generic",
-      "url": "https://api.wbmtek.com/api/releases/download"
+      "provider": "s3",
+      "bucket": "wbm-tek-version-manager-bucket",
+      "region": "us-east-2",
+      "path": "releases/pcb-assembly-checker",
+      "acl": null
     }
   },
   "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"

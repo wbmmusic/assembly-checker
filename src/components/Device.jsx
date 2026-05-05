@@ -3,8 +3,19 @@ import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router";
-import { AppBar, Button, Stack, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Button,
+  FormControl,
+  MenuItem,
+  Select,
+  Stack,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+
 const join = window.api.join;
+const LOCAL_FIRMWARE_OPTION = "__LOCAL_FIRMWARE__";
 
 export default function Device() {
   const navigate = useNavigate();
@@ -13,19 +24,44 @@ export default function Device() {
   const termRef = useRef(null);
   const [passFail, setPassFail] = useState(null);
   const [ver, setVer] = useState("");
+  const [versionOptions, setVersionOptions] = useState([]);
+  const [selectedVersion, setSelectedVersion] = useState("");
+  const [uiMessage, setUiMessage] = useState("");
 
-  // console.log("DEVICE", location);
-
-  const program = () => {
-    console.log("Program");
+  const program = async () => {
     setPassFail(null);
     setTermText([]);
-    window.api.send("programAndTest", location.state.folder);
+    setUiMessage("");
+
+    if (selectedVersion === LOCAL_FIRMWARE_OPTION) {
+      try {
+        const result = await window.api.invoke("chooseLocalFirmware");
+        if (result?.canceled) {
+          setUiMessage("Local firmware selection cancelled.");
+          return;
+        }
+
+        window.api.send("programAndTestSelection", {
+          folder: location.state.folder,
+          type: "local",
+          filePath: result.filePath,
+        });
+      } catch (error) {
+        setUiMessage(error?.message || "Unable to choose local firmware file.");
+      }
+      return;
+    }
+
+    window.api.send("programAndTestSelection", {
+      folder: location.state.folder,
+      type: "version",
+      version: selectedVersion || ver,
+    });
   };
 
   const makeTerminalBack = () => {
     if (passFail === "pass") return "lightGreen";
-    else if (passFail === "fail") return "salmon";
+    if (passFail === "fail") return "salmon";
     return;
   };
 
@@ -37,7 +73,9 @@ export default function Device() {
           <CheckCircleOutlinedIcon sx={{ fontSize: "74px" }} />
         </Stack>
       );
-    } else if (passFail === "fail") {
+    }
+
+    if (passFail === "fail") {
       return (
         <Stack direction="row" sx={{ alignItems: "center", color: "red" }}>
           <Typography variant="h3">FAIL</Typography>
@@ -45,10 +83,11 @@ export default function Device() {
         </Stack>
       );
     }
+
+    return null;
   };
 
   const chipErase = () => {
-    // console.log("Top Chip Erase");
     setPassFail(null);
     setTermText([]);
     window.api.send("chipErase");
@@ -56,29 +95,40 @@ export default function Device() {
 
   const getVersions = useCallback(() => {
     window.api
-      .invoke("getFw", [{ name: location.state.folder, ver: "" }])
-      .then(res => setVer(res[0].ver))
-      .catch(err => console.log(err));
+      .invoke("getFwVersions", location.state.folder)
+      .then(res => {
+        const nextOptions = Array.isArray(res?.options) ? res.options : [];
+        const currentVersion = res?.currentVersion || "no fw";
+        setVersionOptions(nextOptions);
+        setVer(currentVersion);
+        setSelectedVersion(currentVersion);
+      })
+      .catch(error => {
+        setUiMessage(error?.message || "Unable to load firmware versions.");
+      });
   }, [location.state.folder]);
 
   useEffect(() => {
     getVersions();
+
     window.api.receive("jLinkProgress", (e, theMessage) => {
-      // console.log("JLINK-->>", theMessage);
       setTermText(oldTerm => [...oldTerm, theMessage.split("\r\n")]);
     });
 
     window.api.receive("passFail", (e, result) => setPassFail(result));
+    window.api.receive("refreshFW", () => getVersions());
 
     return () => {
       window.api.removeAllListeners("jLinkProgress");
       window.api.removeAllListeners("passFail");
+      window.api.removeAllListeners("refreshFW");
     };
   }, [getVersions]);
 
-  // Keep div scrolled to bottom
   useEffect(() => {
-    termRef.current.scrollTop = termRef.current.scrollHeight;
+    if (termRef.current) {
+      termRef.current.scrollTop = termRef.current.scrollHeight;
+    }
   }, [termText]);
 
   return (
@@ -96,12 +146,38 @@ export default function Device() {
             <Typography variant="h6" component="div">
               {location.state.boardName}
             </Typography>
+            <FormControl
+              size="small"
+              sx={{
+                marginLeft: "15px",
+                minWidth: "260px",
+                backgroundColor: "white",
+                borderRadius: "4px",
+              }}
+            >
+              <Select
+                value={selectedVersion}
+                onChange={event => setSelectedVersion(event.target.value)}
+                displayEmpty
+              >
+                {versionOptions.map(option => (
+                  <MenuItem key={option.version} value={option.version}>
+                    {option.version}
+                  </MenuItem>
+                ))}
+                <MenuItem value={LOCAL_FIRMWARE_OPTION}>
+                  Local firmware file...
+                </MenuItem>
+              </Select>
+            </FormControl>
             <Typography
               component="div"
               variant="body2"
-              sx={{ flexGrow: 1, marginLeft: "15px" }}
+              sx={{ flexGrow: 1, marginLeft: "12px" }}
             >
-              {ver}
+              {selectedVersion === LOCAL_FIRMWARE_OPTION
+                ? "Using local firmware file"
+                : `Current: ${ver}`}
             </Typography>
             <Button
               sx={{ mr: 1 }}
@@ -124,6 +200,11 @@ export default function Device() {
             overflow: "hidden",
           }}
         >
+          {uiMessage ? (
+            <Typography color="error" sx={{ margin: "6px 0px" }}>
+              {uiMessage}
+            </Typography>
+          ) : null}
           <div>
             <table style={{ width: "100%" }} cellSpacing="0" cellPadding="0">
               <tbody>

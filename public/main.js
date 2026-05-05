@@ -5,7 +5,7 @@ const { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync, readFileS
 const { execFile, execSync } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
-const { setBase, setAuth, setToken, downloadFirmware, getLines, getLine } = require('@wbm-tek/version-manager')
+const { setBase, setToken, downloadFirmware, getLines, getLine } = require('@wbm-tek/version-manager')
 const bootLog = (message) => {
     console.log(`[${new Date().toISOString()}] ${message}`)
 }
@@ -14,15 +14,8 @@ const apiOrigin = (process.env.WBM_API_ORIGIN || process.env.WBM_SERVER_URL || '
     .replace(/\/$/, '')
     .replace(/\/api$/, '')
 setBase(apiOrigin)
-if (process.env.WBM_API_TOKEN) {
-    setToken(process.env.WBM_API_TOKEN)
-    bootLog('Version manager auth: using WBM_API_TOKEN')
-} else if (process.env.WBM_USERNAME && process.env.WBM_PASSWORD) {
-    setAuth(process.env.WBM_USERNAME, process.env.WBM_PASSWORD)
-    bootLog('Version manager auth: using username/password')
-} else {
-    bootLog('Version manager auth: no credentials configured')
-}
+setToken('wbm_9ee2b7ea828bf7d30b472887b41ead204705ac2c41de28cee78c438dafdb21ca')
+bootLog('Version manager auth: token configured')
 
 const { autoUpdater } = require('electron-updater');
 const { join } = require('path');
@@ -904,7 +897,9 @@ const checkAndInstallDriverAsync = () => {
     }
 
     bootLog('J-Link driver missing; starting async driver install')
-    execFile(path.join(workingDirectory, 'USBDriver', 'InstDrivers.exe'), [], {}, (error, stdout, stderr) => {
+    const elevatePath = path.join(process.resourcesPath, 'elevate.exe')
+    const driverPath = path.join(workingDirectory, 'USBDriver', 'InstDrivers.exe')
+    execFile(elevatePath, [driverPath], {}, (error, stdout, stderr) => {
         if (error) {
             console.error(error)
             sendToRenderer('message', error.toString())
@@ -1103,7 +1098,9 @@ app.on('ready', () => {
         const numOfBoards = boards.length
 
         for (let i = 0; i < numOfBoards; i++) {
-            const deviceFiles = readdirSync(join(pathToDevices, boards[i].name))
+            const devicePath = join(pathToDevices, boards[i].name)
+            if (!existsSync(devicePath)) { boards[i].ver = 'no fw'; continue }
+            const deviceFiles = readdirSync(devicePath)
             const binFile = deviceFiles.filter(file => file.includes('.bin'))
             if (binFile.length === 0) boards[i].ver = "no fw"
             else {
