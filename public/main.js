@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const url = require('url')
 const { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync, readFileSync } = require('fs')
-const { execFile } = require('child_process');
+const { execFile, execSync } = require('child_process');
 const wbmUsbDevice = require('wbm-usb-device')
 const tests = require('./tests')
 const { setBase, setAuth, setToken, downloadFirmware, getLines, getLine } = require('@wbm-tek/version-manager')
@@ -36,9 +36,115 @@ let skipInitMemory = false
 let updateCheckInterval = null
 let fwCheckInterval = null
 let shuttingDown = false
-const activeJLinkProcesses = new Set()
+const activeJLinkProcesses = new Map()
 let firmwareCatalogByDevice = {}
 let firmwareCatalogUpdatedAt = null
+const JLINK_SOFT_KILL_GRACE_MS = 500
+const JLINK_KILL_TIMEOUT_MS = 2500
+const SHUTDOWN_FORCE_EXIT_MS = 5000
+
+const truncateForLog = (text = '', max = 300) => {
+    const clean = String(text || '').replace(/\s+/g, ' ').trim()
+    if (clean.length <= max) return clean
+    return `${clean.slice(0, max)}...`
+}
+
+const trackJLinkChild = (child, context) => {
+    const meta = {
+        context,
+        startedAt: Date.now(),
+        pid: child?.pid || null,
+        killRequested: false
+    }
+    activeJLinkProcesses.set(child, meta)
+    bootLog(`[JLink:${context}] Started pid=${meta.pid || 'unknown'} active=${activeJLinkProcesses.size}`)
+
+    child.once('exit', (code, signal) => {
+        bootLog(`[JLink:${context}] Exit pid=${meta.pid || 'unknown'} code=${String(code)} signal=${String(signal)}`)
+    })
+
+    child.once('error', (error) => {
+        bootLog(`[JLink:${context}] Child error pid=${meta.pid || 'unknown'} message=${truncateForLog(error?.message || error)}`)
+    })
+
+    return meta
+}
+
+const untrackJLinkChild = (child, reason) => {
+    const meta = activeJLinkProcesses.get(child)
+    if (!meta) return
+    const durationMs = Date.now() - meta.startedAt
+    bootLog(`[JLink:${meta.context}] Removed pid=${meta.pid || 'unknown'} reason=${reason} duration=${durationMs}ms active=${Math.max(activeJLinkProcesses.size - 1, 0)}`)
+    activeJLinkProcesses.delete(child)
+}
+
+const terminateTrackedJLinkChild = async (child) => {
+    const meta = activeJLinkProcesses.get(child) || { context: 'unknown', pid: child?.pid || null }
+    meta.killRequested = true
+
+    let settled = false
+    const settle = (result) => {
+        if (settled) return
+        settled = true
+        untrackJLinkChild(child, result)
+    }
+
+    const waitForExit = new Promise((resolve) => {
+        const onExit = (code, signal) => {
+            settle(`exit:${String(code)}:${String(signal)}`)
+            resolve({ status: 'exit', code, signal })
+        }
+        const onError = (error) => {
+            settle(`error:${truncateForLog(error?.message || error, 100)}`)
+            resolve({ status: 'error', error })
+        }
+        child.once('exit', onExit)
+        child.once('error', onError)
+    })
+
+    const hardKillTimer = setTimeout(() => {
+        try {
+            if (meta.pid) {
+                bootLog(`[JLink:${meta.context}] Hard-kill requested pid=${meta.pid}`)
+                execSync(`taskkill /PID ${meta.pid} /F /T`, { stdio: 'ignore' })
+            } else {
+                child.kill('SIGKILL')
+            }
+        } catch (error) {
+            bootLog(`[JLink:${meta.context}] Hard-kill failed pid=${meta.pid || 'unknown'} message=${truncateForLog(error?.message || error)}`)
+        }
+    }, JLINK_SOFT_KILL_GRACE_MS)
+
+    try {
+        bootLog(`[JLink:${meta.context}] Soft-stop requested pid=${meta.pid || 'unknown'}`)
+        child.kill()
+    } catch (error) {
+        bootLog(`[JLink:${meta.context}] Soft-stop failed pid=${meta.pid || 'unknown'} message=${truncateForLog(error?.message || error)}`)
+    }
+
+    const outcome = await Promise.race([
+        waitForExit,
+        new Promise((resolve) => {
+            setTimeout(() => {
+                settle('timeout')
+                resolve({ status: 'timeout' })
+            }, JLINK_KILL_TIMEOUT_MS)
+        })
+    ])
+
+    clearTimeout(hardKillTimer)
+
+    if (outcome.status === 'timeout' && meta.pid) {
+        try {
+            bootLog(`[JLink:${meta.context}] Timeout fallback kill pid=${meta.pid}`)
+            execSync(`taskkill /PID ${meta.pid} /F /T`, { stdio: 'ignore' })
+        } catch (error) {
+            bootLog(`[JLink:${meta.context}] Timeout fallback failed pid=${meta.pid} message=${truncateForLog(error?.message || error)}`)
+        }
+    }
+
+    return { context: meta.context, pid: meta.pid, outcome: outcome.status }
+}
 
 
 // PATHS to files and folders
@@ -52,15 +158,24 @@ const pathToDevices = path.join(pathToFiles, 'devices')
 
 let notifications = []
 
+const sendToRenderer = (channel, ...args) => {
+    if (!win || win.isDestroyed() || !win.webContents || win.webContents.isDestroyed()) {
+        bootLog(`[IPC] Skipped renderer send channel=${channel} (window unavailable)`)
+        return false
+    }
+    win.webContents.send(channel, ...args)
+    return true
+}
+
 
 const addNotification = (data) => {
     notifications.push(data)
-    win.webContents.send('notifications', notifications)
+    sendToRenderer('notifications', notifications)
 }
 
 const clearAllNotifications = () => {
     notifications = []
-    win.webContents.send('notifications', notifications)
+    sendToRenderer('notifications', notifications)
 }
 
 const extractVersionFromFirmwareName = (fileName = '') => {
@@ -165,9 +280,9 @@ const ensureFirmwarePathForVersion = async (folder, version) => {
 
     const outputPath = join(pathToDevices, folder, target.name)
     if (!existsSync(outputPath)) {
-        win.webContents.send('jLinkProgress', `Downloading firmware ${version}`)
+        sendToRenderer('jLinkProgress', `Downloading firmware ${version}`)
         await downloadFirmware(target.id, outputPath)
-        win.webContents.send('jLinkProgress', `Downloaded firmware ${version}`)
+        sendToRenderer('jLinkProgress', `Downloaded firmware ${version}`)
         target.isLocal = true
     }
 
@@ -220,8 +335,8 @@ const handleLine = async (line) => {
                         await downloadFirmware(currentFirmware.id, join(pathToDevice, currentFirmware.name))
                         console.log("Updated Firmware", currentFirmware)
                         addNotification({ type: "fw updated", message: element.name + " FW updated to " + currentFirmware.version })
-                        win.webContents.send('updatedFirmware', currentFirmware)
-                        win.webContents.send('refreshFW', currentFirmware)
+                        sendToRenderer('updatedFirmware', currentFirmware)
+                        sendToRenderer('refreshFW', currentFirmware)
                     } catch (error) {
                         console.log(error)
                     }
@@ -286,16 +401,26 @@ checkFolderStructure()
 const getProgrammer = async () => {
     return new Promise((resolve, reject) => {
         const args = [
-            '-CommanderScript "' + pathToFile + '"',
-            '-ExitOnError 1'
+            '-CommanderScript',
+            pathToFile,
+            '-ExitOnError',
+            '1'
         ]
 
         let programmer = false
+        let settled = false
+
+        const settle = (resolver, value, child, reason) => {
+            if (settled) return
+            settled = true
+            untrackJLinkChild(child, reason)
+            resolver(value)
+        }
 
         writeFileSync(pathToFile, 'ShowEmuList USB\r\nexit', 'utf8')
 
-        let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
-        activeJLinkProcesses.add(child)
+        let child = execFile(pathToJLink, [...args], { cwd: workingDirectory })
+        trackJLinkChild(child, 'getProgrammer')
 
         child.stdout.on('data', (data) => {
             let theLine = data.toString()
@@ -305,12 +430,16 @@ const getProgrammer = async () => {
         })
 
         child.on('close', (code) => {
-            activeJLinkProcesses.delete(child)
             if (code === 0 && programmer !== false) {
-                resolve(programmer)
+                settle(resolve, programmer, child, `close:${String(code)}`)
             } else {
-                reject(programmer)
+                settle(reject, programmer, child, `close:${String(code)}`)
             }
+        })
+
+        child.on('error', (error) => {
+            const message = 'Failed to launch J-Link process: ' + (error?.message || error)
+            settle(reject, new Error(message), child, 'error')
         })
     })
 }
@@ -321,23 +450,29 @@ const getProgrammer = async () => {
  * @param {string} filePath - Path to firmware file to program.
  */
 const loadFirmware = (filePath) => {
-    win.webContents.send('programming')
-    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+    sendToRenderer('programming')
+    sendToRenderer('message', "Packaged resource path" + process.resourcesPath)
 
     const args = [
-        '-device ATSAMD21G18',
-        '-if SWD',
-        '-speed 4000',
-        '-autoconnect 1',
-        '-CommanderScript "' + pathToFile + '"',
-        '-ExitOnError 1'
+        '-device',
+        'ATSAMD21G18',
+        '-if',
+        'SWD',
+        '-speed',
+        '4000',
+        '-autoconnect',
+        '1',
+        '-CommanderScript',
+        pathToFile,
+        '-ExitOnError',
+        '1'
     ]
 
-    win.webContents.send('message', pathToFile)
+    sendToRenderer('message', pathToFile)
     let pathToFirmware = filePath
     let pathToBoot = path.join(workingDirectory, "firmware", 'boot.bin')
     let pathToOutput = path.join(pathToFiles, 'output.bin')
-    win.webContents.send('message', workingDirectory)
+    sendToRenderer('message', workingDirectory)
 
     //console.log('pathToFirm', pathToFirmware)
 
@@ -348,51 +483,78 @@ const loadFirmware = (filePath) => {
 
     return new Promise(async (resolve, reject) => {
         let programmerSerial = null
+        let settled = false
+
+        const settle = (resolver, value, reason, child) => {
+            if (settled) return
+            settled = true
+            if (child) {
+                untrackJLinkChild(child, reason)
+            }
+            resolver(value)
+        }
+
         try {
             programmerSerial = await getProgrammer()
         } catch (error) {
             console.log("NO PROGRAMMER")
-            win.webContents.send('programmingComplete')
-            reject(["J-Link Programmer not connected"])
-            throw error
+            sendToRenderer('programmingComplete')
+            settle(reject, ["J-Link Programmer not connected"], 'programmer-missing')
+            return
         }
 
-        win.webContents.send('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
-        let out = null
+        sendToRenderer('jLinkProgress', "Programming MCU -- FW: " + path.parse(filePath).name)
         writeFileSync(pathToOutput, Buffer.concat([boot, firm]))
         writeFileSync(pathToFile, 'loadFile "' + pathToOutput + '"\r\nUSB ' + programmerSerial + '\r\nrnh\r\nexit', 'utf8')
 
-        let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
-        activeJLinkProcesses.add(child)
+        let child = execFile(pathToJLink, [...args], { cwd: workingDirectory })
+        trackJLinkChild(child, 'loadFirmware')
+
+        let sawScriptComplete = false
+        let failureReason = null
+        let stdoutLog = ''
+        let stderrLog = ''
 
         child.stdout.on('data', (data) => {
-            //win.webContents.send('jLinkProgress', data)
-            //console.log("HEREXXX", data.toString())
-            if (data.toString().includes('Cannot connect to target.')) out = "FAILED: Could not communicate with MicroController"
-            else if (
-                data.toString().includes('FAILED: Cannot connect to J-Link') ||
-                data.toString().includes('ERROR while parsing value for usb')
-            ) out = "FAILED: Cannot connect to J-Link Programmer"
-            else if (data.toString().includes('Script processing completed.')) out = "Programming Successful"
-            else out = data.toString()
+            const text = data.toString()
+            stdoutLog += text
+            if (text.includes('Cannot connect to target.')) {
+                failureReason = 'FAILED: Could not communicate with MicroController'
+            } else if (
+                text.includes('FAILED: Cannot connect to J-Link') ||
+                text.includes('ERROR while parsing value for usb')
+            ) {
+                failureReason = 'FAILED: Cannot connect to J-Link Programmer'
+            }
+            if (text.includes('Script processing completed.')) {
+                sawScriptComplete = true
+            }
+        })
+
+        child.stderr.on('data', (data) => {
+            stderrLog += data.toString()
         })
 
         child.on('close', (code) => {
-            activeJLinkProcesses.delete(child)
-            if (out === "Programming Successful") {
-                win.webContents.send('jLinkProgress', out)
-                resolve(out)
+            if (code === 0 && sawScriptComplete && !failureReason) {
+                sendToRenderer('jLinkProgress', 'Programming Successful')
+                settle(resolve, 'Programming Successful', `close:${String(code)}`, child)
             } else {
-                win.webContents.send('jLinkProgress', out)
-                win.webContents.send('programmingComplete')
-                reject(out)
+                const exitText = typeof code === 'number'
+                    ? `FAILED: J-Link exited with code ${code}`
+                    : 'FAILED: J-Link terminated unexpectedly'
+                const detail = failureReason || exitText
+                const lastOutput = (stdoutLog + '\n' + stderrLog).trim().split(/\r?\n/).slice(-3).join(' | ')
+                const failMsg = lastOutput ? `${detail} | ${lastOutput}` : detail
+                sendToRenderer('jLinkProgress', failMsg)
+                sendToRenderer('programmingComplete')
+                settle(reject, failMsg, `close:${String(code)}`, child)
             }
         })
 
         child.on('error', (error) => {
-            activeJLinkProcesses.delete(child)
-            console.log('Error in J-LINK programming')
-            reject(new Error('Error in J-LINK programming'))
+            sendToRenderer('programmingComplete')
+            settle(reject, new Error('Error in J-LINK programming: ' + (error?.message || error)), 'error', child)
         })
     })
 }
@@ -445,7 +607,7 @@ const waitForDevice = async (device) => {
     }
 
     return new Promise((resolve, reject) => {
-        win.webContents.send('jLinkProgress', "Waiting to detect Device")
+        sendToRenderer('jLinkProgress', "Waiting to detect Device")
 
         let settled = false
         const onDevList = (list) => {
@@ -509,34 +671,45 @@ const programAndTest = async (folder, firmwarePath = null) => {
         await loadFirmware(selectedFirmwarePath)
         console.log("Firmware Loaded")
 
-        // Wait for programmed device to be detected
+        // Wait for programmed device to be detected (retry up to 3 times — some boards
+        // e.g. control panel take longer for the CDC stack to come up after a flash)
         console.log('Waiting for device to connect')
-        deviceIsOnPort = await waitForDevice(folder)
+        const maxWaitAttempts = 3
+        for (let waitAttempt = 1; waitAttempt <= maxWaitAttempts; waitAttempt++) {
+            try {
+                deviceIsOnPort = await waitForDevice(folder)
+                break
+            } catch (e) {
+                if (waitAttempt === maxWaitAttempts) throw e
+                console.log(`waitForDevice attempt ${waitAttempt} timed out, retrying...`)
+                sendToRenderer('jLinkProgress', `Waiting to detect Device (attempt ${waitAttempt + 1})`)
+            }
+        }
         console.log('Device detected at', deviceIsOnPort)
-        win.webContents.send('jLinkProgress', 'Device detected at ' + deviceIsOnPort)
+        sendToRenderer('jLinkProgress', 'Device detected at ' + deviceIsOnPort)
 
         // Run Tests on device
         console.log("Run Tests")
-        win.webContents.send('jLinkProgress', 'TESTING')
+        sendToRenderer('jLinkProgress', 'TESTING')
         let testResults = await tests.runTests(folder, skipInitMemory, deviceIsOnPort)
         testResults.forEach(result => {
             console.log(result)
-            win.webContents.send('jLinkProgress', result)
+            sendToRenderer('jLinkProgress', result)
         })
 
-        win.webContents.send('passFail', 'pass')
-        win.webContents.send('jLinkProgress', '----------------------------')
-        win.webContents.send('jLinkProgress', "Ready for delivery!! :)")
-        win.webContents.send('programmingComplete')
+        sendToRenderer('passFail', 'pass')
+        sendToRenderer('jLinkProgress', '----------------------------')
+        sendToRenderer('jLinkProgress', "Ready for delivery!! :)")
+        sendToRenderer('programmingComplete')
 
     } catch (error) {
         console.log(error)
-        win.webContents.send('passFail', 'fail')
+        sendToRenderer('passFail', 'fail')
         const messages = Array.isArray(error)
             ? error
             : [error?.message || String(error)]
-        messages.forEach(msg => win.webContents.send('jLinkProgress', msg))
-        win.webContents.send('programmingComplete')
+        messages.forEach(msg => sendToRenderer('jLinkProgress', msg))
+        sendToRenderer('programmingComplete')
         throw error
     }
 }
@@ -544,55 +717,85 @@ const programAndTest = async (folder, firmwarePath = null) => {
 const chipErase = async () => {
     return new Promise(async (resolve, reject) => {
         let programmerSerial = null
+        let settled = false
+
+        const settle = (resolver, value, reason, child) => {
+            if (settled) return
+            settled = true
+            if (child) {
+                untrackJLinkChild(child, reason)
+            }
+            resolver(value)
+        }
+
         try {
             programmerSerial = await getProgrammer()
         } catch (error) {
             console.log("NO PROGRAMMER")
-            win.webContents.send('programmingComplete')
-            reject("J-Link Programmer not connected")
-            throw error
+            sendToRenderer('programmingComplete')
+            settle(reject, "J-Link Programmer not connected", 'programmer-missing')
+            return
         }
 
-        win.webContents.send('chipErasing')
-        win.webContents.send('jLinkProgress', "Erasing Chip")
+        sendToRenderer('chipErasing')
+        sendToRenderer('jLinkProgress', "Erasing Chip")
         console.log("Chip Erase")
-        win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+        sendToRenderer('message', "Packaged resource path" + process.resourcesPath)
 
         const args = [
-            '-device ATSAMD21G18',
-            '-if SWD',
-            '-speed 4000',
-            '-autoconnect 1',
-            '-CommanderScript "' + pathToFile + '"',
-            '-ExitOnError 1'
+            '-device',
+            'ATSAMD21G18',
+            '-if',
+            'SWD',
+            '-speed',
+            '4000',
+            '-autoconnect',
+            '1',
+            '-CommanderScript',
+            pathToFile,
+            '-ExitOnError',
+            '1'
         ]
 
-        win.webContents.send('message', pathToFile)
-        win.webContents.send('message', workingDirectory)
+        sendToRenderer('message', pathToFile)
+        sendToRenderer('message', workingDirectory)
 
-        writeFileSync(pathToFile, "erase\r\nUSB " + programmerSerial + "rnh\r\nexit", 'utf8')
+        writeFileSync(pathToFile, "erase\r\nUSB " + programmerSerial + "\r\nrnh\r\nexit", 'utf8')
 
         console.log("Execute erase command")
         let outErr = 'CHIP ERASE ERROR'
-        let child = execFile(pathToJLink, [...args], { shell: true, cwd: workingDirectory })
-        activeJLinkProcesses.add(child)
+        let stderrLog = ''
+        let child = execFile(pathToJLink, [...args], { cwd: workingDirectory })
+        trackJLinkChild(child, 'chipErase')
 
         child.stdout.on('data', (data) => {
-            //win.webContents.send('jLinkProgress', data)
+            //sendToRenderer('jLinkProgress', data)
             if (data.toString().includes('Cannot connect to target.')) outErr = "FAILED: Could not communicate with MicroController"
             //console.log("SDATTA", data.toString())
         })
 
+        child.stderr.on('data', (data) => {
+            stderrLog += data.toString()
+        })
+
         child.on('close', (code) => {
-            activeJLinkProcesses.delete(child)
             console.log("close Erase")
-            if (code === 0) {
-                resolve('Chip erase complete')
+            if (code === 0 && !stderrLog.toLowerCase().includes('error')) {
+                settle(resolve, 'Chip erase complete', `close:${String(code)}`, child)
             } else {
+                const detail = typeof code === 'number' ? `${outErr} (exit code ${code})` : outErr
+                const stderrTail = stderrLog.trim().split(/\r?\n/).slice(-2).join(' | ')
+                const failMsg = stderrTail ? `${detail} | ${stderrTail}` : detail
                 console.log("ERROR CODE", code)
-                reject(outErr)
+                settle(reject, failMsg, `close:${String(code)}`, child)
             }
-            win.webContents.send('chipEraseComplete')
+            sendToRenderer('chipEraseComplete')
+        })
+
+        child.on('error', (error) => {
+            const failMsg = 'FAILED: Unable to start J-Link erase process: ' + (error?.message || error)
+            sendToRenderer('chipEraseComplete')
+            settle(reject, failMsg, 'error', child)
         })
     })
 }
@@ -632,29 +835,37 @@ function createWindow() {
     })
 }
 
-const shutdownApp = () => {
-    if (shuttingDown) return
+const shutdownApp = async () => {
+    if (shuttingDown) {
+        bootLog('Shutdown already in progress, ignoring duplicate call')
+        return
+    }
     shuttingDown = true
     bootLog('Shutdown started')
 
-    if (activeJLinkProcesses.size > 0) {
-        bootLog(`Killing ${activeJLinkProcesses.size} active JLink process(es)`)
-        for (const jlinkChild of activeJLinkProcesses) {
-            try {
-                jlinkChild.kill()
-                if (jlinkChild.pid) {
-                    require('child_process').execSync(`taskkill /PID ${jlinkChild.pid} /F /T`, { stdio: 'ignore' })
-                }
-            } catch (e) { /* already exited */ }
-        }
-        activeJLinkProcesses.clear()
+    const forceExitTimer = setTimeout(() => {
+        bootLog('Shutdown timeout reached, forcing process exit')
+        process.exit(0)
+    }, SHUTDOWN_FORCE_EXIT_MS)
+
+    const trackedChildren = [...activeJLinkProcesses.keys()]
+    if (trackedChildren.length > 0) {
+        bootLog(`Terminating ${trackedChildren.length} tracked J-Link process(es)`) 
+        const outcomes = await Promise.all(trackedChildren.map((child) => terminateTrackedJLinkChild(child)))
+        const summary = outcomes.map((item) => `${item.context}:${item.pid || 'unknown'}=${item.outcome}`).join(', ')
+        bootLog(`Tracked J-Link termination completed: ${summary}`)
+    } else {
+        bootLog('No tracked J-Link processes to terminate')
     }
 
     try {
         const tests = require('./tests')
         if (typeof tests.closePort === 'function') {
-            tests.closePort().catch(() => {})
-            bootLog('Serial port closed')
+            await Promise.race([
+                tests.closePort().catch(() => { }),
+                new Promise((resolve) => setTimeout(resolve, 800))
+            ])
+            bootLog('Serial port close requested')
         }
     } catch (e) { /* tests not loaded */ }
 
@@ -678,11 +889,6 @@ const shutdownApp = () => {
         bootLog('stopMonitoring not available on this wbm-usb-device version')
     }
 
-    const forceExitTimer = setTimeout(() => {
-        bootLog('Shutdown timeout reached, forcing process exit')
-        process.exit(0)
-    }, 3000)
-
     clearTimeout(forceExitTimer)
     bootLog('Exiting app')
     app.exit(0)
@@ -692,24 +898,24 @@ const checkAndInstallDriverAsync = () => {
     const drvChk = path.join('C:', 'Windows', 'System32', 'DriverStore', 'FileRepository', 'jlink.inf_amd64_7c645d531403fb66', 'jlink.inf')
 
     if (existsSync(drvChk)) {
-        win.webContents.send('message', 'File Exists')
+        sendToRenderer('message', 'File Exists')
         bootLog('J-Link driver already installed')
         return
     }
 
     bootLog('J-Link driver missing; starting async driver install')
-    execFile(path.join(workingDirectory, 'USBDriver', 'InstDrivers.exe'), [], { shell: true }, (error, stdout, stderr) => {
+    execFile(path.join(workingDirectory, 'USBDriver', 'InstDrivers.exe'), [], {}, (error, stdout, stderr) => {
         if (error) {
             console.error(error)
-            win.webContents.send('message', error.toString())
-            if (stderr) win.webContents.send('message', stderr.toString())
+            sendToRenderer('message', error.toString())
+            if (stderr) sendToRenderer('message', stderr.toString())
             bootLog(`Driver install failed: ${error.message}`)
             return
         }
 
         if (stdout) {
             console.log(stdout)
-            win.webContents.send('message', stdout.toString())
+            sendToRenderer('message', stdout.toString())
         }
         bootLog('Driver install completed')
     })
@@ -722,17 +928,22 @@ const createListeners = () => {
 
     ipcMain.on('loadFirmware', (e, firmware) => {
         console.log("Load", firmware)
-        loadFirmware(firmware)
+        loadFirmware(firmware).catch((error) => {
+            const errorMessage = error?.message || String(error)
+            sendToRenderer('jLinkProgress', errorMessage)
+            sendToRenderer('programmingComplete')
+            console.error('loadFirmware failed:', error)
+        })
     })
 
     ipcMain.on('chipErase', async () => {
         try {
             let result = await chipErase()
-            win.webContents.send('jLinkProgress', result)
-            win.webContents.send('chipEraseComplete')
+            sendToRenderer('jLinkProgress', result)
+            sendToRenderer('chipEraseComplete')
         } catch (error) {
-            win.webContents.send('jLinkProgress', error)
-            win.webContents.send('chipEraseComplete')
+            sendToRenderer('jLinkProgress', error)
+            sendToRenderer('chipEraseComplete')
         }
     })
 
@@ -745,7 +956,7 @@ const createListeners = () => {
     ipcMain.on('programAndTestSelection', (e, payload) => {
         const folder = payload?.folder
         if (!folder) {
-            win.webContents.send('jLinkProgress', 'No board selected for programming')
+            sendToRenderer('jLinkProgress', 'No board selected for programming')
             return
         }
 
@@ -768,9 +979,9 @@ const createListeners = () => {
             .then((firmwarePath) => programAndTest(folder, firmwarePath))
             .catch((error) => {
                 const errorMessage = error?.message || String(error)
-                win.webContents.send('jLinkProgress', errorMessage)
-                win.webContents.send('programmingComplete')
-                win.webContents.send('passFail', 'fail')
+                sendToRenderer('jLinkProgress', errorMessage)
+                sendToRenderer('programmingComplete')
+                sendToRenderer('passFail', 'fail')
                 console.error('programAndTestSelection failed:', error)
             })
     })
@@ -801,7 +1012,7 @@ const createListeners = () => {
         return skipInitMemory
     })
 
-    win.webContents.send('message', "Packaged resource path" + process.resourcesPath)
+    sendToRenderer('message', "Packaged resource path" + process.resourcesPath)
 
     setTimeout(checkAndInstallDriverAsync, 0)
 }
@@ -830,7 +1041,7 @@ app.on('ready', () => {
         if (firstReactReady) {
             firstReactReady = false
             bootLog('React is ready (first event)')
-            win.webContents.send('message', 'React Is Ready')
+            sendToRenderer('message', 'React Is Ready')
 
 
             if (listenersApplied === false) {
@@ -843,29 +1054,29 @@ app.on('ready', () => {
 
                 wbmUsbDevice.on('progress', (list) => {
                     console.log('progress', list)
-                    win.webContents.send('jLinkProgress', list)
+                    sendToRenderer('jLinkProgress', list)
                 })
 
-                tests.on('message', (message) => win.webContents.send('jLinkProgress', message))
+                tests.on('message', (message) => sendToRenderer('jLinkProgress', message))
             }
 
             if (app.isPackaged) {
-                win.webContents.send('message', 'App is packaged')
+                sendToRenderer('message', 'App is packaged')
 
-                autoUpdater.on('checking-for-update', () => win.webContents.send('checkingForUpdates'))
-                autoUpdater.on('update-available', () => win.webContents.send('updateAvailable'))
-                autoUpdater.on('update-not-available', () => win.webContents.send('noUpdate'))
-                autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { win.webContents.send('updateDownloaded', e) })
-                autoUpdater.on('download-progress', (e) => { win.webContents.send('updateDownloadProgress', e.percent) })
+                autoUpdater.on('checking-for-update', () => sendToRenderer('checkingForUpdates'))
+                autoUpdater.on('update-available', () => sendToRenderer('updateAvailable'))
+                autoUpdater.on('update-not-available', () => sendToRenderer('noUpdate'))
+                autoUpdater.on('update-downloaded', (e, updateInfo, f, g) => { sendToRenderer('updateDownloaded', e) })
+                autoUpdater.on('download-progress', (e) => { sendToRenderer('updateDownloadProgress', e.percent) })
                 autoUpdater.on('error', (e, message) => {
                     console.log("updateError", e, message)
-                    win.webContents.send('updateError', message)
+                    sendToRenderer('updateError', message)
                 })
 
 
                 // Check for new version of app every 30 minutes
                 updateCheckInterval = setInterval(() => {
-                    win.webContents.send('message', 'Interval Check for update')
+                    sendToRenderer('message', 'Interval Check for update')
                     autoUpdater.checkForUpdatesAndNotify()
                 }, 30 * 60 * 1000);
 
@@ -913,7 +1124,7 @@ app.on('ready', () => {
     ipcMain.on('clearNotification', (e, not) => {
         console.log("Clear Notification", not)
         notifications = notifications.filter(notification => JSON.stringify(notification) !== JSON.stringify(not))
-        win.webContents.send('notifications', notifications)
+        sendToRenderer('notifications', notifications)
     })
 
     ipcMain.on('clearAllNotifications', () => {
@@ -926,7 +1137,10 @@ app.on('ready', () => {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-    shutdownApp()
+    shutdownApp().catch((error) => {
+        bootLog(`Shutdown failed: ${truncateForLog(error?.message || error)}`)
+        process.exit(1)
+    })
 })
 
 
