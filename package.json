@@ -13,8 +13,8 @@
     "@serialport/parser-byte-length": "^13.0.0",
     "@wbm-tek/version-manager": "^0.0.82",
     "electron-updater": "^6.8.3",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-router": "^7.16.0",
     "react-router-dom": "^7.16.0",
     "serialport": "^13.0.0",
@@ -37,12 +37,12 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.2",
-    "electron": "42.3.0",
+    "electron": "42.3.3",
     "electron-builder": "^26.8.1",
     "electron-vite": "^5.0.0",
-    "eslint": "^10.4.0",
+    "eslint": "^10.4.1",
     "typescript": "^6.0.3",
-    "vite": "^8.0.14"
+    "vite": "^8.0.16"
   },
   "repository": {
     "type": "git",
