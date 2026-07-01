@@ -9,14 +9,14 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.1.1",
-    "@mui/material": "^9.1.1",
+    "@mui/material": "^9.1.2",
     "@serialport/parser-byte-length": "^13.0.0",
     "@wbm-tek/version-manager": "^0.0.82",
     "electron-updater": "^6.8.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router": "^7.18.0",
-    "react-router-dom": "^7.18.0",
+    "react-router": "^8.1.0",
+    "react-router-dom": "^7.18.1",
     "serialport": "^13.0.0",
     "wbm-usb-device": "^0.2.60",
     "web-vitals": "^5.3.0"
@@ -36,13 +36,13 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.2",
-    "electron": "42.4.0",
+    "@vitejs/plugin-react": "^6.0.3",
+    "electron": "43.0.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
-    "eslint": "^10.5.0",
+    "eslint": "^10.6.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.16"
+    "vite": "^8.1.2"
   },
   "repository": {
     "type": "git",
