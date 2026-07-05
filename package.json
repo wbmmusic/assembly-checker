@@ -8,8 +8,8 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^9.1.1",
-    "@mui/material": "^9.1.2",
+    "@mui/icons-material": "^9.2.0",
+    "@mui/material": "^9.2.0",
     "@serialport/parser-byte-length": "^13.0.0",
     "@wbm-tek/version-manager": "^0.0.82",
     "electron-updater": "^6.8.9",
@@ -42,7 +42,7 @@
     "electron-vite": "^5.0.0",
     "eslint": "^10.6.0",
     "typescript": "^6.0.3",
-    "vite": "^8.1.2"
+    "vite": "^8.1.3"
   },
   "repository": {
     "type": "git",
