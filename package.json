@@ -13,13 +13,13 @@
     "@serialport/parser-byte-length": "^13.0.0",
     "@wbm-tek/version-manager": "^0.0.82",
     "electron-updater": "^6.8.9",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "react-router": "^8.2.0",
-    "react-router-dom": "^7.18.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.3.0",
+    "react-router-dom": "^7.18.2",
     "serialport": "^13.0.0",
     "wbm-usb-device": "^0.2.60",
-    "web-vitals": "^5.3.0"
+    "web-vitals": "^6.0.1"
   },
   "scripts": {
     "dev": "electron-vite dev",
@@ -36,13 +36,13 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.3",
-    "electron": "43.1.1",
+    "@vitejs/plugin-react": "^6.0.5",
+    "electron": "43.2.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
-    "eslint": "^10.7.0",
+    "eslint": "^10.8.0",
     "typescript": "^7.0.2",
-    "vite": "^8.1.5"
+    "vite": "^8.2.0"
   },
   "repository": {
     "type": "git",
