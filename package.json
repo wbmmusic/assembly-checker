@@ -12,7 +12,7 @@
     "@mui/material": "^9.5.0",
     "@serialport/parser-byte-length": "^13.0.0",
     "@wbm-tek/version-manager": "^0.0.82",
-    "electron-updater": "^6.8.9",
+    "electron-updater": "^6.8.11",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^8.5.0",
@@ -36,12 +36,12 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.2",
-    "electron": "44.9.0",
-    "electron-builder": "^26.15.3",
+    "electron": "45.0.0",
+    "electron-builder": "^26.18.0",
     "electron-vite": "^6.0.0",
     "eslint": "^10.13.0",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4"
+    "vite": "^8.3.5"
   },
   "repository": {
     "type": "git",
